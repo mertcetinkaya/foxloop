@@ -57,6 +57,8 @@
       min-height: calc(100vh - 40px);
       align-items: center;
       justify-content: center;
+      padding: 20px;
+      box-sizing: border-box;
     }
     .section {
       padding: 30px 20px;
@@ -78,18 +80,6 @@
       color: #666;
       max-width: 800px;
       margin: 0 auto;
-    }
-    .contact-content {
-      font-size: 16px;
-      line-height: 1.6;
-      color: #666;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 20px;
-      justify-content: center;
-    }
-    .contact-item {
-      white-space: nowrap;
     }
     .product {
       margin-bottom: 30px;
@@ -114,6 +104,7 @@
       margin-top: 15px;
       flex-wrap: wrap;
       justify-content: center;
+      width: 100%;
     }
     .product-images img {
       width: 180px;
@@ -122,19 +113,132 @@
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
       cursor: pointer;
       transition: transform 0.2s;
+      max-width: 100%;
     }
     .product-images img:hover {
       transform: scale(1.02);
     }
+    .contact-content {
+      font-size: 16px;
+      line-height: 1.6;
+      color: #666;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .contact-item {
+      white-space: nowrap;
+    }
+    .footer {
+      background-color: white;
+      padding: 15px 20px;
+      box-shadow: 0 -2px 4px rgba(0,0,0,0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: auto;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .footer-left {
+      font-size: 14px;
+      color: #666;
+    }
+    .footer-right {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .footer-link {
+      font-size: 14px;
+      color: #666;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .footer-link:hover {
+      color: #4CAF50;
+    }
+
+    /* Responsive styles */
     @media (max-width: 768px) {
+      .header {
+        padding: 8px 10px;
+      }
+      .nav-links {
+        gap: 10px;
+        margin-left: 10px;
+      }
+      .nav-links a {
+        font-size: 12px;
+      }
       .main-content {
-        overflow-x: auto;
+        margin-top: 50px;
+        padding: 10px;
       }
       .section {
-        min-width: 768px;
+        padding: 20px 10px;
+      }
+      .section-title {
+        font-size: 28px;
+        margin-bottom: 20px;
+      }
+      .product-title {
+        font-size: 20px;
+      }
+      .product-images {
+        gap: 10px;
+      }
+      .product-images img {
+        width: calc(50% - 10px);
+        min-width: 140px;
+      }
+      .contact-content {
+        flex-direction: column;
+        gap: 10px;
+        align-items: center;
+      }
+      .contact-item {
+        white-space: normal;
+        text-align: center;
+      }
+      .footer {
+        padding: 10px;
+        flex-direction: column;
+        text-align: center;
+      }
+      .footer-right {
+        justify-content: center;
       }
     }
-    
+
+    @media (max-width: 480px) {
+      .header {
+        flex-direction: column;
+        padding: 8px;
+      }
+      .nav-links {
+        margin-left: 0;
+        margin-top: 8px;
+        width: 100%;
+        justify-content: center;
+      }
+      .section-title {
+        font-size: 24px;
+      }
+      .product-images img {
+        width: 100%;
+      }
+      .footer {
+        padding: 8px;
+      }
+      .footer-link {
+        font-size: 12px;
+      }
+    }
+
     /* Modal styles */
     .modal {
       display: none;
@@ -148,13 +252,11 @@
       justify-content: center;
       align-items: center;
     }
-    
     .modal-content {
       max-width: 90%;
       max-height: 90vh;
       object-fit: contain;
     }
-    
     .close {
       position: absolute;
       top: 15px;
@@ -164,7 +266,6 @@
       font-weight: bold;
       cursor: pointer;
     }
-
     .nav-arrow {
       position: absolute;
       color: #f1f1f1;
@@ -175,45 +276,15 @@
       user-select: none;
       transition: 0.3s;
     }
-
     .nav-arrow:hover {
       background-color: rgba(255, 255, 255, 0.1);
       border-radius: 50%;
     }
-
     .prev {
       left: 15px;
     }
-
     .next {
       right: 15px;
-    }
-
-    .footer {
-      background-color: white;
-      padding: 15px 20px;
-      box-shadow: 0 -2px 4px rgba(0,0,0,0.1);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-top: auto;
-    }
-    .footer-left {
-      font-size: 14px;
-      color: #666;
-    }
-    .footer-right {
-      display: flex;
-      gap: 20px;
-    }
-    .footer-link {
-      font-size: 14px;
-      color: #666;
-      text-decoration: none;
-      cursor: pointer;
-    }
-    .footer-link:hover {
-      color: #4CAF50;
     }
   </style>
 </head>
@@ -279,8 +350,8 @@
   <div class="footer">
     <div class="footer-left">© 2025 Foxloop</div>
     <div class="footer-right">
-      <span class="footer-link">Privacy Policy</span>
-      <span class="footer-link">Terms & Conditions</span>
+      <a href="privacypolicy.html" class="footer-link">Privacy Policy</a>
+      <a href="terms.html" class="footer-link">Terms & Conditions</a>
     </div>
   </div>
 
