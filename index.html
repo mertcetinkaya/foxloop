@@ -105,6 +105,12 @@
       color: #666;
       margin-bottom: 15px;
     }
+    .slide-instruction {
+      font-size: 12px;
+      color: #888;
+      margin-bottom: 10px;
+      display: none;
+    }
     .product-images {
       display: flex;
       gap: 15px;
@@ -198,10 +204,20 @@
       }
       .product-images {
         gap: 10px;
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        justify-content: flex-start;
+        padding-bottom: 10px;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+      }
+      .product-images::-webkit-scrollbar {
+        display: none;
       }
       .product-images img {
-        width: calc(50% - 10px);
-        min-width: 160px;
+        width: 220px;
+        min-width: 220px;
+        flex-shrink: 0;
       }
       .contact-content {
         flex-direction: column;
@@ -219,6 +235,9 @@
       }
       .footer-right {
         justify-content: center;
+      }
+      .slide-instruction {
+        display: block;
       }
     }
 
@@ -260,6 +279,9 @@
       justify-content: center;
       align-items: center;
     }
+    .modal-open {
+      overflow: hidden;
+    }
     .modal-content {
       max-width: 90%;
       max-height: 90vh;
@@ -283,10 +305,15 @@
       padding: 16px;
       user-select: none;
       transition: 0.3s;
-    }
-    .nav-arrow:hover {
-      background-color: rgba(255, 255, 255, 0.1);
       border-radius: 50%;
+    }
+    .nav-arrow:active {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+    @media (hover: hover) {
+      .nav-arrow:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+      }
     }
     .prev {
       left: 15px;
@@ -317,6 +344,7 @@
       <div class="product">
         <h3 class="product-title">Omnira</h3>
         <p class="product-description">Your AI companion</p>
+        <div class="slide-instruction">slide to move among images</div>
         <div class="product-images">
           <img src="product_photos/omnira1.jpeg" alt="Omnira 1">
           <img src="product_photos/omnira2.jpeg" alt="Omnira 2">
@@ -327,6 +355,7 @@
       <div class="product">
         <h3 class="product-title">Astrolog</h3>
         <p class="product-description">Your AI astrolog</p>
+        <div class="slide-instruction">slide to move among images</div>
         <div class="product-images">
           <img src="product_photos/astrolog1.jpeg" alt="Astrolog 1">
           <img src="product_photos/astrolog2.jpeg" alt="Astrolog 2">
@@ -337,6 +366,7 @@
       <div class="product">
         <h3 class="product-title">Photoroman</h3>
         <p class="product-description">Your AI photoroman generator</p>
+        <div class="slide-instruction">slide to move among images</div>
         <div class="product-images">
           <img src="product_photos/photoroman1.jpeg" alt="Photoroman 1">
           <img src="product_photos/photoroman2.jpeg" alt="Photoroman 2">
@@ -403,6 +433,7 @@
     images.forEach(img => {
       img.onclick = function() {
         modal.style.display = "flex";
+        document.body.classList.add('modal-open');
         modalImg.src = this.src;
         
         // Get all images from the same product
@@ -455,14 +486,30 @@
     // Close modal when clicking the close button
     closeBtn.onclick = function() {
       modal.style.display = "none";
+      document.body.classList.remove('modal-open');
     }
 
     // Close modal when clicking outside the image
     window.onclick = function(event) {
       if (event.target == modal) {
         modal.style.display = "none";
+        document.body.classList.remove('modal-open');
       }
     }
+
+    // Touch event handling for nav arrows
+    function handleTouchStart(e) {
+      e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+    }
+
+    function handleTouchEnd(e) {
+      e.target.style.backgroundColor = '';
+    }
+
+    prevBtn.addEventListener('touchstart', handleTouchStart);
+    prevBtn.addEventListener('touchend', handleTouchEnd);
+    nextBtn.addEventListener('touchstart', handleTouchStart);
+    nextBtn.addEventListener('touchend', handleTouchEnd);
   </script>
 </body>
 </html>
