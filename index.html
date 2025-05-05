@@ -215,14 +215,16 @@
       .product-images::-webkit-scrollbar {
         display: none;
       }
-      .product-images img {
-        width: 180px;
-        min-width: 180px;
+      .product-images img:not(.modal-content) {
+        width: 300px;
+        min-width: 300px;
         flex-shrink: 0;
       }
-      .modal .product-images img {
-        width: 220px;
-        min-width: 220px;
+      /* Ensure modal image stays large */
+      .modal-content {
+        width: auto;
+        max-width: 90%;
+        max-height: 90vh;
       }
       .contact-content {
         flex-direction: column;
