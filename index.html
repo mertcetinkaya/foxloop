@@ -34,6 +34,7 @@
       font-weight: bold;
       color: #4CAF50;
       white-space: nowrap;
+      cursor: pointer;
     }
     .nav-links {
       display: flex;
@@ -215,9 +216,13 @@
         display: none;
       }
       .product-images img {
+        width: 180px;
+        min-width: 180px;
+        flex-shrink: 0;
+      }
+      .modal .product-images img {
         width: 220px;
         min-width: 220px;
-        flex-shrink: 0;
       }
       .contact-content {
         flex-direction: column;
@@ -325,7 +330,7 @@
 </head>
 <body>
   <div class="header">
-    <div class="logo">Foxloop</div>
+    <div class="logo" id="homeLogo">Foxloop</div>
     <div class="nav-links">
       <a href="#about">About Us</a>
       <a href="#products">Products</a>
@@ -354,7 +359,7 @@
       
       <div class="product">
         <h3 class="product-title">Astrolog</h3>
-        <p class="product-description">Your AI astrolog</p>
+        <p class="product-description">Your AI astrologer</p>
         <div class="slide-instruction">slide to move among images</div>
         <div class="product-images">
           <img src="product_photos/astrolog1.jpeg" alt="Astrolog 1">
@@ -413,6 +418,14 @@
             block: 'start'
           });
         }
+      });
+    });
+
+    // Add click handler for the logo
+    document.getElementById('homeLogo').addEventListener('click', function() {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
       });
     });
 
