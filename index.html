@@ -177,6 +177,22 @@
       color: #4CAF50;
     }
 
+    /* App Store and Play Store Button Styles */
+    .store-buttons {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 15px;
+    }
+    .bn45, .bn46 {
+      width: 150px;
+      height: 50px;
+      transition: transform 0.2s;
+    }
+    .bn45:hover, .bn46:hover {
+      transform: scale(1.05);
+    }
+
     /* Responsive styles */
     @media (max-width: 768px) {
       .header {
@@ -357,6 +373,11 @@
           <img src="product_photos/omnira2.jpeg" alt="Omnira 2">
           <img src="product_photos/omnira3.jpeg" alt="Omnira 3">
         </div>
+        <div class="store-buttons">
+          <a href="https://apps.apple.com/tr/app/omnira/id6738738771" target="_blank">
+            <img class="bn46" src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="Download on the App Store">
+          </a>
+        </div>
       </div>
       
       <div class="product">
@@ -368,6 +389,11 @@
           <img src="product_photos/astrolog2.jpeg" alt="Astrolog 2">
           <img src="product_photos/astrolog3.jpeg" alt="Astrolog 3">
         </div>
+        <div class="store-buttons">
+          <a href="#" target="_blank">
+            <img class="bn46" src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="Download on the App Store">
+          </a>
+        </div>
       </div>
       
       <div class="product">
@@ -378,6 +404,25 @@
           <img src="product_photos/photoroman1.jpeg" alt="Photoroman 1">
           <img src="product_photos/photoroman2.jpeg" alt="Photoroman 2">
           <img src="product_photos/photoroman3.jpeg" alt="Photoroman 3">
+        </div>
+      </div>
+      
+      <div class="product">
+        <h3 class="product-title">Brain Castles</h3>
+        <p class="product-description">Unleash Your Mind with Brain Castles!</p>
+        <div class="slide-instruction">slide to move among images</div>
+        <div class="product-images">
+          <img src="product_photos/braincastles1.jpeg" alt="Brain Castles 1">
+          <img src="product_photos/braincastles2.jpeg" alt="Brain Castles 2">
+          <img src="product_photos/braincastles3.jpeg" alt="Brain Castles 3">
+        </div>
+        <div class="store-buttons">
+          <a href="https://apps.apple.com/tr/app/braincastles/id6502232819?platform=iphone" target="_blank">
+            <img class="bn46" src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="Download on the App Store">
+          </a>
+          <a href="https://play.google.com/store/apps/details?id=com.SophiaGames.BrainCastles&hl=tr" target="_blank">
+            <img class="bn45" src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/Google_Play_Store_badge_EN.svg/2560px-Google_Play_Store_badge_EN.svg.png" alt="Get it on Google Play">
+          </a>
         </div>
       </div>
     </div>
