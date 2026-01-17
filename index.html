@@ -293,7 +293,7 @@
     }
 
     .section-label {
-      font-size: 14px;
+      font-size: 20px;
       font-weight: 600;
       color: var(--primary);
       text-transform: uppercase;
@@ -809,7 +809,7 @@
     }
 
     .carousel-header .section-label {
-      font-size: 13px;
+      font-size: 20px;
       color: var(--primary);
       text-transform: uppercase;
       letter-spacing: 3px;
@@ -873,7 +873,7 @@
 
     .carousel-info .product-tagline {
       font-size: 18px;
-      color: var(--primary-light);
+      color: var(--text-muted);
       margin-bottom: 16px;
     }
 
@@ -1003,6 +1003,13 @@
       display: grid;
     }
 
+    .emmaverse-standalone {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 60px;
+      align-items: center;
+    }
+
     @keyframes fadeSlide {
       from {
         opacity: 0;
@@ -1019,21 +1026,49 @@
         padding: 40px 30px;
       }
 
-      .carousel-slide {
-        grid-template-columns: 1fr;
-        gap: 40px;
+      .carousel-slide.active,
+      .emmaverse-standalone {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
         text-align: center;
       }
 
-      .carousel-visual {
-        order: 1;
+      .carousel-slide.active .carousel-info,
+      .emmaverse-standalone .carousel-info {
+        display: contents;
       }
 
-      .carousel-info {
+      .carousel-slide.active .carousel-info .product-logo,
+      .emmaverse-standalone .carousel-info .product-logo {
+        order: 1;
+        margin: 0 auto;
+      }
+
+      .carousel-slide.active .carousel-info .product-name,
+      .emmaverse-standalone .carousel-info .product-name {
         order: 2;
       }
 
-      .carousel-info .store-buttons {
+      .carousel-slide.active .carousel-info .product-tagline,
+      .emmaverse-standalone .carousel-info .product-tagline {
+        order: 3;
+      }
+
+      .carousel-slide.active .carousel-visual,
+      .emmaverse-standalone .carousel-visual {
+        order: 4;
+        margin: 10px 0;
+      }
+
+      .carousel-slide.active .carousel-info .product-description,
+      .emmaverse-standalone .carousel-info .product-description {
+        order: 5;
+      }
+
+      .carousel-slide.active .carousel-info .store-buttons,
+      .emmaverse-standalone .carousel-info .store-buttons {
+        order: 6;
         justify-content: center;
       }
 
@@ -1127,40 +1162,32 @@
     </div>
   </section>
 
-  <!-- Products Section -->
-  <section class="products-section" id="products">
-    <div class="products-header">
-      <span class="section-label fade-in">Our Apps</span>
+  <!-- EmmaVerse Section -->
+  <section class="app-carousel-section" id="products">
+    <div class="carousel-header fade-in">
+      <span class="section-label">Our Apps</span>
     </div>
 
-    <!-- EmmaVerse - Flagship App -->
-    <div class="product-showcase">
-      <div class="product-inner">
-        <div class="product-info fade-in">
-          <img src="product_photos/emmaverse_logo.png" alt="EmmaVerse Logo" class="product-logo">
-          <h3 class="product-name">EmmaVerse</h3>
-          <p class="product-tagline">AI Companions & Social Games</p>
-          <p class="product-description">Step into the world of Emma and friends. Connect with real people and AI companions, share your emotions, play engaging games, and become part of a vibrant community. EmmaVerse brings together social connection and AI in one unforgettable experience.</p>
-          <div class="store-buttons">
-            <a href="https://apps.apple.com/tr/app/emmaverse/id6752908760" target="_blank">
-              <img class="store-btn" src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="Download on the App Store">
-            </a>
+    <div class="carousel-container">
+      <div class="carousel-card">
+        <div class="emmaverse-standalone">
+          <div class="carousel-visual">
+            <img src="product_photos/emmaverse1.png" alt="EmmaVerse App" class="carousel-phone">
           </div>
-        </div>
-        <div class="product-visual fade-in">
-          <div class="phone-secondary left">
-            <img src="product_photos/emmaverse2.png" alt="EmmaVerse Screenshot">
-          </div>
-          <div class="phone-mockup">
-            <img src="product_photos/emmaverse1.png" alt="EmmaVerse App">
-          </div>
-          <div class="phone-secondary right">
-            <img src="product_photos/emmaverse3.png" alt="EmmaVerse Screenshot">
+          <div class="carousel-info">
+            <img src="product_photos/emmaverse_logo.png" alt="EmmaVerse Logo" class="product-logo">
+            <h3 class="product-name">EmmaVerse</h3>
+            <p class="product-tagline">AI Companions & Social Games</p>
+            <p class="product-description">Step into the world of Emma and friends. Connect with real people and AI companions, share your emotions, play engaging games, and become part of a vibrant community. EmmaVerse brings together social connection and AI in one unforgettable experience.</p>
+            <div class="store-buttons">
+              <a href="https://apps.apple.com/tr/app/emmaverse/id6752908760" target="_blank">
+                <img class="store-btn" src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="Download on the App Store">
+              </a>
+            </div>
           </div>
         </div>
       </div>
     </div>
-
   </section>
 
   <!-- App Carousel Section -->
@@ -1272,7 +1299,7 @@
   <!-- Contact Section -->
   <section class="contact-section" id="contact">
     <div class="contact-content fade-in">
-      <span class="section-label">Get In Touch</span>
+      <span class="section-label">Contact</span>
       <p class="contact-subtitle">Have a question or want to collaborate? We'd love to hear from you.</p>
       
       <div class="contact-details">
