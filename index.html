@@ -888,7 +888,7 @@
       justify-content: center;
       align-items: center;
       gap: 20px;
-      flex-wrap: wrap;
+      flex-wrap: nowrap;
     }
 
     .app-selector-item {
@@ -897,6 +897,7 @@
       transition: all 0.3s ease;
       padding: 0;
       margin-bottom: 24px;
+      flex-shrink: 0;
     }
 
     .app-selector-item:hover {
@@ -1048,13 +1049,33 @@
         gap: 12px;
       }
 
-      .app-selector-item {
-        padding: 10px;
+      .app-selector-item img {
+        width: 44px;
+        height: 44px;
+      }
+
+      .carousel-nav-arrow {
+        width: 32px;
+        height: 32px;
+        font-size: 18px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .app-selector {
+        gap: 8px;
       }
 
       .app-selector-item img {
-        width: 48px;
-        height: 48px;
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+      }
+
+      .carousel-nav-arrow {
+        width: 28px;
+        height: 28px;
+        font-size: 16px;
       }
     }
   </style>
@@ -1111,11 +1132,8 @@
           <p class="product-tagline">AI Companions & Social Games</p>
           <p class="product-description">Step into the world of Emma and friends. Connect with real people and AI companions, share your emotions, play engaging games, and become part of a vibrant community. EmmaVerse brings together social connection and AI in one unforgettable experience.</p>
           <div class="store-buttons">
-            <a href="#" target="_blank">
+            <a href="https://apps.apple.com/tr/app/emmaverse/id6752908760" target="_blank">
               <img class="store-btn" src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="Download on the App Store">
-            </a>
-            <a href="#" target="_blank">
-              <img class="store-btn" src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/Google_Play_Store_badge_EN.svg/2560px-Google_Play_Store_badge_EN.svg.png" alt="Get it on Google Play">
             </a>
           </div>
         </div>
@@ -1211,9 +1229,6 @@
             <div class="store-buttons">
               <a href="https://apps.apple.com/tr/app/braincastles/id6502232819?platform=iphone" target="_blank">
                 <img class="store-btn" src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="Download on the App Store">
-              </a>
-              <a href="https://play.google.com/store/apps/details?id=com.SophiaGames.BrainCastles&hl=tr" target="_blank">
-                <img class="store-btn" src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/Google_Play_Store_badge_EN.svg/2560px-Google_Play_Store_badge_EN.svg.png" alt="Get it on Google Play">
               </a>
             </div>
           </div>
