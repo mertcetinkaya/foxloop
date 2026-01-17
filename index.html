@@ -4,472 +4,1313 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Foxloop - Where AI becomes mobile</title>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    body {
-      font-family: 'Arial', sans-serif;
+    * {
       margin: 0;
       padding: 0;
-      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-      color: #333;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-    .header {
-      padding: 10px 15px;
-      background-color: white;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      position: fixed;
-      width: 100%;
-      top: 0;
-      z-index: 100;
       box-sizing: border-box;
-    }
-    .logo {
-      font-size: 18px;
-      font-weight: bold;
-      color: #4CAF50;
-      white-space: nowrap;
-      cursor: pointer;
-    }
-    .nav-links {
-      display: flex;
-      gap: 15px;
-      margin-left: 20px;
-    }
-    .nav-links a {
-      text-decoration: none;
-      color: #333;
-      font-weight: 500;
-      transition: color 0.3s;
-      font-size: 13px;
-      white-space: nowrap;
-    }
-    .nav-links a:hover {
-      color: #4CAF50;
-    }
-    .main-content {
-      margin-top: 40px;
-      display: flex;
-      flex-direction: column;
-      min-height: calc(100vh - 40px);
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-      box-sizing: border-box;
-    }
-    .section {
-      padding: 30px 20px;
-      max-width: 1200px;
-      width: 100%;
-      box-sizing: border-box;
-      text-align: center;
-    }
-    .section-title {
-      font-size: 36px;
-      color: #2c3e50;
-      margin-bottom: 30px;
-      font-weight: 600;
-      letter-spacing: -0.5px;
-    }
-    .about-content {
-      font-size: 18px;
-      line-height: 1.4;
-      color: #666;
-      max-width: 800px;
-      margin: 0 auto;
-    }
-    .product {
-      margin-bottom: 30px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    .product-title {
-      font-family: 'Montserrat', sans-serif;
-      font-size: 24px;
-      color: #2c3e50;
-      margin-bottom: 15px;
-      font-weight: 700;
-      letter-spacing: 1px;
-      text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
-    }
-    .product-title::after {
-      display: none;
-    }
-    .product-description {
-      font-size: 16px;
-      color: #666;
-      margin-bottom: 15px;
-    }
-    .slide-instruction {
-      font-size: 12px;
-      color: #888;
-      margin-bottom: 10px;
-      display: none;
-    }
-    .product-images {
-      display: flex;
-      gap: 15px;
-      margin-top: 15px;
-      flex-wrap: wrap;
-      justify-content: center;
-      width: 100%;
-    }
-    .product-images img {
-      width: 220px;
-      height: auto;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      cursor: pointer;
-      transition: transform 0.2s;
-      max-width: 100%;
-      object-fit: contain;
-    }
-    .product-images img:hover {
-      transform: scale(1.02);
-    }
-    .contact-content {
-      font-size: 16px;
-      line-height: 1.6;
-      color: #666;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 20px;
-      justify-content: center;
-      max-width: 800px;
-      margin: 0 auto;
-    }
-    .contact-item {
-      white-space: nowrap;
-    }
-    .footer {
-      background-color: white;
-      padding: 15px 20px;
-      box-shadow: 0 -2px 4px rgba(0,0,0,0.1);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-top: auto;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-    .footer-left {
-      font-size: 14px;
-      color: #666;
-    }
-    .footer-right {
-      display: flex;
-      gap: 20px;
-      flex-wrap: wrap;
-    }
-    .footer-link {
-      font-size: 14px;
-      color: #666;
-      text-decoration: none;
-      cursor: pointer;
-    }
-    .footer-link:hover {
-      color: #4CAF50;
     }
 
-    /* App Store and Play Store Button Styles */
-    .store-buttons {
+    :root {
+      --primary: #FF6B35;
+      --primary-light: #FF8F5C;
+      --secondary: #1a1a2e;
+      --dark: #0f0f1a;
+      --darker: #080810;
+      --text-light: #ffffff;
+      --text-muted: #a0a0b0;
+      --gradient-1: linear-gradient(135deg, #FF6B35 0%, #f7931e 100%);
+      --gradient-hero: linear-gradient(180deg, #1a1a2e 0%, #0f0f1a 50%, #080810 100%);
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background-color: var(--dark);
+      color: var(--text-light);
+      overflow-x: hidden;
+    }
+
+    /* Navigation */
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      padding: 20px 60px;
       display: flex;
-      gap: 10px;
-      justify-content: center;
-      margin-top: 15px;
+      justify-content: space-between;
+      align-items: center;
+      transition: all 0.4s ease;
+      background: transparent;
     }
-    .bn45, .bn46 {
-      width: 150px;
-      height: 50px;
-      transition: transform 0.2s;
+
+    .navbar.scrolled {
+      background: rgba(15, 15, 26, 0.95);
+      backdrop-filter: blur(20px);
+      padding: 15px 60px;
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
     }
-    .bn45:hover, .bn46:hover {
+
+    .nav-logo {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--primary);
+      text-decoration: none;
+      letter-spacing: -1px;
+      transition: transform 0.3s ease;
+    }
+
+    .nav-logo:hover {
       transform: scale(1.05);
     }
 
-    /* Responsive styles */
-    @media (max-width: 768px) {
-      .header {
-        padding: 8px 10px;
+    .nav-links {
+      display: flex;
+      gap: 40px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: var(--text-light);
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 16px;
+      position: relative;
+      transition: color 0.3s ease;
+    }
+
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: -5px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--gradient-1);
+      transition: width 0.3s ease;
+    }
+
+    .nav-links a:hover {
+      color: var(--primary);
+    }
+
+    .nav-links a:hover::after {
+      width: 100%;
+    }
+
+    /* Hero Section */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      position: relative;
+      background: var(--gradient-hero);
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: 
+        radial-gradient(ellipse at 20% 80%, rgba(255, 107, 53, 0.15) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 20%, rgba(255, 143, 92, 0.1) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 50%, rgba(255, 107, 53, 0.05) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      max-width: 900px;
+      padding: 0 20px;
+    }
+
+    .hero-badge {
+      display: inline-block;
+      padding: 10px 24px;
+      background: rgba(255, 107, 53, 0.15);
+      border: 1px solid rgba(255, 107, 53, 0.3);
+      border-radius: 50px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--primary-light);
+      margin-bottom: 30px;
+      animation: fadeInUp 0.8s ease forwards;
+      opacity: 0;
+    }
+
+    .hero-title {
+      font-size: clamp(48px, 8vw, 100px);
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 24px;
+      letter-spacing: -3px;
+      animation: fadeInUp 0.8s ease 0.2s forwards;
+      opacity: 0;
+    }
+
+    .hero-title span {
+      background: var(--gradient-1);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-subtitle {
+      font-size: clamp(18px, 2.5vw, 24px);
+      font-weight: 300;
+      color: var(--text-muted);
+      max-width: 600px;
+      margin: 0 auto 40px;
+      line-height: 1.6;
+      animation: fadeInUp 0.8s ease 0.4s forwards;
+      opacity: 0;
+    }
+
+    .hero-cta {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      animation: fadeInUp 0.8s ease 0.6s forwards;
+      opacity: 0;
+    }
+
+    .btn-primary {
+      padding: 16px 36px;
+      background: var(--gradient-1);
+      color: white;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 16px;
+      border-radius: 50px;
+      transition: all 0.3s ease;
+      box-shadow: 0 10px 30px rgba(255, 107, 53, 0.3);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 15px 40px rgba(255, 107, 53, 0.4);
+    }
+
+    .btn-secondary {
+      padding: 16px 36px;
+      background: transparent;
+      color: var(--text-light);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 16px;
+      border-radius: 50px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      transition: all 0.3s ease;
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      transform: translateY(-3px);
+    }
+
+    .hero-visual {
+      position: absolute;
+      bottom: -100px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 1400px;
+      height: 400px;
+      background: linear-gradient(to top, var(--darker) 0%, transparent 100%);
+      pointer-events: none;
+    }
+
+    .scroll-indicator {
+      position: absolute;
+      bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      animation: bounce 2s infinite;
+    }
+
+    .scroll-indicator span {
+      display: block;
+      width: 24px;
+      height: 40px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 20px;
+      position: relative;
+    }
+
+    .scroll-indicator span::before {
+      content: '';
+      position: absolute;
+      top: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 4px;
+      height: 8px;
+      background: var(--primary);
+      border-radius: 2px;
+      animation: scrollDown 2s infinite;
+    }
+
+    /* About Section */
+    .about-section {
+      padding: 120px 60px 60px;
+      background: var(--dark);
+      position: relative;
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 60px;
+    }
+
+    .section-label {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--primary);
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      margin-bottom: 20px;
+      display: block;
+    }
+
+    .section-title {
+      font-size: clamp(36px, 5vw, 56px);
+      font-weight: 700;
+      letter-spacing: -2px;
+      margin-bottom: 24px;
+    }
+
+    .about-content {
+      max-width: 800px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .about-text {
+      font-size: 20px;
+      line-height: 1.8;
+      color: var(--text-muted);
+    }
+
+    .about-text strong {
+      color: var(--text-light);
+      font-weight: 600;
+    }
+
+    /* Products Section */
+    .products-section {
+      padding: 20px 0 80px;
+      background: var(--dark);
+    }
+
+    .products-header {
+      text-align: center;
+      padding: 0 60px 0;
+    }
+
+    .products-header .section-label {
+      margin-bottom: 0;
+    }
+
+    .product-showcase {
+      padding: 80px 60px 40px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .product-inner {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+    }
+
+    .product-showcase:nth-child(even) .product-inner {
+      direction: rtl;
+    }
+
+    .product-showcase:nth-child(even) .product-inner > * {
+      direction: ltr;
+    }
+
+    .product-info {
+      padding: 20px 0;
+    }
+
+    .product-logo {
+      width: 80px;
+      height: 80px;
+      border-radius: 20px;
+      margin-bottom: 24px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .product-name {
+      font-size: 42px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      letter-spacing: -1px;
+    }
+
+    .product-tagline {
+      font-size: 20px;
+      color: var(--text-muted);
+      margin-bottom: 24px;
+      line-height: 1.6;
+    }
+
+    .product-description {
+      font-size: 16px;
+      color: var(--text-muted);
+      line-height: 1.8;
+      margin-bottom: 32px;
+    }
+
+    .store-buttons {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .store-btn {
+      height: 52px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .store-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .product-visual {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .phone-mockup {
+      position: relative;
+      width: 280px;
+      height: auto;
+      border-radius: 36px;
+      overflow: hidden;
+      box-shadow: 
+        0 50px 100px rgba(0, 0, 0, 0.5),
+        0 0 0 1px rgba(255, 255, 255, 0.1);
+      transform: perspective(1000px) rotateY(-5deg);
+      transition: transform 0.5s ease;
+    }
+
+    .product-showcase:nth-child(even) .phone-mockup {
+      transform: perspective(1000px) rotateY(5deg);
+    }
+
+    .phone-mockup img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .phone-secondary {
+      position: absolute;
+      width: 200px;
+      border-radius: 28px;
+      overflow: hidden;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
+      opacity: 0.7;
+      transition: all 0.5s ease;
+    }
+
+    .phone-secondary.left {
+      left: -60px;
+      top: 60px;
+      transform: perspective(1000px) rotateY(15deg);
+    }
+
+    .phone-secondary.right {
+      right: -60px;
+      bottom: 60px;
+      transform: perspective(1000px) rotateY(-15deg);
+    }
+
+    .phone-secondary img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    /* Contact Section */
+    .contact-section {
+      padding: 40px 60px 120px;
+      background: var(--dark);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .contact-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: 
+        radial-gradient(ellipse at 30% 70%, rgba(255, 107, 53, 0.1) 0%, transparent 50%),
+        radial-gradient(ellipse at 70% 30%, rgba(255, 143, 92, 0.08) 0%, transparent 50%);
+      pointer-events: none;
+    }
+
+    .contact-content {
+      position: relative;
+      z-index: 2;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .contact-title {
+      font-size: clamp(32px, 5vw, 48px);
+      font-weight: 700;
+      margin-bottom: 24px;
+      letter-spacing: -1px;
+    }
+
+    .contact-subtitle {
+      font-size: 18px;
+      color: var(--text-muted);
+      margin-bottom: 40px;
+      line-height: 1.6;
+    }
+
+    .contact-details {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 40px;
+      justify-content: center;
+      margin-bottom: 40px;
+    }
+
+    .contact-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--text-light);
+      font-size: 16px;
+    }
+
+    .contact-icon {
+      width: 44px;
+      height: 44px;
+      background: rgba(255, 107, 53, 0.15);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .contact-icon svg {
+      width: 20px;
+      height: 20px;
+      fill: var(--primary);
+    }
+
+    .contact-email {
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--primary);
+      text-decoration: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .contact-email:hover {
+      opacity: 0.8;
+    }
+
+    .contact-footer {
+      margin-top: 80px;
+      text-align: center;
+      position: relative;
+      z-index: 2;
+    }
+
+    .contact-footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .contact-footer-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 14px;
+      transition: color 0.3s ease;
+    }
+
+    .contact-footer-links a:hover {
+      color: var(--text-light);
+    }
+
+    .contact-footer-links span {
+      color: rgba(255, 255, 255, 0.2);
+    }
+
+    .contact-footer-copyright {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    /* Animations */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
       }
-      .nav-links {
-        gap: 10px;
-        margin-left: 10px;
+      to {
+        opacity: 1;
+        transform: translateY(0);
       }
-      .nav-links a {
-        font-size: 12px;
+    }
+
+    @keyframes bounce {
+      0%, 100% {
+        transform: translateX(-50%) translateY(0);
       }
-      .main-content {
-        margin-top: 50px;
-        padding: 10px;
+      50% {
+        transform: translateX(-50%) translateY(10px);
       }
-      .section {
-        padding: 20px 10px;
+    }
+
+    @keyframes scrollDown {
+      0% {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
       }
-      .section-title {
-        font-size: 28px;
-        margin-bottom: 20px;
+      100% {
+        opacity: 0;
+        transform: translateX(-50%) translateY(10px);
       }
-      .product-title {
-        font-size: 20px;
-      }
-      .product-images {
-        gap: 10px;
-        overflow-x: auto;
-        flex-wrap: nowrap;
-        justify-content: flex-start;
-        padding-bottom: 10px;
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: none;
-      }
-      .product-images::-webkit-scrollbar {
-        display: none;
-      }
-      .product-images img:not(.modal-content) {
-        width: 280px;
-        min-width: 280px;
-        flex-shrink: 0;
-      }
-      /* Ensure modal image stays large */
-      .modal-content {
-        width: auto;
-        max-width: 90%;
-        max-height: 90vh;
-      }
-      .contact-content {
-        flex-direction: column;
-        gap: 10px;
-        align-items: center;
-      }
-      .contact-item {
-        white-space: normal;
+    }
+
+    .fade-in {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: all 0.8s ease;
+    }
+
+    .fade-in.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Mobile Navigation */
+    .nav-toggle {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      padding: 10px;
+      z-index: 1001;
+    }
+
+    .nav-toggle span {
+      width: 25px;
+      height: 2px;
+      background: var(--text-light);
+      transition: all 0.3s ease;
+    }
+
+    .nav-toggle.active span:nth-child(1) {
+      transform: rotate(45deg) translate(5px, 5px);
+    }
+
+    .nav-toggle.active span:nth-child(2) {
+      opacity: 0;
+    }
+
+    .nav-toggle.active span:nth-child(3) {
+      transform: rotate(-45deg) translate(5px, -5px);
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .product-inner {
+        grid-template-columns: 1fr;
+        gap: 50px;
         text-align: center;
       }
-      .footer {
-        padding: 10px;
-        flex-direction: column;
-        text-align: center;
+
+      .product-showcase:nth-child(even) .product-inner {
+        direction: ltr;
       }
-      .footer-right {
+
+      .product-info {
+        order: 1;
+      }
+
+      .product-visual {
+        order: 2;
+      }
+
+      .store-buttons {
         justify-content: center;
       }
-      .slide-instruction {
-        display: block;
+
+      .phone-secondary {
+        display: none;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .navbar {
+        padding: 15px 24px;
+      }
+
+      .navbar.scrolled {
+        padding: 12px 24px;
+      }
+
+      .nav-toggle {
+        display: flex;
+      }
+
+      .nav-links {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        width: 70%;
+        max-width: 300px;
+        height: 100vh;
+        background: var(--darker);
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 30px;
+        transition: right 0.4s ease;
+        box-shadow: -10px 0 30px rgba(0, 0, 0, 0.3);
+      }
+
+      .nav-links.active {
+        right: 0;
+      }
+
+      .hero {
+        padding: 100px 20px;
+      }
+
+      .hero-cta {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .about-section,
+      .contact-section {
+        padding: 80px 24px;
+      }
+
+      .products-header {
+        padding: 0 24px 20px;
+      }
+
+      .product-showcase {
+        padding: 60px 24px;
+      }
+
+      .phone-mockup {
+        width: 240px;
+        transform: none;
+      }
+
+      .product-showcase:nth-child(even) .phone-mockup {
+        transform: none;
+      }
+
+      .contact-details {
+        flex-direction: column;
+        gap: 20px;
       }
     }
 
     @media (max-width: 480px) {
-      .header {
+      .hero-title {
+        letter-spacing: -1px;
+      }
+
+      .product-name {
+        font-size: 32px;
+      }
+
+      .store-buttons {
         flex-direction: column;
-        padding: 8px;
+        align-items: center;
       }
-      .nav-links {
-        margin-left: 0;
-        margin-top: 8px;
-        width: 100%;
-        justify-content: center;
-      }
-      .section-title {
-        font-size: 24px;
-      }
-      .product-images img {
-        width: 100%;
-      }
-      .footer {
-        padding: 8px;
-      }
-      .footer-link {
-        font-size: 12px;
+
+      .store-btn {
+        height: 48px;
       }
     }
 
-    /* Modal styles */
-    .modal {
-      display: none;
-      position: fixed;
-      z-index: 1000;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.9);
+
+    /* App Carousel Section */
+    .app-carousel-section {
+      padding: 5px 60px 100px;
+      background: var(--dark);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .carousel-header {
+      text-align: center;
+      margin-bottom: 40px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .carousel-header .section-label {
+      font-size: 13px;
+      color: var(--primary);
+      text-transform: uppercase;
+      letter-spacing: 3px;
+    }
+
+    .carousel-header h3 {
+      font-size: 36px;
+      font-weight: 700;
+      color: var(--text-light);
+      margin-top: 0;
+      letter-spacing: -1px;
+    }
+
+    .carousel-container {
+      max-width: 1000px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 2;
+    }
+
+    .carousel-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 32px;
+      padding: 50px;
+      margin-bottom: 50px;
+      transition: all 0.5s ease;
+    }
+
+    .carousel-visual {
+      display: flex;
       justify-content: center;
       align-items: center;
     }
-    .modal-open {
-      overflow: hidden;
+
+    .carousel-phone {
+      width: 240px;
+      border-radius: 32px;
+      box-shadow: 
+        0 40px 80px rgba(0, 0, 0, 0.5),
+        0 0 0 1px rgba(255, 255, 255, 0.1);
+      transition: all 0.5s ease;
     }
-    .modal-content {
-      max-width: 90%;
-      max-height: 90vh;
-      object-fit: contain;
+
+    .carousel-card:hover .carousel-phone {
+      transform: scale(1.03) translateY(-5px);
+      box-shadow: 
+        0 50px 100px rgba(0, 0, 0, 0.6),
+        0 0 0 1px rgba(255, 107, 53, 0.2);
     }
-    .close {
-      position: absolute;
-      top: 15px;
-      right: 35px;
-      color: #f1f1f1;
-      font-size: 40px;
-      font-weight: bold;
+
+    .carousel-info {
+      padding: 10px 0;
+    }
+
+    .carousel-info .product-logo {
+      width: 64px;
+      height: 64px;
+      border-radius: 16px;
+      margin-bottom: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .carousel-info .product-name {
+      font-size: 36px;
+      margin-bottom: 8px;
+      letter-spacing: -1px;
+    }
+
+    .carousel-info .product-tagline {
+      font-size: 18px;
+      color: var(--primary-light);
+      margin-bottom: 16px;
+    }
+
+    .carousel-info .product-description {
+      font-size: 16px;
+      line-height: 1.7;
+      margin-bottom: 28px;
+      color: var(--text-muted);
+    }
+
+    .carousel-info .store-buttons {
+      gap: 14px;
+    }
+
+    .carousel-info .store-btn {
+      height: 46px;
+    }
+
+    /* App Selector - Logo Navigation */
+    .app-selector {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .app-selector-item {
+      position: relative;
       cursor: pointer;
+      transition: all 0.3s ease;
+      padding: 12px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 2px solid transparent;
+      margin-bottom: 24px;
     }
-    .nav-arrow {
+
+    .app-selector-item:hover {
+      background: rgba(255, 255, 255, 0.06);
+      transform: translateY(-3px);
+    }
+
+    .app-selector-item.active {
+      border-color: var(--primary);
+      background: rgba(255, 107, 53, 0.1);
+    }
+
+    .app-selector-item img {
+      width: 56px;
+      height: 56px;
+      border-radius: 14px;
+      display: block;
+      transition: transform 0.3s ease;
+    }
+
+    .app-selector-item:hover img {
+      transform: scale(1.05);
+    }
+
+    .app-selector-item .selector-label {
       position: absolute;
-      color: #f1f1f1;
-      font-size: 40px;
-      font-weight: bold;
+      bottom: -24px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 11px;
+      color: var(--text-muted);
+      white-space: nowrap;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .app-selector-item:hover .selector-label,
+    .app-selector-item.active .selector-label {
+      opacity: 1;
+    }
+
+    .app-selector-item.active .selector-label {
+      color: var(--primary);
+    }
+
+    /* Carousel Navigation Arrows */
+    .carousel-nav-arrow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 24px;
       cursor: pointer;
-      padding: 16px;
-      user-select: none;
-      transition: 0.3s;
-      border-radius: 50%;
+      transition: all 0.3s ease;
+      padding: 0;
+      margin-top: -30px;
     }
-    .nav-arrow:active {
-      background-color: rgba(255, 255, 255, 0.1);
+
+    .carousel-nav-arrow:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--primary);
     }
-    @media (hover: hover) {
-      .nav-arrow:hover {
-        background-color: rgba(255, 255, 255, 0.1);
+
+    .carousel-nav-arrow:active {
+      transform: scale(0.95);
+    }
+
+    .carousel-nav-arrow.disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+
+    .carousel-nav-arrow.disabled:hover {
+      background: transparent;
+      color: var(--text-muted);
+    }
+
+    /* Carousel animations */
+    .carousel-slide {
+      display: none;
+      grid-template-columns: 280px 1fr;
+      gap: 60px;
+      align-items: center;
+      animation: fadeSlide 0.5s ease;
+    }
+
+    .carousel-slide.active {
+      display: grid;
+    }
+
+    @keyframes fadeSlide {
+      from {
+        opacity: 0;
+        transform: translateX(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
       }
     }
-    .prev {
-      left: 15px;
+
+    @media (max-width: 900px) {
+      .carousel-card {
+        padding: 40px 30px;
+      }
+
+      .carousel-slide {
+        grid-template-columns: 1fr;
+        gap: 40px;
+        text-align: center;
+      }
+
+      .carousel-visual {
+        order: 1;
+      }
+
+      .carousel-info {
+        order: 2;
+      }
+
+      .carousel-info .store-buttons {
+        justify-content: center;
+      }
+
+      .carousel-phone {
+        width: 200px;
+      }
     }
-    .next {
-      right: 15px;
+
+    @media (max-width: 768px) {
+      .app-carousel-section {
+        padding: 70px 24px;
+      }
+
+      .carousel-card {
+        padding: 30px 24px;
+      }
+
+      .carousel-info .product-name {
+        font-size: 28px;
+      }
+
+      .app-selector {
+        gap: 12px;
+      }
+
+      .app-selector-item {
+        padding: 10px;
+      }
+
+      .app-selector-item img {
+        width: 48px;
+        height: 48px;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="header">
-    <div class="logo" id="homeLogo">Foxloop</div>
-    <div class="nav-links">
-      <a href="#about">About Us</a>
-      <a href="#products">Products</a>
-      <a href="#contact">Contact</a>
+  <!-- Navigation -->
+  <nav class="navbar">
+    <a href="#" class="nav-logo">Foxloop</a>
+    <div class="nav-toggle" id="navToggle">
+      <span></span>
+      <span></span>
+      <span></span>
     </div>
-  </div>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#about">About Us</a></li>
+      <li><a href="#products">Our Apps</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </nav>
 
-  <div class="main-content">
-    <div class="section" id="about">
-      <h2 class="section-title">About Us</h2>
-      <p class="about-content">Where AI becomes mobile</p>
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-content">
+      <h1 class="hero-title">Where <span>AI</span> becomes<br>mobile</h1>
+      <p class="hero-subtitle">We craft intelligent mobile experiences that transform how people interact with technology. Based in Istanbul, building for the world.</p>
+    </div>
+  </section>
+
+  <!-- About Section -->
+  <section class="about-section" id="about">
+    <div class="section-header fade-in">
+      <span class="section-label">About Us</span>
+    </div>
+    <div class="about-content fade-in">
+      <p class="about-text">
+        <strong>Foxloop</strong> is dedicated to creating innovative mobile applications powered by artificial intelligence. We believe in building products that enhance everyday life through smart, intuitive experiences. Our passionate team in <strong>Istanbul</strong> and <strong>Bodrum</strong> works collaboratively to bring cutting-edge AI technology to millions of users worldwide.
+      </p>
+    </div>
+  </section>
+
+  <!-- Products Section -->
+  <section class="products-section" id="products">
+    <div class="products-header">
+      <span class="section-label fade-in">Our Apps</span>
     </div>
 
-    <div class="section" id="products">
-      <h2 class="section-title">Products</h2>
-      <div class="product">
-        <h3 class="product-title">Omnira</h3>
-        <img src="product_photos/omnira_logo.png" alt="Omnira Logo" style="width: 100px; height: 100px; border-radius: 10px;">
-        <p class="product-description">Your AI Companion</p>
-        <div class="slide-instruction">slide to move among images</div>
-        <div class="product-images">
-          <img src="product_photos/omnira1.png" alt="Omnira 1">
-          <img src="product_photos/omnira2.png" alt="Omnira 2">
-          <img src="product_photos/omnira3.png" alt="Omnira 3">
+    <!-- EmmaVerse - Flagship App -->
+    <div class="product-showcase">
+      <div class="product-inner">
+        <div class="product-info fade-in">
+          <img src="product_photos/emmaverse_logo.png" alt="EmmaVerse Logo" class="product-logo">
+          <h3 class="product-name">EmmaVerse</h3>
+          <p class="product-tagline">AI Companions & Social Games</p>
+          <p class="product-description">Step into the world of Emma and friends. Connect with real people and AI companions, share your emotions, play engaging games, and become part of a vibrant community. EmmaVerse brings together social connection and AI in one unforgettable experience.</p>
+          <div class="store-buttons">
+            <a href="#" target="_blank">
+              <img class="store-btn" src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="Download on the App Store">
+            </a>
+            <a href="#" target="_blank">
+              <img class="store-btn" src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/Google_Play_Store_badge_EN.svg/2560px-Google_Play_Store_badge_EN.svg.png" alt="Get it on Google Play">
+            </a>
+          </div>
         </div>
-        <div class="store-buttons">
-          <a href="https://apps.apple.com/tr/app/omnira/id6738738771" target="_blank">
-            <img class="bn46" src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="Download on the App Store">
-          </a>
+        <div class="product-visual fade-in">
+          <div class="phone-secondary left">
+            <img src="product_photos/emmaverse2.png" alt="EmmaVerse Screenshot">
+          </div>
+          <div class="phone-mockup">
+            <img src="product_photos/emmaverse1.png" alt="EmmaVerse App">
+          </div>
+          <div class="phone-secondary right">
+            <img src="product_photos/emmaverse3.png" alt="EmmaVerse Screenshot">
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- App Carousel Section -->
+  <section class="app-carousel-section">
+    <div class="carousel-header fade-in">
+      <h3>More AI-Powered Experiences</h3>
+    </div>
+
+    <div class="carousel-container">
+      <!-- Carousel Card - Shows one app at a time -->
+      <div class="carousel-card">
+        <!-- Omnira Slide -->
+        <div class="carousel-slide active" data-app="omnira">
+          <div class="carousel-visual">
+            <img src="product_photos/omnira1.png" alt="Omnira App" class="carousel-phone">
+          </div>
+          <div class="carousel-info">
+            <img src="product_photos/omnira_logo.png" alt="Omnira Logo" class="product-logo">
+            <h3 class="product-name">Omnira</h3>
+            <p class="product-tagline">Your AI Companion</p>
+            <p class="product-description">Experience the future of personal AI assistants. Omnira understands you, learns from you, and helps you navigate life with intelligent conversations and insights.</p>
+            <div class="store-buttons">
+              <a href="https://apps.apple.com/tr/app/omnira/id6738738771" target="_blank">
+                <img class="store-btn" src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="Download on the App Store">
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Lumira Slide -->
+        <div class="carousel-slide" data-app="lumira">
+          <div class="carousel-visual">
+            <img src="product_photos/lumira1.png" alt="Lumira App" class="carousel-phone">
+          </div>
+          <div class="carousel-info">
+            <img src="product_photos/lumira_logo.png" alt="Lumira Logo" class="product-logo">
+            <h3 class="product-name">Lumira</h3>
+            <p class="product-tagline">Your Soul & Life AI Coach</p>
+            <p class="product-description">Transform your life with personalized AI coaching. Lumira guides you through personal growth, emotional wellness, and life decisions with empathy and intelligence.</p>
+            <div class="store-buttons">
+              <a href="https://apps.apple.com/tr/app/lumira-soul-life-ai-coach/id6747150713" target="_blank">
+                <img class="store-btn" src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="Download on the App Store">
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- PhotoRoman Slide -->
+        <div class="carousel-slide" data-app="photoroman">
+          <div class="carousel-visual">
+            <img src="product_photos/photoroman1.png" alt="PhotoRoman App" class="carousel-phone">
+          </div>
+          <div class="carousel-info">
+            <img src="product_photos/photoroman_logo.png" alt="PhotoRoman Logo" class="product-logo">
+            <h3 class="product-name">PhotoRoman</h3>
+            <p class="product-tagline">AI Photo Novel Generator</p>
+            <p class="product-description">Turn your imagination into visual stories. PhotoRoman uses AI to generate stunning photo novels, bringing your creative narratives to life with beautiful imagery.</p>
+            <div class="store-buttons">
+              <a href="https://apps.apple.com/tr/app/photoroman/id6747092975" target="_blank">
+                <img class="store-btn" src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="Download on the App Store">
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- BrainCastles Slide -->
+        <div class="carousel-slide" data-app="braincastles">
+          <div class="carousel-visual">
+            <img src="product_photos/braincastles1_rotated.png" alt="BrainCastles App" class="carousel-phone">
+          </div>
+          <div class="carousel-info">
+            <img src="product_photos/braincastles_logo.png" alt="BrainCastles Logo" class="product-logo">
+            <h3 class="product-name">BrainCastles</h3>
+            <p class="product-tagline">Unleash Your Mind!</p>
+            <p class="product-description">Challenge yourself with engaging brain training games. BrainCastles helps you sharpen your cognitive skills while having fun with beautifully designed puzzles.</p>
+            <div class="store-buttons">
+              <a href="https://apps.apple.com/tr/app/braincastles/id6502232819?platform=iphone" target="_blank">
+                <img class="store-btn" src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="Download on the App Store">
+              </a>
+              <a href="https://play.google.com/store/apps/details?id=com.SophiaGames.BrainCastles&hl=tr" target="_blank">
+                <img class="store-btn" src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/Google_Play_Store_badge_EN.svg/2560px-Google_Play_Store_badge_EN.svg.png" alt="Get it on Google Play">
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- App Selector - Logo Navigation -->
+      <div class="app-selector fade-in">
+        <button class="carousel-nav-arrow" id="carouselPrev" aria-label="Previous app">&#10094;</button>
+        <div class="app-selector-item active" data-target="omnira">
+          <img src="product_photos/omnira_logo.png" alt="Omnira">
+          <span class="selector-label">Omnira</span>
+        </div>
+        <div class="app-selector-item" data-target="lumira">
+          <img src="product_photos/lumira_logo.png" alt="Lumira">
+          <span class="selector-label">Lumira</span>
+        </div>
+        <div class="app-selector-item" data-target="photoroman">
+          <img src="product_photos/photoroman_logo.png" alt="PhotoRoman">
+          <span class="selector-label">PhotoRoman</span>
+        </div>
+        <div class="app-selector-item" data-target="braincastles">
+          <img src="product_photos/braincastles_logo.png" alt="BrainCastles">
+          <span class="selector-label">BrainCastles</span>
+        </div>
+        <button class="carousel-nav-arrow" id="carouselNext" aria-label="Next app">&#10095;</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact Section -->
+  <section class="contact-section" id="contact">
+    <div class="contact-content fade-in">
+      <span class="section-label">Get In Touch</span>
+      <p class="contact-subtitle">Have a question or want to collaborate? We'd love to hear from you.</p>
+      
+      <div class="contact-details">
+        <div class="contact-item">
+          <div class="contact-icon">
+            <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+          </div>
+          <span>Istanbul | Bodrum</span>
+        </div>
+        <div class="contact-item">
+          <div class="contact-icon">
+            <svg viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
+          </div>
+          <span>+90 538 312 57 12</span>
         </div>
       </div>
       
-      <div class="product">
-        <h3 class="product-title">Lumira</h3>
-        <img src="product_photos/lumira_logo.png" alt="Lumira Logo" style="width: 100px; height: 100px; border-radius: 10px;">
-        <p class="product-description">Your Soul & Life AI Coach</p>
-        <div class="slide-instruction">slide to move among images</div>
-        <div class="product-images">
-          <img src="product_photos/lumira1.png" alt="Lumira 1">
-          <img src="product_photos/lumira2.png" alt="Lumira 2">
-          <img src="product_photos/lumira3.png" alt="Lumira 3">
-        </div>
-        <div class="store-buttons">
-          <a href="https://apps.apple.com/tr/app/lumira-soul-life-ai-coach/id6747150713" target="_blank">
-            <img class="bn46" src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="Download on the App Store">
-          </a>
-        </div>
-      </div>
-      
-      <div class="product">
-        <h3 class="product-title">PhotoRoman</h3>
-        <img src="product_photos/photoroman_logo.png" alt="Photoroman Logo" style="width: 100px; height: 100px; border-radius: 10px;">
-        <p class="product-description">Your AI Photo Novel Generator</p>
-        <div class="slide-instruction">slide to move among images</div>
-        <div class="product-images">
-          <img src="product_photos/photoroman1.png" alt="Photoroman 1">
-          <img src="product_photos/photoroman2.png" alt="Photoroman 2">
-          <img src="product_photos/photoroman3.png" alt="Photoroman 3">
-        </div>
-        <div class="store-buttons">
-          <a href="https://apps.apple.com/tr/app/photoroman/id6747092975" target="_blank">
-            <img class="bn46" src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="Download on the App Store">
-          </a>
-        </div>
-      </div>
-      
-      <div class="product">
-        <h3 class="product-title">BrainCastles</h3>
-        <img src="product_photos/braincastles_logo.png" alt="Brain Castles Logo" style="width: 100px; height: 100px; border-radius: 10px;">
-        <p class="product-description">Unleash Your Mind with Brain Castles!</p>
-        <div class="slide-instruction">slide to move among images</div>
-        <div class="product-images">
-          <img src="product_photos/braincastles1.jpeg" alt="Brain Castles 1">
-          <img src="product_photos/braincastles2.jpeg" alt="Brain Castles 2">
-          <img src="product_photos/braincastles3.jpeg" alt="Brain Castles 3">
-        </div>
-        <div class="store-buttons">
-          <a href="https://apps.apple.com/tr/app/braincastles/id6502232819?platform=iphone" target="_blank">
-            <img class="bn46" src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="Download on the App Store">
-          </a>
-          <a href="https://play.google.com/store/apps/details?id=com.SophiaGames.BrainCastles&hl=tr" target="_blank">
-            <img class="bn45" src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/Google_Play_Store_badge_EN.svg/2560px-Google_Play_Store_badge_EN.svg.png" alt="Get it on Google Play">
-          </a>
-        </div>
-      </div>
+      <a href="mailto:info@foxloop.ai" class="contact-email">info@foxloop.ai</a>
     </div>
 
-    <div class="section" id="contact">
-      <h2 class="section-title">Contact</h2>
-      <div class="contact-content">
-        <div class="contact-item">Istanbul | Bodrum</div>
-        <div class="contact-item">info@foxloop.ai</div>
-        <div class="contact-item">+90 538 312 57 12</div>
+    <!-- Footer Info Inside Contact -->
+    <div class="contact-footer fade-in">
+      <div class="contact-footer-links">
+        <a href="privacypolicy.html">Privacy Policy</a>
+        <span>•</span>
+        <a href="terms.html">Terms & Conditions</a>
       </div>
+      <div class="contact-footer-copyright">All rights reserved. © 2025 Foxloop</div>
     </div>
-  </div>
-
-  <div class="footer">
-    <div class="footer-left">© 2025 Foxloop</div>
-    <div class="footer-right">
-      <a href="privacypolicy.html" class="footer-link">Privacy Policy</a>
-      <a href="terms.html" class="footer-link">Terms & Conditions</a>
-    </div>
-  </div>
-
-  <!-- Modal -->
-  <div id="imageModal" class="modal">
-    <span class="close">&times;</span>
-    <a class="nav-arrow prev">&#10094;</a>
-    <img class="modal-content" id="modalImage">
-    <a class="nav-arrow next">&#10095;</a>
-  </div>
+  </section>
 
   <script>
-    // Smooth scrolling for navigation links
+    // Navbar scroll effect
+    const navbar = document.querySelector('.navbar');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 50) {
+        navbar.classList.add('scrolled');
+      } else {
+        navbar.classList.remove('scrolled');
+      }
+    });
+
+    // Mobile navigation toggle
+    const navToggle = document.getElementById('navToggle');
+    const navLinks = document.getElementById('navLinks');
+
+    navToggle.addEventListener('click', () => {
+      navToggle.classList.toggle('active');
+      navLinks.classList.toggle('active');
+    });
+
+    // Close mobile nav when clicking a link
+    document.querySelectorAll('.nav-links a').forEach(link => {
+      link.addEventListener('click', () => {
+        navToggle.classList.remove('active');
+        navLinks.classList.remove('active');
+      });
+    });
+
+    // Smooth scroll for anchor links
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
       anchor.addEventListener('click', function (e) {
         e.preventDefault();
         const target = document.querySelector(this.getAttribute('href'));
         if (target) {
-          const headerOffset = 30; // Offset for fixed header
+          const headerOffset = 80;
           const elementPosition = target.getBoundingClientRect().top;
           const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
 
@@ -481,109 +1322,84 @@
       });
     });
 
-    // Add click handler for the logo
-    document.getElementById('homeLogo').addEventListener('click', function() {
+    // Scroll animations
+    const fadeElements = document.querySelectorAll('.fade-in');
+
+    const observerOptions = {
+      root: null,
+      rootMargin: '0px',
+      threshold: 0.1
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, observerOptions);
+
+    fadeElements.forEach(el => observer.observe(el));
+
+    // Logo click to scroll top
+    document.querySelector('.nav-logo').addEventListener('click', (e) => {
+      e.preventDefault();
       window.scrollTo({
         top: 0,
         behavior: 'smooth'
       });
     });
 
-    // Get the modal
-    const modal = document.getElementById("imageModal");
-    const modalImg = document.getElementById("modalImage");
-    const closeBtn = document.getElementsByClassName("close")[0];
-    const prevBtn = document.querySelector('.prev');
-    const nextBtn = document.querySelector('.next');
+    // App Carousel Selector
+    const appSelectors = document.querySelectorAll('.app-selector-item');
+    const carouselSlides = document.querySelectorAll('.carousel-slide');
+    const prevBtn = document.getElementById('carouselPrev');
+    const nextBtn = document.getElementById('carouselNext');
+    const appOrder = ['omnira', 'lumira', 'photoroman', 'braincastles'];
+    let currentAppIndex = 0;
 
-    let currentProductImages = [];
-    let currentIndex = 0;
+    function updateCarousel(index) {
+      currentAppIndex = index;
+      const targetApp = appOrder[index];
 
-    // Get all product images
-    const images = document.querySelectorAll('.product-images img');
+      // Remove active class from all selectors and slides
+      appSelectors.forEach(s => s.classList.remove('active'));
+      carouselSlides.forEach(slide => slide.classList.remove('active'));
 
-    // Add click event to each image
-    images.forEach(img => {
-      img.onclick = function() {
-        modal.style.display = "flex";
-        document.body.classList.add('modal-open');
-        modalImg.src = this.src;
-        
-        // Get all images from the same product
-        const productImages = Array.from(this.parentElement.querySelectorAll('img'));
-        currentProductImages = productImages;
-        currentIndex = productImages.indexOf(this);
-        updateNavigation();
-      }
-    });
-
-    // Navigation functions
-    function updateNavigation() {
-      prevBtn.style.display = currentIndex > 0 ? 'block' : 'none';
-      nextBtn.style.display = currentIndex < currentProductImages.length - 1 ? 'block' : 'none';
+      // Add active class to correct selector and slide
+      const targetSelector = document.querySelector(`.app-selector-item[data-target="${targetApp}"]`);
+      const targetSlide = document.querySelector(`.carousel-slide[data-app="${targetApp}"]`);
+      
+      if (targetSelector) targetSelector.classList.add('active');
+      if (targetSlide) targetSlide.classList.add('active');
     }
 
-    function showNextImage() {
-      if (currentIndex < currentProductImages.length - 1) {
-        currentIndex++;
-        modalImg.src = currentProductImages[currentIndex].src;
-        updateNavigation();
-      }
-    }
-
-    function showPrevImage() {
-      if (currentIndex > 0) {
-        currentIndex--;
-        modalImg.src = currentProductImages[currentIndex].src;
-        updateNavigation();
-      }
-    }
-
-    // Event listeners
-    prevBtn.onclick = showPrevImage;
-    nextBtn.onclick = showNextImage;
-
-    // Keyboard navigation
-    document.addEventListener('keydown', function(event) {
-      if (modal.style.display === 'flex') {
-        if (event.key === 'ArrowLeft') {
-          showPrevImage();
-        } else if (event.key === 'ArrowRight') {
-          showNextImage();
-        } else if (event.key === 'Escape') {
-          modal.style.display = 'none';
+    appSelectors.forEach(selector => {
+      selector.addEventListener('click', () => {
+        const targetApp = selector.dataset.target;
+        const index = appOrder.indexOf(targetApp);
+        if (index !== -1) {
+          updateCarousel(index);
         }
+      });
+    });
+
+    // Arrow navigation
+    prevBtn.addEventListener('click', () => {
+      if (currentAppIndex > 0) {
+        updateCarousel(currentAppIndex - 1);
+      } else {
+        updateCarousel(appOrder.length - 1); // Loop to last
       }
     });
 
-    // Close modal when clicking the close button
-    closeBtn.onclick = function() {
-      modal.style.display = "none";
-      document.body.classList.remove('modal-open');
-    }
-
-    // Close modal when clicking outside the image
-    window.onclick = function(event) {
-      if (event.target == modal) {
-        modal.style.display = "none";
-        document.body.classList.remove('modal-open');
+    nextBtn.addEventListener('click', () => {
+      if (currentAppIndex < appOrder.length - 1) {
+        updateCarousel(currentAppIndex + 1);
+      } else {
+        updateCarousel(0); // Loop to first
       }
-    }
-
-    // Touch event handling for nav arrows
-    function handleTouchStart(e) {
-      e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
-    }
-
-    function handleTouchEnd(e) {
-      e.target.style.backgroundColor = '';
-    }
-
-    prevBtn.addEventListener('touchstart', handleTouchStart);
-    prevBtn.addEventListener('touchend', handleTouchEnd);
-    nextBtn.addEventListener('touchstart', handleTouchStart);
-    nextBtn.addEventListener('touchend', handleTouchEnd);
+    });
   </script>
 </body>
 </html>
-
