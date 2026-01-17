@@ -785,7 +785,7 @@
 
     /* App Carousel Section */
     .app-carousel-section {
-      padding: 5px 60px 50px;
+      padding: 5px 60px 100px;
       background: var(--dark);
       position: relative;
       overflow: hidden;
@@ -825,7 +825,7 @@
       border: 1px solid rgba(255, 255, 255, 0.06);
       border-radius: 32px;
       padding: 50px;
-      margin-bottom: 30px;
+      margin-bottom: 50px;
       transition: all 0.5s ease;
     }
 
@@ -895,33 +895,30 @@
       position: relative;
       cursor: pointer;
       transition: all 0.3s ease;
-      padding: 8px;
-      border-radius: 14px;
-      background: rgba(255, 255, 255, 0.03);
-      border: 2px solid transparent;
-      margin-bottom: 0;
+      padding: 0;
+      margin-bottom: 24px;
     }
 
     .app-selector-item:hover {
-      background: rgba(255, 255, 255, 0.06);
       transform: translateY(-3px);
     }
 
-    .app-selector-item.active {
-      border-color: var(--primary);
-      background: rgba(255, 107, 53, 0.1);
-    }
-
     .app-selector-item img {
-      width: 40px;
-      height: 40px;
-      border-radius: 10px;
+      width: 56px;
+      height: 56px;
+      border-radius: 14px;
       display: block;
-      transition: transform 0.3s ease;
+      transition: all 0.3s ease;
+      border: 2px solid transparent;
     }
 
     .app-selector-item:hover img {
       transform: scale(1.05);
+    }
+
+    .app-selector-item.active img {
+      border-color: var(--primary);
+      box-shadow: 0 0 12px rgba(255, 107, 53, 0.4);
     }
 
     .app-selector-item .selector-label {
