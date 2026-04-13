@@ -4,7 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="format-detection" content="telephone=no">
-  <title>Foxloop - Where AI & Gaming becomes mobile</title>
+  <title>Foxloop - Where AI & Gaming become mobile</title>
+  <link rel="icon" type="image/png" href="product_photos/foxloop_linkedin.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -815,8 +816,18 @@
       letter-spacing: -1px;
     }
 
+    .more-apps-section .carousel-header h3 {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .more-apps-section .carousel-header {
+      margin-bottom: 24px;
+    }
+
     .carousel-container {
-      max-width: 1000px;
+      max-width: 750px;
       margin: 0 auto;
       position: relative;
       z-index: 2;
@@ -825,11 +836,162 @@
     .carousel-card {
       background: rgba(255, 255, 255, 0.03);
       border: 1px solid rgba(255, 255, 255, 0.06);
-      border-radius: 32px;
-      padding: 50px;
+      border-radius: 24px;
+      padding: 38px;
       margin-bottom: 0;
       transition: all 0.5s ease;
     }
+
+    /* Featured Apps Card (first carousel) */
+    .featured-card {
+      background: linear-gradient(160deg, rgba(255, 215, 0, 0.14) 0%, rgba(255, 183, 50, 0.06) 30%, rgba(218, 165, 32, 0.08) 60%, rgba(255, 140, 0, 0.14) 100%);
+      border: none;
+      padding: 45px 48px;
+      position: relative;
+      overflow: visible;
+      border-radius: 26px;
+    }
+
+    .featured-card::before {
+      content: '';
+      position: absolute;
+      inset: -4px;
+      border-radius: 30px;
+      background: linear-gradient(135deg, rgba(255, 215, 0, 0.7), rgba(255, 165, 0, 0.35) 25%, rgba(255, 200, 50, 0.15) 50%, rgba(255, 140, 0, 0.35) 75%, rgba(255, 215, 0, 0.7));
+      z-index: -1;
+      filter: blur(35px);
+      opacity: 0.7;
+      animation: pulseGlow 3.5s ease-in-out infinite;
+    }
+
+    .featured-card::after {
+      content: '';
+      position: absolute;
+      top: -1.5px;
+      left: -1.5px;
+      right: -1.5px;
+      bottom: -1.5px;
+      border-radius: 27px;
+      background: linear-gradient(135deg, rgba(255, 223, 0, 0.9), rgba(255, 180, 0, 0.5) 25%, rgba(255, 140, 0, 0.25) 50%, rgba(255, 180, 0, 0.5) 75%, rgba(255, 223, 0, 0.9));
+      z-index: -1;
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      padding: 1.5px;
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% { opacity: 0.5; }
+      50% { opacity: 0.9; }
+    }
+
+    .featured-card .carousel-slide.active {
+      grid-template-columns: 240px 1fr;
+      gap: 52px;
+    }
+
+    .featured-card .carousel-phone {
+      width: 218px;
+      box-shadow: 
+        0 35px 70px rgba(0, 0, 0, 0.6),
+        0 0 0 1px rgba(255, 255, 255, 0.1),
+        0 0 50px rgba(255, 200, 50, 0.2);
+    }
+
+    .featured-card .product-name {
+      font-size: 33px;
+      background: linear-gradient(135deg, #fffbe6 0%, #FFD700 40%, #FF8C00 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .featured-card .product-tagline {
+      font-size: 15px;
+      color: #FFCA28;
+    }
+
+    .featured-card .product-description {
+      font-size: 13px;
+      line-height: 1.75;
+      color: #c8c0b0;
+    }
+
+    .featured-card .product-logo {
+      width: 54px !important;
+      height: 54px !important;
+      border-radius: 14px !important;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3), 0 0 18px rgba(255, 200, 50, 0.2) !important;
+    }
+
+    .featured-card .store-btn {
+      height: 38px;
+    }
+
+    .featured-container {
+      max-width: 825px;
+    }
+
+    .featured-card .app-selector-item.active img {
+      border-color: #FFCA28;
+      box-shadow: 0 0 14px rgba(255, 200, 50, 0.6);
+    }
+
+    .featured-card .app-selector-item.active .selector-label {
+      color: #FFCA28;
+    }
+
+    .featured-card .carousel-nav-arrow:hover {
+      color: #FFCA28;
+    }
+
+    /* Compact card for secondary apps */
+    .compact-card {
+      padding: 27px 30px;
+      border-radius: 20px;
+    }
+
+    .compact-container {
+      max-width: 645px;
+    }
+
+    .compact-card .carousel-slide.active {
+      grid-template-columns: 150px 1fr;
+      gap: 30px;
+    }
+
+    .compact-card .carousel-phone {
+      width: 150px;
+      border-radius: 20px;
+    }
+
+    .compact-card .product-logo {
+      width: 36px !important;
+      height: 36px !important;
+      border-radius: 10px !important;
+      margin-bottom: 10px !important;
+    }
+
+    .compact-card .product-name {
+      font-size: 21px;
+    }
+
+    .compact-card .product-tagline {
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+
+    .compact-card .product-description {
+      font-size: 11px;
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+
+    .compact-card .store-btn {
+      height: 30px;
+    }
+
 
     .carousel-visual {
       display: flex;
@@ -838,50 +1000,50 @@
     }
 
     .carousel-phone {
-      width: 240px;
-      border-radius: 32px;
+      width: 180px;
+      border-radius: 24px;
       box-shadow: 
-        0 40px 80px rgba(0, 0, 0, 0.5),
+        0 30px 60px rgba(0, 0, 0, 0.5),
         0 0 0 1px rgba(255, 255, 255, 0.1);
     }
 
     .carousel-info {
-      padding: 10px 0;
+      padding: 8px 0;
     }
 
     .carousel-info .product-logo {
-      width: 64px;
-      height: 64px;
-      border-radius: 16px;
-      margin-bottom: 20px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      margin-bottom: 14px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
     }
 
     .carousel-info .product-name {
-      font-size: 36px;
-      margin-bottom: 8px;
+      font-size: 27px;
+      margin-bottom: 6px;
       letter-spacing: -1px;
     }
 
     .carousel-info .product-tagline {
-      font-size: 18px;
+      font-size: 14px;
       color: var(--text-muted);
-      margin-bottom: 16px;
+      margin-bottom: 12px;
     }
 
     .carousel-info .product-description {
-      font-size: 16px;
+      font-size: 12px;
       line-height: 1.7;
-      margin-bottom: 28px;
+      margin-bottom: 20px;
       color: var(--text-muted);
     }
 
     .carousel-info .store-buttons {
-      gap: 14px;
+      gap: 10px;
     }
 
     .carousel-info .store-btn {
-      height: 46px;
+      height: 35px;
     }
 
     /* App Selector - Logo Navigation */
@@ -889,7 +1051,7 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      gap: 20px;
+      gap: 30px;
       flex-wrap: nowrap;
       margin-top: 30px;
     }
@@ -908,9 +1070,9 @@
     }
 
     .app-selector-item img {
-      width: 56px;
-      height: 56px;
-      border-radius: 14px;
+      width: 42px;
+      height: 42px;
+      border-radius: 11px;
       display: block;
       transition: all 0.3s ease;
       border: 2px solid transparent;
@@ -951,9 +1113,9 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 44px;
-      height: 44px;
-      border-radius: 12px;
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
       background: transparent;
       border: none;
       color: var(--text-muted);
@@ -986,21 +1148,14 @@
     /* Carousel animations */
     .carousel-slide {
       display: none;
-      grid-template-columns: 280px 1fr;
-      gap: 60px;
+      grid-template-columns: 210px 1fr;
+      gap: 45px;
       align-items: center;
       animation: fadeSlide 0.5s ease;
     }
 
     .carousel-slide.active {
       display: grid;
-    }
-
-    .emmaverse-standalone {
-      display: grid;
-      grid-template-columns: 280px 1fr;
-      gap: 60px;
-      align-items: center;
     }
 
     @keyframes fadeSlide {
@@ -1016,112 +1171,150 @@
 
     @media (max-width: 900px) {
       .carousel-card {
-        padding: 40px 30px;
+        padding: 30px 22px;
       }
 
-      .carousel-slide.active,
-      .emmaverse-standalone {
+      .featured-card {
+        padding: 34px 24px;
+      }
+
+      .carousel-slide.active {
         display: flex;
         flex-direction: column;
         gap: 4px;
         text-align: center;
       }
 
-      .carousel-slide.active .carousel-info,
-      .emmaverse-standalone .carousel-info {
+      .carousel-slide.active .carousel-info {
         display: contents;
       }
 
-      .carousel-slide.active .carousel-info .product-logo,
-      .emmaverse-standalone .carousel-info .product-logo {
+      .carousel-slide.active .carousel-info .product-logo {
         order: 1;
-        margin: 0 auto 8px;
+        margin: 0 auto 6px;
       }
 
-      .carousel-slide.active .carousel-info .product-name,
-      .emmaverse-standalone .carousel-info .product-name {
+      .carousel-slide.active .carousel-info .product-name {
         order: 2;
         margin-bottom: 2px;
       }
 
-      .carousel-slide.active .carousel-info .product-tagline,
-      .emmaverse-standalone .carousel-info .product-tagline {
+      .carousel-slide.active .carousel-info .product-tagline {
         order: 3;
-        margin-bottom: 8px;
+        margin-bottom: 6px;
       }
 
-      .carousel-slide.active .carousel-visual,
-      .emmaverse-standalone .carousel-visual {
+      .carousel-slide.active .carousel-visual {
         order: 4;
-        margin: 12px 0;
+        margin: 8px 0;
       }
 
-      .carousel-slide.active .carousel-info .product-description,
-      .emmaverse-standalone .carousel-info .product-description {
+      .carousel-slide.active .carousel-info .product-description {
         order: 5;
-        margin-bottom: 12px;
+        margin-bottom: 10px;
       }
 
-      .carousel-slide.active .carousel-info .store-buttons,
-      .emmaverse-standalone .carousel-info .store-buttons {
+      .carousel-slide.active .carousel-info .store-buttons {
         order: 6;
         justify-content: center;
         margin: 0;
       }
 
       .carousel-phone {
-        width: 200px;
+        width: 160px;
+      }
+
+      .featured-card .carousel-phone {
+        width: 190px;
+      }
+
+      .featured-card .product-name {
+        font-size: 28px;
+      }
+
+      .compact-card {
+        padding: 22px 18px;
+      }
+
+      .compact-card .carousel-phone {
+        width: 130px;
+      }
+
+      .compact-card .product-name {
+        font-size: 18px;
       }
     }
 
     @media (max-width: 768px) {
       .app-carousel-section {
-        padding: 50px 24px 20px;
+        padding: 40px 20px 16px;
       }
 
       .more-apps-section {
-        padding-top: 10px;
+        padding-top: 8px;
       }
 
       .carousel-card {
-        padding: 30px 24px;
+        padding: 24px 18px;
+      }
+
+      .featured-card {
+        padding: 28px 20px;
       }
 
       .carousel-info .product-name {
-        font-size: 28px;
+        font-size: 22px;
+      }
+
+      .featured-card .product-name {
+        font-size: 26px;
+      }
+
+      .compact-card {
+        padding: 18px 16px;
+        border-radius: 16px;
+      }
+
+      .compact-card .carousel-phone {
+        width: 120px;
+        border-radius: 16px;
+      }
+
+      .compact-card .product-name {
+        font-size: 17px;
       }
 
       .app-selector {
-        gap: 12px;
+        gap: 15px;
       }
 
       .app-selector-item img {
-        width: 44px;
-        height: 44px;
-      }
-
-      .carousel-nav-arrow {
-        width: 32px;
-        height: 32px;
-        font-size: 18px;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .app-selector {
-        gap: 8px;
-      }
-
-      .app-selector-item img {
-        width: 36px;
-        height: 36px;
-        border-radius: 10px;
+        width: 34px;
+        height: 34px;
       }
 
       .carousel-nav-arrow {
         width: 28px;
         height: 28px;
         font-size: 16px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .app-selector {
+        gap: 9px;
+      }
+
+      .app-selector-item img {
+        width: 30px;
+        height: 30px;
+        border-radius: 8px;
+      }
+
+      .carousel-nav-arrow {
+        width: 24px;
+        height: 24px;
+        font-size: 14px;
       }
     }
   </style>
@@ -1145,7 +1338,7 @@
   <!-- Hero Section -->
   <section class="hero">
     <div class="hero-content">
-      <h1 class="hero-title">Where <span>AI & Gaming</span> becomes mobile</h1>
+      <h1 class="hero-title">Where <span>AI & Gaming</span> become mobile</h1>
       <p class="hero-subtitle">We create AI-powered social and gaming experiences that bring people together worldwide</p>
     </div>
     <img src="fox_images.png" alt="Foxloop Characters" class="hero-fox-image">
@@ -1164,45 +1357,34 @@
     <img src="istanbul.png" alt="Istanbul Skyline" class="about-istanbul-image">
   </section>
 
-  <!-- EmmaVerse Section -->
+  <!-- Our Apps Section -->
   <section class="app-carousel-section" id="products">
     <div class="carousel-header fade-in">
       <span class="section-label">Our Apps</span>
     </div>
 
-    <div class="carousel-container">
-      <div class="carousel-card">
-        <div class="emmaverse-standalone">
+    <div class="carousel-container featured-container">
+      <div class="carousel-card featured-card">
+        <!-- KozmikBilinç Slide -->
+        <div class="carousel-slide active" data-app="kozmikbilinc" data-carousel="1">
           <div class="carousel-visual">
-            <img src="product_photos/emmaverse1.png" alt="EmmaVerse App" class="carousel-phone">
+            <img src="product_photos/kozmikbilinc1.png" alt="KozmikBilinç App" class="carousel-phone">
           </div>
           <div class="carousel-info">
-            <img src="product_photos/emmaverse_logo.png" alt="EmmaVerse Logo" class="product-logo">
-            <h3 class="product-name">EmmaVerse</h3>
-            <p class="product-tagline">AI Companions & Social Games</p>
-            <p class="product-description">Step into the world of Emma and friends. Connect with real people and AI companions, share your emotions, play engaging games, and become part of a vibrant community. EmmaVerse brings together social connection and AI in one unforgettable experience.</p>
+            <img src="product_photos/kozmikbilinc_logo.png" alt="KozmikBilinç Logo" class="product-logo">
+            <h3 class="product-name">KozmikBilinç</h3>
+            <p class="product-tagline">Your Soul & Life AI Coach</p>
+            <p class="product-description">Transform your life with personalized AI coaching. KozmikBilinç guides you through astrology, personal growth, emotional wellness, and life decisions with empathy and intelligence.</p>
             <div class="store-buttons">
-              <a href="https://apps.apple.com/tr/app/emmaverse/id6752908760" target="_blank">
+              <a href="https://apps.apple.com/tr/app/lumira-soul-life-ai-coach/id6747150713" target="_blank">
                 <img class="store-btn" src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="Download on the App Store">
               </a>
             </div>
           </div>
         </div>
-      </div>
-    </div>
-  </section>
 
-  <!-- App Carousel Section -->
-  <section class="app-carousel-section more-apps-section">
-    <div class="carousel-header fade-in">
-      <h3>More AI & Gaming Experiences</h3>
-    </div>
-
-    <div class="carousel-container">
-      <!-- Carousel Card - Shows one app at a time -->
-      <div class="carousel-card">
         <!-- Omnira Slide -->
-        <div class="carousel-slide active" data-app="omnira">
+        <div class="carousel-slide" data-app="omnira" data-carousel="1">
           <div class="carousel-visual">
             <img src="product_photos/omnira1.png" alt="Omnira App" class="carousel-phone">
           </div>
@@ -1219,36 +1401,83 @@
           </div>
         </div>
 
-        <!-- Lumira Slide -->
-        <div class="carousel-slide" data-app="lumira">
+        <!-- Havadis Slide -->
+        <div class="carousel-slide" data-app="havadis" data-carousel="1">
           <div class="carousel-visual">
-            <img src="product_photos/lumira1.png" alt="Lumira App" class="carousel-phone">
+            <img src="product_photos/havadis1.png" alt="Havadis App" class="carousel-phone">
           </div>
           <div class="carousel-info">
-            <img src="product_photos/lumira_logo.png" alt="Lumira Logo" class="product-logo">
-            <h3 class="product-name">Lumira</h3>
-            <p class="product-tagline">Your Soul & Life AI Coach</p>
-            <p class="product-description">Transform your life with personalized AI coaching. Lumira guides you through astrology, personal growth, emotional wellness, and life decisions with empathy and intelligence.</p>
+            <img src="product_photos/havadis_logo.png" alt="Havadis Logo" class="product-logo">
+            <h3 class="product-name">Havadis</h3>
+            <p class="product-tagline">AI-Powered News</p>
+            <p class="product-description">Stay informed with AI-curated news that matters to you. Havadis delivers personalized, intelligent news coverage tailored to your interests and reading habits.</p>
             <div class="store-buttons">
-              <a href="https://apps.apple.com/tr/app/lumira-soul-life-ai-coach/id6747150713" target="_blank">
+              <a href="#" target="_blank">
+                <img class="store-btn" src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="Download on the App Store">
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- App Selector - Logo Navigation -->
+      <div class="app-selector fade-in">
+        <button class="carousel-nav-arrow" id="carousel1Prev" aria-label="Previous app">&#10094;</button>
+        <div class="app-selector-item active" data-target="kozmikbilinc" data-carousel="1">
+          <img src="product_photos/kozmikbilinc_logo.png" alt="KozmikBilinç">
+          <span class="selector-label">KozmikBilinç</span>
+        </div>
+        <div class="app-selector-item" data-target="omnira" data-carousel="1">
+          <img src="product_photos/omnira_logo.png" alt="Omnira">
+          <span class="selector-label">Omnira</span>
+        </div>
+        <div class="app-selector-item" data-target="havadis" data-carousel="1">
+          <img src="product_photos/havadis_logo.png" alt="Havadis">
+          <span class="selector-label">Havadis</span>
+        </div>
+        <button class="carousel-nav-arrow" id="carousel1Next" aria-label="Next app">&#10095;</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- More Apps Section -->
+  <section class="app-carousel-section more-apps-section">
+    <div class="carousel-header fade-in">
+      <h3>More AI & Gaming Experiences</h3>
+    </div>
+
+    <div class="carousel-container compact-container">
+      <div class="carousel-card compact-card">
+        <!-- Vedat Delek Slide -->
+        <div class="carousel-slide active" data-app="vedatdelek" data-carousel="2">
+          <div class="carousel-visual">
+            <img src="product_photos/vedat_delek1.png" alt="Vedat Delek App" class="carousel-phone">
+          </div>
+          <div class="carousel-info">
+            <img src="product_photos/vedat_delek_logo.png" alt="Vedat Delek Logo" class="product-logo">
+            <h3 class="product-name">Vedat Delek</h3>
+            <p class="product-tagline">AI Comedy & Entertainment</p>
+            <p class="product-description">Experience the hilarious world of Vedat Delek powered by AI. Enjoy comedy, entertainment, and interactive fun that keeps you laughing and coming back for more.</p>
+            <div class="store-buttons">
+              <a href="#" target="_blank">
                 <img class="store-btn" src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="Download on the App Store">
               </a>
             </div>
           </div>
         </div>
 
-        <!-- PhotoRoman Slide -->
-        <div class="carousel-slide" data-app="photoroman">
+        <!-- EmmaVerse Slide -->
+        <div class="carousel-slide" data-app="emmaverse" data-carousel="2">
           <div class="carousel-visual">
-            <img src="product_photos/photoroman1.png" alt="PhotoRoman App" class="carousel-phone">
+            <img src="product_photos/emmaverse1.png" alt="EmmaVerse App" class="carousel-phone">
           </div>
           <div class="carousel-info">
-            <img src="product_photos/photoroman_logo.png" alt="PhotoRoman Logo" class="product-logo">
-            <h3 class="product-name">PhotoRoman</h3>
-            <p class="product-tagline">AI Photo Novel Generator</p>
-            <p class="product-description">Turn your imagination into visual stories. PhotoRoman uses AI to generate stunning photo novels, bringing your creative narratives to life with beautiful imagery.</p>
+            <img src="product_photos/emmaverse_logo.png" alt="EmmaVerse Logo" class="product-logo">
+            <h3 class="product-name">EmmaVerse</h3>
+            <p class="product-tagline">AI Companions & Social Games</p>
+            <p class="product-description">Step into the world of Emma and friends. Connect with real people and AI companions, share your emotions, play engaging games, and become part of a vibrant community.</p>
             <div class="store-buttons">
-              <a href="https://apps.apple.com/tr/app/photoroman/id6747092975" target="_blank">
+              <a href="https://apps.apple.com/tr/app/emmaverse/id6752908760" target="_blank">
                 <img class="store-btn" src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="Download on the App Store">
               </a>
             </div>
@@ -1256,7 +1485,7 @@
         </div>
 
         <!-- BrainCastles Slide -->
-        <div class="carousel-slide" data-app="braincastles">
+        <div class="carousel-slide" data-app="braincastles" data-carousel="2">
           <div class="carousel-visual">
             <img src="product_photos/braincastles1_rotated.png" alt="BrainCastles App" class="carousel-phone">
           </div>
@@ -1272,28 +1501,46 @@
             </div>
           </div>
         </div>
+
+        <!-- PhotoRoman Slide -->
+        <div class="carousel-slide" data-app="photoroman" data-carousel="2">
+          <div class="carousel-visual">
+            <img src="product_photos/photoroman1.png" alt="PhotoRoman App" class="carousel-phone">
+          </div>
+          <div class="carousel-info">
+            <img src="product_photos/photoroman_logo.png" alt="PhotoRoman Logo" class="product-logo">
+            <h3 class="product-name">PhotoRoman</h3>
+            <p class="product-tagline">AI Photo Novel Generator</p>
+            <p class="product-description">Turn your imagination into visual stories. PhotoRoman uses AI to generate stunning photo novels, bringing your creative narratives to life with beautiful imagery.</p>
+            <div class="store-buttons">
+              <a href="https://apps.apple.com/tr/app/photoroman/id6747092975" target="_blank">
+                <img class="store-btn" src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="Download on the App Store">
+              </a>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- App Selector - Logo Navigation -->
       <div class="app-selector fade-in">
-        <button class="carousel-nav-arrow" id="carouselPrev" aria-label="Previous app">&#10094;</button>
-        <div class="app-selector-item active" data-target="omnira">
-          <img src="product_photos/omnira_logo.png" alt="Omnira">
-          <span class="selector-label">Omnira</span>
+        <button class="carousel-nav-arrow" id="carousel2Prev" aria-label="Previous app">&#10094;</button>
+        <div class="app-selector-item active" data-target="vedatdelek" data-carousel="2">
+          <img src="product_photos/vedat_delek_logo.png" alt="Vedat Delek">
+          <span class="selector-label">Vedat Delek</span>
         </div>
-        <div class="app-selector-item" data-target="lumira">
-          <img src="product_photos/lumira_logo.png" alt="Lumira">
-          <span class="selector-label">Lumira</span>
+        <div class="app-selector-item" data-target="emmaverse" data-carousel="2">
+          <img src="product_photos/emmaverse_logo.png" alt="EmmaVerse">
+          <span class="selector-label">EmmaVerse</span>
         </div>
-        <div class="app-selector-item" data-target="photoroman">
-          <img src="product_photos/photoroman_logo.png" alt="PhotoRoman">
-          <span class="selector-label">PhotoRoman</span>
-        </div>
-        <div class="app-selector-item" data-target="braincastles">
+        <div class="app-selector-item" data-target="braincastles" data-carousel="2">
           <img src="product_photos/braincastles_logo.png" alt="BrainCastles">
           <span class="selector-label">BrainCastles</span>
         </div>
-        <button class="carousel-nav-arrow" id="carouselNext" aria-label="Next app">&#10095;</button>
+        <div class="app-selector-item" data-target="photoroman" data-carousel="2">
+          <img src="product_photos/photoroman_logo.png" alt="PhotoRoman">
+          <span class="selector-label">PhotoRoman</span>
+        </div>
+        <button class="carousel-nav-arrow" id="carousel2Next" aria-label="Next app">&#10095;</button>
       </div>
     </div>
   </section>
@@ -1411,56 +1658,43 @@
       });
     });
 
-    // App Carousel Selector
-    const appSelectors = document.querySelectorAll('.app-selector-item');
-    const carouselSlides = document.querySelectorAll('.carousel-slide');
-    const prevBtn = document.getElementById('carouselPrev');
-    const nextBtn = document.getElementById('carouselNext');
-    const appOrder = ['omnira', 'lumira', 'photoroman', 'braincastles'];
-    let currentAppIndex = 0;
+    // Carousel logic for both sections
+    function initCarousel(carouselId, appOrder, prevBtnId, nextBtnId) {
+      const slides = document.querySelectorAll(`.carousel-slide[data-carousel="${carouselId}"]`);
+      const selectors = document.querySelectorAll(`.app-selector-item[data-carousel="${carouselId}"]`);
+      const prevBtn = document.getElementById(prevBtnId);
+      const nextBtn = document.getElementById(nextBtnId);
+      let currentIndex = 0;
 
-    function updateCarousel(index) {
-      currentAppIndex = index;
-      const targetApp = appOrder[index];
+      function update(index) {
+        currentIndex = index;
+        const targetApp = appOrder[index];
+        slides.forEach(s => s.classList.remove('active'));
+        selectors.forEach(s => s.classList.remove('active'));
+        const targetSlide = document.querySelector(`.carousel-slide[data-app="${targetApp}"][data-carousel="${carouselId}"]`);
+        const targetSelector = document.querySelector(`.app-selector-item[data-target="${targetApp}"][data-carousel="${carouselId}"]`);
+        if (targetSlide) targetSlide.classList.add('active');
+        if (targetSelector) targetSelector.classList.add('active');
+      }
 
-      // Remove active class from all selectors and slides
-      appSelectors.forEach(s => s.classList.remove('active'));
-      carouselSlides.forEach(slide => slide.classList.remove('active'));
+      selectors.forEach(sel => {
+        sel.addEventListener('click', () => {
+          const idx = appOrder.indexOf(sel.dataset.target);
+          if (idx !== -1) update(idx);
+        });
+      });
 
-      // Add active class to correct selector and slide
-      const targetSelector = document.querySelector(`.app-selector-item[data-target="${targetApp}"]`);
-      const targetSlide = document.querySelector(`.carousel-slide[data-app="${targetApp}"]`);
-      
-      if (targetSelector) targetSelector.classList.add('active');
-      if (targetSlide) targetSlide.classList.add('active');
+      prevBtn.addEventListener('click', () => {
+        update(currentIndex > 0 ? currentIndex - 1 : appOrder.length - 1);
+      });
+
+      nextBtn.addEventListener('click', () => {
+        update(currentIndex < appOrder.length - 1 ? currentIndex + 1 : 0);
+      });
     }
 
-    appSelectors.forEach(selector => {
-      selector.addEventListener('click', () => {
-        const targetApp = selector.dataset.target;
-        const index = appOrder.indexOf(targetApp);
-        if (index !== -1) {
-          updateCarousel(index);
-        }
-      });
-    });
-
-    // Arrow navigation
-    prevBtn.addEventListener('click', () => {
-      if (currentAppIndex > 0) {
-        updateCarousel(currentAppIndex - 1);
-      } else {
-        updateCarousel(appOrder.length - 1); // Loop to last
-      }
-    });
-
-    nextBtn.addEventListener('click', () => {
-      if (currentAppIndex < appOrder.length - 1) {
-        updateCarousel(currentAppIndex + 1);
-      } else {
-        updateCarousel(0); // Loop to first
-      }
-    });
+    initCarousel('1', ['kozmikbilinc', 'omnira', 'havadis'], 'carousel1Prev', 'carousel1Next');
+    initCarousel('2', ['vedatdelek', 'emmaverse', 'braincastles', 'photoroman'], 'carousel2Prev', 'carousel2Next');
   </script>
 </body>
 </html>
