@@ -1090,6 +1090,11 @@
       box-shadow: 
         0 30px 60px rgba(0, 0, 0, 0.5),
         0 0 0 1px rgba(255, 255, 255, 0.1);
+      transition: transform 0.4s ease;
+    }
+
+    .carousel-phone:hover {
+      transform: scale(1.03);
     }
 
     .carousel-info {
@@ -1236,21 +1241,39 @@
       grid-template-columns: 210px 1fr;
       gap: 45px;
       align-items: center;
-      animation: fadeSlide 0.5s ease;
     }
 
     .carousel-slide.active {
       display: grid;
     }
 
-    @keyframes fadeSlide {
+    .carousel-slide.slide-from-right {
+      animation: slideFromRight 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+    }
+
+    .carousel-slide.slide-from-left {
+      animation: slideFromLeft 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+    }
+
+    @keyframes slideFromRight {
       from {
         opacity: 0;
-        transform: translateX(20px);
+        transform: translateX(60px) scale(0.97);
       }
       to {
         opacity: 1;
-        transform: translateX(0);
+        transform: translateX(0) scale(1);
+      }
+    }
+
+    @keyframes slideFromLeft {
+      from {
+        opacity: 0;
+        transform: translateX(-60px) scale(0.97);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0) scale(1);
       }
     }
 
@@ -1842,30 +1865,44 @@
       const nextBtn = document.getElementById(nextBtnId);
       let currentIndex = 0;
 
-      function update(index) {
+      function update(index, direction) {
+        if (index === currentIndex) return;
+        const animClass = direction === 'left' ? 'slide-from-left' : 'slide-from-right';
         currentIndex = index;
         const targetApp = appOrder[index];
-        slides.forEach(s => s.classList.remove('active'));
+
+        slides.forEach(s => {
+          s.classList.remove('active', 'slide-from-left', 'slide-from-right');
+        });
         selectors.forEach(s => s.classList.remove('active'));
+
         const targetSlide = document.querySelector(`.carousel-slide[data-app="${targetApp}"][data-carousel="${carouselId}"]`);
         const targetSelector = document.querySelector(`.app-selector-item[data-target="${targetApp}"][data-carousel="${carouselId}"]`);
-        if (targetSlide) targetSlide.classList.add('active');
+
+        if (targetSlide) {
+          targetSlide.classList.add('active', animClass);
+        }
         if (targetSelector) targetSelector.classList.add('active');
       }
 
       selectors.forEach(sel => {
         sel.addEventListener('click', () => {
           const idx = appOrder.indexOf(sel.dataset.target);
-          if (idx !== -1) update(idx);
+          if (idx !== -1) {
+            const direction = idx > currentIndex ? 'right' : 'left';
+            update(idx, direction);
+          }
         });
       });
 
       prevBtn.addEventListener('click', () => {
-        update(currentIndex > 0 ? currentIndex - 1 : appOrder.length - 1);
+        const newIndex = currentIndex > 0 ? currentIndex - 1 : appOrder.length - 1;
+        update(newIndex, 'left');
       });
 
       nextBtn.addEventListener('click', () => {
-        update(currentIndex < appOrder.length - 1 ? currentIndex + 1 : 0);
+        const newIndex = currentIndex < appOrder.length - 1 ? currentIndex + 1 : 0;
+        update(newIndex, 'right');
       });
     }
 
