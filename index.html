@@ -197,6 +197,8 @@
       margin-top: 0px;
       animation: fadeInUp 0.8s ease 0.6s forwards;
       opacity: 0;
+      image-rendering: -webkit-optimize-contrast;
+      image-rendering: crisp-edges;
     }
 
     .hero-cta {
@@ -299,6 +301,8 @@
       max-height: 300px;
       object-fit: contain;
       margin: 10px auto 0;
+      image-rendering: -webkit-optimize-contrast;
+      image-rendering: crisp-edges;
     }
 
     .section-header {
@@ -486,6 +490,83 @@
     }
 
     /* Contact Section */
+    /* Other Services Section */
+    .services-section {
+      padding: 50px 60px 10px;
+      background: transparent;
+      position: relative;
+      z-index: 1;
+      text-align: center;
+    }
+
+    .services-content {
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .services-text {
+      font-size: 17px;
+      line-height: 1.8;
+      color: var(--text-muted);
+    }
+
+    .services-text strong {
+      color: var(--text-light);
+      font-weight: 600;
+    }
+
+    .services-items {
+      display: flex;
+      justify-content: center;
+      gap: 32px;
+      margin-top: 32px;
+      flex-wrap: wrap;
+    }
+
+    .services-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text-light);
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .services-item-icon {
+      width: 36px;
+      height: 36px;
+      background: rgba(255, 107, 53, 0.12);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .services-item-icon svg {
+      width: 18px;
+      height: 18px;
+      fill: var(--primary);
+    }
+
+    @media (max-width: 768px) {
+      .services-section {
+        padding: 30px 24px 5px;
+      }
+
+      .services-text {
+        font-size: 15px;
+      }
+
+      .services-items {
+        gap: 20px;
+      }
+
+      .services-item {
+        font-size: 13px;
+      }
+    }
+
     .contact-section {
       padding: 50px 60px 120px;
       background: transparent;
@@ -1005,6 +1086,11 @@
       box-shadow: 
         0 30px 60px rgba(0, 0, 0, 0.5),
         0 0 0 1px rgba(255, 255, 255, 0.1);
+      image-rendering: -webkit-optimize-contrast;
+      image-rendering: crisp-edges;
+      -webkit-backface-visibility: hidden;
+      backface-visibility: hidden;
+      transform: translateZ(0);
     }
 
     .carousel-info {
@@ -1017,6 +1103,10 @@
       border-radius: 12px;
       margin-bottom: 14px;
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+      image-rendering: -webkit-optimize-contrast;
+      image-rendering: crisp-edges;
+      -webkit-backface-visibility: hidden;
+      backface-visibility: hidden;
     }
 
     .carousel-info .product-name {
@@ -1076,6 +1166,10 @@
       display: block;
       transition: all 0.3s ease;
       border: 2px solid transparent;
+      image-rendering: -webkit-optimize-contrast;
+      image-rendering: crisp-edges;
+      -webkit-backface-visibility: hidden;
+      backface-visibility: hidden;
     }
 
     .app-selector-item:hover img {
@@ -1175,7 +1269,53 @@
       }
 
       .featured-card {
-        padding: 34px 24px;
+        padding: 22px 18px;
+        border-radius: 20px;
+      }
+
+      .featured-card::after {
+        border-radius: 21px;
+      }
+
+      .featured-card::before {
+        border-radius: 24px;
+      }
+
+      .featured-card .carousel-slide.active {
+        grid-template-columns: 150px 1fr;
+        gap: 30px;
+      }
+
+      .featured-card .carousel-phone {
+        width: 130px;
+      }
+
+      .featured-card .product-name {
+        font-size: 18px;
+      }
+
+      .featured-card .product-tagline {
+        font-size: 12px;
+      }
+
+      .featured-card .product-description {
+        font-size: 11px;
+        line-height: 1.6;
+      }
+
+      .featured-card .product-logo {
+        width: 36px !important;
+        height: 36px !important;
+        border-radius: 10px !important;
+        margin-bottom: 10px !important;
+      }
+
+      .featured-card .store-btn {
+        height: 30px;
+      }
+
+      .featured-container {
+        max-width: 645px;
       }
 
       .carousel-slide.active {
@@ -1224,14 +1364,6 @@
         width: 160px;
       }
 
-      .featured-card .carousel-phone {
-        width: 190px;
-      }
-
-      .featured-card .product-name {
-        font-size: 28px;
-      }
-
       .compact-card {
         padding: 22px 18px;
       }
@@ -1259,7 +1391,21 @@
       }
 
       .featured-card {
-        padding: 28px 20px;
+        padding: 18px 16px;
+        border-radius: 16px;
+      }
+
+      .featured-card::after {
+        border-radius: 17px;
+      }
+
+      .featured-card::before {
+        border-radius: 20px;
+      }
+
+      .featured-card .carousel-phone {
+        width: 120px;
+        border-radius: 16px;
       }
 
       .carousel-info .product-name {
@@ -1267,7 +1413,7 @@
       }
 
       .featured-card .product-name {
-        font-size: 26px;
+        font-size: 17px;
       }
 
       .compact-card {
@@ -1331,6 +1477,7 @@
     <ul class="nav-links" id="navLinks">
       <li><a href="#about">About Us</a></li>
       <li><a href="#products">Our Apps</a></li>
+      <li><a href="#services">Other Services</a></li>
       <li><a href="#contact">Contact</a></li>
     </ul>
   </nav>
@@ -1373,8 +1520,8 @@
           <div class="carousel-info">
             <img src="product_photos/kozmikbilinc_logo.png" alt="KozmikBilinç Logo" class="product-logo">
             <h3 class="product-name">KozmikBilinç</h3>
-            <p class="product-tagline">Your Soul & Life AI Coach</p>
-            <p class="product-description">Transform your life with personalized AI coaching. KozmikBilinç guides you through astrology, personal growth, emotional wellness, and life decisions with empathy and intelligence.</p>
+            <p class="product-tagline">Your Astrologer and Soul & Life AI Coach</p>
+            <p class="product-description">KozmikBilinç offers personalized and live transit-based astrological analyses, relationship counseling, and soul & life coaching — all powered by AI. Get deep insights into your birth chart, understand cosmic influences on your daily life, and receive guidance tailored uniquely to you.</p>
             <div class="store-buttons">
               <a href="https://apps.apple.com/tr/app/lumira-soul-life-ai-coach/id6747150713" target="_blank">
                 <img class="store-btn" src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="Download on the App Store">
@@ -1391,8 +1538,8 @@
           <div class="carousel-info">
             <img src="product_photos/omnira_logo.png" alt="Omnira Logo" class="product-logo">
             <h3 class="product-name">Omnira</h3>
-            <p class="product-tagline">Your AI Companion</p>
-            <p class="product-description">Experience your personal AI companions and therapist. Omnira understands you, learns from you, and helps you navigate life with intelligent conversations and insights.</p>
+            <p class="product-tagline">Your AI Therapist</p>
+            <p class="product-description">Omnira is an AI-powered app where you can receive therapy on a wide range of topics or simply have a casual conversation about anything you'd like. Over time, Omnira gets to know you, learns your preferences, and chats with you in the most personalized way.</p>
             <div class="store-buttons">
               <a href="https://apps.apple.com/tr/app/omnira/id6738738771" target="_blank">
                 <img class="store-btn" src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="Download on the App Store">
@@ -1409,8 +1556,8 @@
           <div class="carousel-info">
             <img src="product_photos/havadis_logo.png" alt="Havadis Logo" class="product-logo">
             <h3 class="product-name">Havadis</h3>
-            <p class="product-tagline">AI-Powered News</p>
-            <p class="product-description">Stay informed with AI-curated news that matters to you. Havadis delivers personalized, intelligent news coverage tailored to your interests and reading habits.</p>
+            <p class="product-tagline">Your AI News Service</p>
+            <p class="product-description">Havadis brings you summaries and insights from news across different sources, so you always know what's happening. Browse trending stories by any category or topic you like, or simply chat with Havadis AI to discover the latest headlines in a conversational way.</p>
             <div class="store-buttons">
               <a href="#" target="_blank">
                 <img class="store-btn" src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="Download on the App Store">
@@ -1456,8 +1603,8 @@
           <div class="carousel-info">
             <img src="product_photos/vedat_delek_logo.png" alt="Vedat Delek Logo" class="product-logo">
             <h3 class="product-name">Vedat Delek</h3>
-            <p class="product-tagline">AI Comedy & Entertainment</p>
-            <p class="product-description">Experience the hilarious world of Vedat Delek powered by AI. Enjoy comedy, entertainment, and interactive fun that keeps you laughing and coming back for more.</p>
+            <p class="product-tagline">Astrologer, Famous Person</p>
+            <p class="product-description">The official app of renowned astrologer Vedat Delek. Browse news, photos, services, and explore a dedicated discovery section featuring various AI-powered experiences — all in one place.</p>
             <div class="store-buttons">
               <a href="#" target="_blank">
                 <img class="store-btn" src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="Download on the App Store">
@@ -1542,6 +1689,18 @@
         </div>
         <button class="carousel-nav-arrow" id="carousel2Next" aria-label="Next app">&#10095;</button>
       </div>
+    </div>
+  </section>
+
+  <!-- Other Services Section -->
+  <section class="services-section" id="services">
+    <div class="section-header fade-in">
+      <span class="section-label">Other Services</span>
+    </div>
+    <div class="services-content fade-in">
+      <p class="services-text">
+        Beyond our apps, we can also work together on <strong>custom web & mobile projects</strong> and <strong>AI consulting</strong> tailored to your needs. Whether you're looking to build a new product from scratch or integrate AI into your existing platform, our team is ready to collaborate.
+      </p>
     </div>
   </section>
 
