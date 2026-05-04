@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Foxloop — Forge, AI-Powered Unity IDE</title>
+  <script>const showDemoButton = true;</script>
   <link rel="icon" type="image/png" href="product_photos/foxloop_linkedin.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -272,7 +273,6 @@
   <!-- Nav -->
   <nav>
     <div class="nav-brand" onclick="window.scrollTo({top:0,behavior:'smooth'})">
-      <img src="product_photos/foxloop_linkedin.png" alt="Foxloop">
       <span>Foxloop</span>
     </div>
   </nav>
@@ -354,9 +354,10 @@
   </section>
 
   <!-- Secret Button -->
-  <div class="secret-btn-wrap">
+  <div class="secret-btn-wrap" id="demoBtn" style="display:none">
     <button class="secret-btn" onclick="window.open(location.protocol==='file:'?'forge-demo.html':'forge-demo','_blank')">Don't click here</button>
   </div>
+  <script>if(showDemoButton)document.getElementById('demoBtn').style.display='';</script>
 
   <!-- Footer -->
   <footer id="contact">
