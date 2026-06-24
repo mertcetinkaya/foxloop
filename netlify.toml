@@ -5,3 +5,35 @@
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
+
+[[redirects]]
+  from = "/forge-demo.html"
+  to = "/forge-demo"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/forge-demo"
+  to = "/forge-demo.html"
+  status = 200
+
+[[redirects]]
+  from = "/war-game.html"
+  to = "/war-game"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/war-game"
+  to = "/war-game.html"
+  status = 200
+
+[[redirects]]
+  from = "/privacy"
+  to = "/privacypolicy.html"
+  status = 200
+
+[[redirects]]
+  from = "/terms"
+  to = "/terms.html"
+  status = 200

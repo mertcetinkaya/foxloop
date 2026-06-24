@@ -1,9 +1,23 @@
 import { Logo } from "./Logo";
 
-const footerLinks = {
-  Product: ["Dashboard", "Pricing", "Showcase", "Features"],
-  Company: ["About", "Resources", "Docs", "How it works"],
-  Legal: ["Privacy Policy", "Terms of Service", "Contact"],
+const footerLinks: Record<string, { label: string; href?: string }[]> = {
+  Product: [
+    { label: "Dashboard" },
+    { label: "Pricing" },
+    { label: "Showcase" },
+    { label: "Features" },
+  ],
+  Company: [
+    { label: "About" },
+    { label: "Resources" },
+    { label: "Docs" },
+    { label: "How it works" },
+  ],
+  Legal: [
+    { label: "Privacy Policy", href: "/privacy" },
+    { label: "Terms of Service", href: "/terms" },
+    { label: "Contact" },
+  ],
 };
 
 export function Footer() {
@@ -47,10 +61,19 @@ export function Footer() {
               <h3 className="text-sm font-semibold text-white">{category}</h3>
               <ul className="mt-4 space-y-3">
                 {links.map((link) => (
-                  <li key={link}>
-                    <button className="text-sm text-muted transition-colors hover:text-white">
-                      {link}
-                    </button>
+                  <li key={link.label}>
+                    {link.href ? (
+                      <a
+                        href={link.href}
+                        className="text-sm text-muted transition-colors hover:text-white"
+                      >
+                        {link.label}
+                      </a>
+                    ) : (
+                      <button className="text-sm text-muted transition-colors hover:text-white">
+                        {link.label}
+                      </button>
+                    )}
                   </li>
                 ))}
               </ul>

@@ -1,0 +1,626 @@
+{
+    "meta": {
+      "sourceImage": "uploaded screenshot",
+      "sourceResolution": {
+        "width": 1626,
+        "height": 1212,
+        "aspectRatio": "4:3"
+      },
+      "coordinateSystem": {
+        "origin": "top-left",
+        "unit": "px",
+        "notes": "Tüm x/y/w/h değerleri 1626x1212 doğal görsel ölçüsüne göredir. React/Canvas tarafında normalize ederek ölçeklenebilir."
+      },
+      "recommendedLogicalCanvas": {
+        "width": 1024,
+        "height": 768,
+        "scaleFromSource": {
+          "x": 0.6298,
+          "y": 0.6337
+        }
+      }
+    },
+    "scene": {
+      "id": "penalty_shootout_camera_attacker_view",
+      "camera": {
+        "type": "fixed_2d_pseudo_perspective",
+        "vanishingPointApprox": {
+          "x": 813,
+          "y": 260
+        },
+        "description": "Kamera penaltıcı arkasından kaleye bakıyor. Sahada pseudo-perspective var; üst taraf uzak, alt taraf yakın."
+      },
+      "safeArea": {
+        "x": 16,
+        "y": 2,
+        "width": 1600,
+        "height": 1200
+      },
+      "backgroundColor": "#ffffff"
+    },
+    "layers": [
+      {
+        "id": "outer_white_margin",
+        "type": "rect",
+        "zIndex": 0,
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 1626,
+          "height": 1212
+        },
+        "style": {
+          "fill": "#ffffff"
+        }
+      },
+      {
+        "id": "crowd_background",
+        "type": "image",
+        "zIndex": 1,
+        "bbox": {
+          "x": 16,
+          "y": 17,
+          "width": 1600,
+          "height": 154
+        },
+        "style": {
+          "blur": "slight",
+          "contrast": "medium",
+          "brightness": "darkened under HUD"
+        }
+      },
+      {
+        "id": "ad_board_band",
+        "type": "image",
+        "zIndex": 2,
+        "bbox": {
+          "x": 16,
+          "y": 171,
+          "width": 1600,
+          "height": 153
+        },
+        "style": {
+          "dominantColors": ["#78b899", "#d5d9cf", "#3d9f63"],
+          "notes": "Özgün oyunda FlashFooty reklam panoları var. Klonlamayın; kendi sponsor/placeholder panolarınızı üretin."
+        }
+      },
+      {
+        "id": "pitch_background",
+        "type": "image",
+        "zIndex": 3,
+        "bbox": {
+          "x": 16,
+          "y": 323,
+          "width": 1600,
+          "height": 858
+        },
+        "style": {
+          "grassTexture": "soft raster grass",
+          "dominantColor": "#62be66",
+          "noise": "subtle",
+          "perspective": "horizontal bands, slightly lighter near bottom-middle"
+        }
+      },
+      {
+        "id": "goal_back_net_roof",
+        "type": "polygon",
+        "zIndex": 4,
+        "points": [
+          { "x": 482, "y": 193 },
+          { "x": 1186, "y": 193 },
+          { "x": 1176, "y": 278 },
+          { "x": 491, "y": 278 }
+        ],
+        "style": {
+          "stroke": "#ffffff",
+          "strokeWidth": 4,
+          "fill": "transparent",
+          "grid": {
+            "verticalLinesApprox": 58,
+            "horizontalLinesApprox": 12,
+            "lineColor": "#ffffff",
+            "lineWidth": 2
+          }
+        }
+      },
+      {
+        "id": "goal_front_frame",
+        "type": "goal",
+        "zIndex": 5,
+        "bbox": {
+          "x": 482,
+          "y": 276,
+          "width": 704,
+          "height": 242
+        },
+        "parts": {
+          "leftPost": {
+            "x": 482,
+            "y": 276,
+            "width": 8,
+            "height": 242
+          },
+          "rightPost": {
+            "x": 1178,
+            "y": 276,
+            "width": 8,
+            "height": 242
+          },
+          "crossbar": {
+            "x": 482,
+            "y": 276,
+            "width": 704,
+            "height": 8
+          },
+          "goalLine": {
+            "x": 482,
+            "y": 515,
+            "width": 704,
+            "height": 6
+          }
+        },
+        "style": {
+          "postColor": "#ffffff",
+          "postShadow": "#3f3f3f",
+          "postWidth": 7
+        }
+      },
+      {
+        "id": "goal_front_net_grid",
+        "type": "grid",
+        "zIndex": 6,
+        "bbox": {
+          "x": 489,
+          "y": 283,
+          "width": 688,
+          "height": 233
+        },
+        "style": {
+          "lineColor": "#ffffff",
+          "lineWidth": 3,
+          "verticalCellWidthApprox": 13,
+          "horizontalCellHeightApprox": 13,
+          "opacity": 0.95
+        }
+      },
+      {
+        "id": "upper_field_line",
+        "type": "line",
+        "zIndex": 7,
+        "bbox": {
+          "x": 16,
+          "y": 515,
+          "width": 1600,
+          "height": 6
+        },
+        "style": {
+          "color": "#ffffff",
+          "shadowColor": "#cfd8cf",
+          "strokeWidth": 5
+        }
+      },
+      {
+        "id": "penalty_area_horizontal_line",
+        "type": "line",
+        "zIndex": 7,
+        "bbox": {
+          "x": 16,
+          "y": 682,
+          "width": 1600,
+          "height": 6
+        },
+        "style": {
+          "color": "#ffffff",
+          "strokeWidth": 5
+        }
+      },
+      {
+        "id": "lower_box_horizontal_line",
+        "type": "line",
+        "zIndex": 7,
+        "bbox": {
+          "x": 16,
+          "y": 1076,
+          "width": 1600,
+          "height": 5
+        },
+        "style": {
+          "color": "#ffffff",
+          "strokeWidth": 4
+        }
+      },
+      {
+        "id": "lower_left_diagonal_line",
+        "type": "line",
+        "zIndex": 7,
+        "points": [
+          { "x": 16, "y": 1126 },
+          { "x": 188, "y": 1181 }
+        ],
+        "style": {
+          "color": "#ffffff",
+          "strokeWidth": 5
+        }
+      },
+      {
+        "id": "lower_right_diagonal_line",
+        "type": "line",
+        "zIndex": 7,
+        "points": [
+          { "x": 1616, "y": 1127 },
+          { "x": 1463, "y": 1181 }
+        ],
+        "style": {
+          "color": "#ffffff",
+          "strokeWidth": 5
+        }
+      },
+      {
+        "id": "scoreboard_panel",
+        "type": "roundedRect",
+        "zIndex": 20,
+        "bbox": {
+          "x": 37,
+          "y": 20,
+          "width": 586,
+          "height": 143
+        },
+        "style": {
+          "fill": "rgba(12, 8, 45, 0.72)",
+          "borderRadius": 18,
+          "blurBehind": true
+        },
+        "children": [
+          {
+            "id": "team_home_label",
+            "type": "text",
+            "text": "Lyon",
+            "bbox": {
+              "x": 80,
+              "y": 39,
+              "width": 120,
+              "height": 42
+            },
+            "font": {
+              "family": "rounded sans / Flash-style",
+              "size": 40,
+              "color": "#ffffff",
+              "weight": "400"
+            }
+          },
+          {
+            "id": "team_away_label",
+            "type": "text",
+            "text": "Steaua",
+            "bbox": {
+              "x": 80,
+              "y": 101,
+              "width": 170,
+              "height": 42
+            },
+            "font": {
+              "family": "rounded sans / Flash-style",
+              "size": 35,
+              "color": "#ffffff",
+              "weight": "400"
+            }
+          },
+          {
+            "id": "home_score",
+            "type": "text",
+            "text": "0",
+            "bbox": {
+              "x": 497,
+              "y": 29,
+              "width": 28,
+              "height": 48
+            },
+            "font": {
+              "family": "rounded sans / Flash-style",
+              "size": 43,
+              "color": "#ffffff"
+            }
+          },
+          {
+            "id": "away_score",
+            "type": "text",
+            "text": "0",
+            "bbox": {
+              "x": 497,
+              "y": 91,
+              "width": 28,
+              "height": 48
+            },
+            "font": {
+              "family": "rounded sans / Flash-style",
+              "size": 43,
+              "color": "#ffffff"
+            }
+          }
+        ]
+      },
+      {
+        "id": "turn_stage_panel",
+        "type": "roundedRect",
+        "zIndex": 20,
+        "bbox": {
+          "x": 635,
+          "y": 19,
+          "width": 828,
+          "height": 76
+        },
+        "style": {
+          "fill": "rgba(12, 8, 45, 0.72)",
+          "borderRadius": 18,
+          "blurBehind": true
+        },
+        "children": [
+          {
+            "id": "turn_text",
+            "type": "text",
+            "text": "Turn: 1",
+            "bbox": {
+              "x": 746,
+              "y": 39,
+              "width": 292,
+              "height": 50
+            },
+            "font": {
+              "family": "rounded sans / Flash-style",
+              "size": 50,
+              "color": "#f2ea00"
+            }
+          },
+          {
+            "id": "stage_text",
+            "type": "text",
+            "text": "1/16 Fin",
+            "bbox": {
+              "x": 1061,
+              "y": 39,
+              "width": 280,
+              "height": 50
+            },
+            "font": {
+              "family": "rounded sans / Flash-style",
+              "size": 48,
+              "color": "#00ff2f"
+            }
+          }
+        ]
+      },
+      {
+        "id": "goalkeeper_sprite",
+        "type": "animatedSprite",
+        "zIndex": 10,
+        "bbox": {
+          "x": 780,
+          "y": 407,
+          "width": 101,
+          "height": 133
+        },
+        "anchor": {
+          "x": 830,
+          "y": 519
+        },
+        "pose": "idle_crouch",
+        "style": {
+          "outline": "#111111",
+          "shirtColor": "#20590f",
+          "shortColor": "#102040",
+          "glovesColor": "#ffffff"
+        },
+        "animationStates": [
+          "idle",
+          "dive_left_low",
+          "dive_left_high",
+          "dive_center",
+          "dive_right_low",
+          "dive_right_high",
+          "celebrate",
+          "concede"
+        ]
+      },
+      {
+        "id": "aim_arrow",
+        "type": "spriteOrPolygon",
+        "zIndex": 12,
+        "bbox": {
+          "x": 736,
+          "y": 695,
+          "width": 49,
+          "height": 76
+        },
+        "center": {
+          "x": 760,
+          "y": 734
+        },
+        "polygonApprox": [
+          { "x": 760, "y": 695 },
+          { "x": 786, "y": 724 },
+          { "x": 773, "y": 724 },
+          { "x": 773, "y": 771 },
+          { "x": 748, "y": 771 },
+          { "x": 748, "y": 724 },
+          { "x": 735, "y": 724 }
+        ],
+        "style": {
+          "fill": "#a4cb3f",
+          "opacity": 1
+        },
+        "gameplayRole": "visual shot direction indicator"
+      },
+      {
+        "id": "ball_sprite",
+        "type": "animatedSprite",
+        "zIndex": 13,
+        "bbox": {
+          "x": 813,
+          "y": 846,
+          "width": 35,
+          "height": 35
+        },
+        "center": {
+          "x": 830,
+          "y": 863
+        },
+        "physics": {
+          "radius": 17.5,
+          "startPosition": {
+            "x": 830,
+            "y": 863
+          }
+        },
+        "style": {
+          "baseColor": "#d8d8d8",
+          "outline": "#777777",
+          "pattern": "classic grey football"
+        }
+      },
+      {
+        "id": "kicker_sprite",
+        "type": "animatedSprite",
+        "zIndex": 14,
+        "bbox": {
+          "x": 618,
+          "y": 839,
+          "width": 90,
+          "height": 220
+        },
+        "anchor": {
+          "x": 656,
+          "y": 1048
+        },
+        "pose": "runup_before_kick",
+        "style": {
+          "outline": "#101010",
+          "shirtPattern": "red/navy vertical stripes",
+          "shortColor": "#082e55",
+          "skinTone": "#f1b276"
+        },
+        "animationStates": [
+          "idle",
+          "runup_1",
+          "runup_2",
+          "plant_foot",
+          "kick",
+          "follow_through",
+          "celebrate",
+          "miss_reaction"
+        ]
+      },
+      {
+        "id": "small_white_ground_dot",
+        "type": "circle",
+        "zIndex": 12,
+        "bbox": {
+          "x": 784,
+          "y": 962,
+          "width": 5,
+          "height": 5
+        },
+        "center": {
+          "x": 786,
+          "y": 964
+        },
+        "style": {
+          "fill": "#ffffff",
+          "opacity": 0.9
+        },
+        "gameplayRole": "possible run-up/aim reference dot"
+      }
+    ],
+    "interactiveZones": {
+      "shootingTargetArea": {
+        "id": "goal_click_target_area",
+        "bbox": {
+          "x": 489,
+          "y": 283,
+          "width": 688,
+          "height": 233
+        },
+        "grid": {
+          "columns": 5,
+          "rows": 3,
+          "zones": [
+            "top_left",
+            "top_mid_left",
+            "top_center",
+            "top_mid_right",
+            "top_right",
+            "middle_left",
+            "middle_mid_left",
+            "middle_center",
+            "middle_mid_right",
+            "middle_right",
+            "low_left",
+            "low_mid_left",
+            "low_center",
+            "low_mid_right",
+            "low_right"
+          ]
+        }
+      },
+      "goalkeeperDiveClickArea": {
+        "id": "defense_click_target_area",
+        "bbox": {
+          "x": 482,
+          "y": 276,
+          "width": 704,
+          "height": 242
+        },
+        "description": "Oyuncu kaleciyken bu alanın tıklanan bölgesi dalış yönüne çevrilir."
+      },
+      "ballStartPoint": {
+        "x": 830,
+        "y": 863
+      },
+      "kickerStartAnchor": {
+        "x": 656,
+        "y": 1048
+      },
+      "goalkeeperIdleAnchor": {
+        "x": 830,
+        "y": 519
+      }
+    },
+    "shotTrajectoryDefaults": {
+      "start": {
+        "x": 830,
+        "y": 863
+      },
+      "controlPoint": {
+        "x": 790,
+        "y": 670
+      },
+      "targetArea": {
+        "xMin": 489,
+        "xMax": 1177,
+        "yMin": 283,
+        "yMax": 516
+      },
+      "durationMs": {
+        "min": 520,
+        "max": 850
+      },
+      "ballScale": {
+        "atStart": 1,
+        "atGoal": 0.55
+      },
+      "spinAnimation": {
+        "fps": 18,
+        "frames": 8
+      }
+    },
+    "responsiveRules": {
+      "fitMode": "contain",
+      "preserveAspectRatio": "4:3",
+      "scaleFormula": "scale = min(containerWidth / 1626, containerHeight / 1212)",
+      "renderedX": "containerCenterX - 1626 * scale / 2",
+      "renderedY": "containerCenterY - 1212 * scale / 2",
+      "inputMapping": {
+        "sceneX": "(clientX - renderedX) / scale",
+        "sceneY": "(clientY - renderedY) / scale"
+      }
+    }
+  }
