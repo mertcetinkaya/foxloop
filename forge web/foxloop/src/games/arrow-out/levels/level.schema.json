@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Arrow Out Level",
+  "description": "Each arrow head points in `direction`. tail_path[0] is the grid cell directly behind the head; inner bends follow. On move, the head leads and each tail joint follows the position the segment ahead just occupied (snake motion).",
+  "type": "object",
+  "required": ["id", "name", "grid", "arrows"],
+  "properties": {
+    "id": { "type": "string" },
+    "name": { "type": "string" },
+    "grid": {
+      "type": "object",
+      "required": ["width", "height"],
+      "properties": {
+        "width": { "type": "integer", "minimum": 1 },
+        "height": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "arrows": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "head_pos", "direction", "tail_path"],
+        "properties": {
+          "id": { "type": "string" },
+          "head_pos": {
+            "type": "object",
+            "required": ["x", "y"],
+            "properties": {
+              "x": { "type": "integer" },
+              "y": { "type": "integer" }
+            }
+          },
+          "direction": {
+            "type": "string",
+            "enum": ["up", "down", "left", "right"]
+          },
+          "tail_path": {
+            "type": "array",
+            "description": "Ordered from cell behind head to tail end. Must be orthogonally adjacent throughout.",
+            "items": {
+              "type": "object",
+              "required": ["x", "y"],
+              "properties": {
+                "x": { "type": "integer" },
+                "y": { "type": "integer" }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

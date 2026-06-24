@@ -1,0 +1,13 @@
+export const MAX_LIVES = 3;
+export const GRID_DOT_RADIUS = 2;
+export const ARROW_LINE_WIDTH = 3;
+export const ARROW_HEAD_SIZE = 8;
+export const BOARD_PADDING = 28;
+export const BOARD_RADIUS = 16;
+export const BOARD_BG = "#e8e4ef";
+export const BOARD_BORDER = "#d4cfe0";
+export const GRID_DOT_COLOR = "#c8c2d4";
+export const ARROW_COLOR = "#1a1a1a";
+export const ARROW_BLOCKED_COLOR = "#dc2626";
+export const ARROW_HOVER_COLOR = "#4f46e5";
+export const BG_COLOR = "#2a1f4e";
