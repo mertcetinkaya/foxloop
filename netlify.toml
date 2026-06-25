@@ -37,3 +37,8 @@
   from = "/terms"
   to = "/terms.html"
   status = 200
+
+[[redirects]]
+  from = "/favicon.ico"
+  to = "/favicon.png"
+  status = 200

@@ -16,6 +16,14 @@ export const metadata: Metadata = {
   title: "foxloop — Build Games with AI",
   description:
     "Bring your game concepts to life. Ship complete games from a single prompt with AI — no coding required.",
+  icons: {
+    icon: [
+      { url: "/favicon.png", type: "image/png", sizes: "32x32" },
+      { url: "/favicon.ico", sizes: "32x32" },
+    ],
+    shortcut: "/favicon.png",
+    apple: "/apple-touch-icon.png",
+  },
 };
 
 export default function RootLayout({
