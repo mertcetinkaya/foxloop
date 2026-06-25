@@ -3,6 +3,9 @@
   command = "npm run build"
   publish = ".next"
 
+[build.processing.html]
+  pretty_urls = false
+
 [[plugins]]
   package = "@netlify/plugin-nextjs"
 
@@ -26,16 +29,6 @@
 [[redirects]]
   from = "/war-game"
   to = "/war-game.html"
-  status = 200
-
-[[redirects]]
-  from = "/privacy"
-  to = "/privacypolicy.html"
-  status = 200
-
-[[redirects]]
-  from = "/terms"
-  to = "/terms.html"
   status = 200
 
 [[redirects]]

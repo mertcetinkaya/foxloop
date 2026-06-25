@@ -14,8 +14,8 @@ const footerLinks: Record<string, { label: string; href?: string }[]> = {
     { label: "How it works" },
   ],
   Legal: [
-    { label: "Privacy Policy", href: "/privacy" },
-    { label: "Terms of Service", href: "/terms" },
+    { label: "Privacy Policy", href: "/privacypolicy.html" },
+    { label: "Terms of Service", href: "/termsandconditions.html" },
     { label: "Contact" },
   ],
 };
