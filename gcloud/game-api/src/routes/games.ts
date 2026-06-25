@@ -9,7 +9,7 @@ import {
   publishGame,
   resolveGameTitle,
 } from "../services/game-service.js";
-import { buildCoverSvg } from "../services/cover.js";
+import { generateCoverJpeg } from "../services/cover-ai.js";
 import { getStore } from "../services/store.js";
 import { buildPreviewFromGameId } from "../services/preview.js";
 import { isCursorConfigured } from "../services/cursor.js";
@@ -42,10 +42,24 @@ gamesRouter.get("/published", async (_req, res) => {
 gamesRouter.get("/by-slug/:slug/cover", async (req, res) => {
   try {
     const game = await getPublishedGameBySlug(req.params.slug);
-    const svg = buildCoverSvg(resolveGameTitle(game), game.slug);
-    res.setHeader("Content-Type", "image/svg+xml; charset=utf-8");
-    res.setHeader("Cache-Control", "public, max-age=86400");
-    res.send(svg);
+    const title = resolveGameTitle(game);
+
+    if (game.coverImageBase64) {
+      res.setHeader("Content-Type", "image/jpeg");
+      res.setHeader("Cache-Control", "public, max-age=86400");
+      res.send(Buffer.from(game.coverImageBase64, "base64"));
+      return;
+    }
+
+    const jpeg = await generateCoverJpeg({
+      title,
+      slug: game.slug,
+      userPrompt: game.userPrompt,
+      plan: game.gamePlan,
+    });
+    res.setHeader("Content-Type", "image/jpeg");
+    res.setHeader("Cache-Control", "public, max-age=3600");
+    res.send(jpeg);
   } catch {
     res.status(404).send("Not found");
   }

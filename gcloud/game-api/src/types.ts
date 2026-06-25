@@ -27,6 +27,7 @@ export interface GameDoc {
   userPrompt: string;
   gamePlan?: string;
   coverUrl?: string;
+  coverImageBase64?: string;
   buildStatus?: BuildStatus;
   errorMessage?: string;
   createdAt: string;

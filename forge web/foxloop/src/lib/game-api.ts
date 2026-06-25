@@ -109,14 +109,24 @@ export function playUrlBySlug(slug: string): string {
   return gameApiUrl(`/games/by-slug/${encodeURIComponent(slug)}/play`);
 }
 
-export function publishedCoverUrl(slug: string, image?: string): string {
+export function publishedCoverUrl(
+  slug: string,
+  image?: string,
+  publishedAt?: string
+): string {
+  let url: string;
   if (image?.startsWith("http://") || image?.startsWith("https://")) {
-    return image;
+    url = image;
+  } else if (image?.startsWith("/games/by-slug/")) {
+    url = gameApiUrl(image);
+  } else {
+    url = gameApiUrl(`/games/by-slug/${encodeURIComponent(slug)}/cover`);
   }
-  if (image?.startsWith("/games/by-slug/")) {
-    return gameApiUrl(image);
+  if (publishedAt) {
+    const sep = url.includes("?") ? "&" : "?";
+    return `${url}${sep}v=${encodeURIComponent(publishedAt)}`;
   }
-  return gameApiUrl(`/games/by-slug/${encodeURIComponent(slug)}/cover`);
+  return url;
 }
 
 export async function fetchPublishedGames(): Promise<Game[]> {
@@ -124,6 +134,10 @@ export async function fetchPublishedGames(): Promise<Game[]> {
   const data = await parseJson<{ games: Game[] }>(res);
   return data.games.map((game) => ({
     ...game,
-    image: publishedCoverUrl(game.id, game.image),
+    image: publishedCoverUrl(
+      game.id,
+      game.image,
+      (game as Game & { publishedAt?: string }).publishedAt
+    ),
   }));
 }

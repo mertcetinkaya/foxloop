@@ -20,6 +20,8 @@ import {
   uniqueSlug,
 } from "../utils.js";
 import { config, requireFirestore } from "../config.js";
+import { generateCoverJpeg } from "./cover-ai.js";
+import { extractTitleFromPlan, resolveGameTitle } from "./title.js";
 
 async function addChat(
   gameId: string,
@@ -42,54 +44,12 @@ async function updateGame(game: GameDoc, patch: Partial<GameDoc>) {
   return next;
 }
 
-const GENERIC_TITLE = /^(title|untitled|new game|game)$/i;
-
-function extractTitle(
-  plan: string,
-  userPrompt: string,
-  fallback: string
-): string {
-  const section = plan.match(/^##\s*Title\s*\n+([^\n#]+)/im);
-  if (section?.[1]?.trim() && !GENERIC_TITLE.test(section[1].trim())) {
-    return section[1].trim().slice(0, 80);
-  }
-
-  const titleLine = plan.match(/^Title:\s*(.+)$/im);
-  if (titleLine?.[1]?.trim() && !GENERIC_TITLE.test(titleLine[1].trim())) {
-    return titleLine[1].trim().slice(0, 80);
-  }
-
-  const h1 = plan.match(/^#\s*(.+)$/m);
-  if (h1?.[1]?.trim() && !GENERIC_TITLE.test(h1[1].trim())) {
-    return h1[1].trim().slice(0, 80);
-  }
-
-  const fromPrompt = userPrompt.trim();
-  if (fromPrompt) {
-    const cleaned = fromPrompt.charAt(0).toUpperCase() + fromPrompt.slice(1);
-    return cleaned.slice(0, 80);
-  }
-
-  return fallback;
-}
-
-export function resolveGameTitle(game: GameDoc): string {
-  if (game.title?.trim() && !GENERIC_TITLE.test(game.title.trim())) {
-    return game.title.trim();
-  }
-  if (game.gamePlan) {
-    return extractTitle(game.gamePlan, game.userPrompt, titleFromSlug(game.slug));
-  }
-  if (game.userPrompt?.trim()) {
-    const p = game.userPrompt.trim();
-    return (p.charAt(0).toUpperCase() + p.slice(1)).slice(0, 80);
-  }
-  return titleFromSlug(game.slug);
-}
 
 export function coverPathForSlug(slug: string): string {
   return `/games/by-slug/${encodeURIComponent(slug)}/cover`;
 }
+
+export { resolveGameTitle } from "./title.js";
 
 export async function createGameFromPrompt(userPrompt: string): Promise<GameDoc> {
   const store = await getStore();
@@ -121,7 +81,7 @@ export async function createGameFromPrompt(userPrompt: string): Promise<GameDoc>
     game = await updateGame(game, {
       status: "generating",
       gamePlan: plan,
-      title: extractTitle(plan, userPrompt, game.title),
+      title: extractTitleFromPlan(plan, userPrompt, game.title),
     });
     await addChat(id, { role: "assistant", type: "plan", text: plan });
 
@@ -203,12 +163,20 @@ export async function publishGame(gameId: string): Promise<GameDoc> {
   }
 
   const title = resolveGameTitle(game);
+  const coverJpeg = await generateCoverJpeg({
+    title,
+    slug: game.slug,
+    userPrompt: game.userPrompt,
+    plan: game.gamePlan,
+  });
+
   const updated = await updateGame(game, {
     title,
     status: "published",
     buildStatus: "live",
     publishedAt: nowIso(),
     coverUrl: coverPathForSlug(game.slug),
+    coverImageBase64: coverJpeg.toString("base64"),
   });
 
   await removeWorkspace(gameId);

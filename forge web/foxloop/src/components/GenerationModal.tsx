@@ -225,7 +225,7 @@ export function GenerationModal({
                     {loadingKind === "edit"
                       ? "Applying your edit…"
                       : loadingKind === "publish"
-                        ? "Publishing…"
+                        ? "Generating cover art & saving… (up to ~1 min)"
                         : "Working…"}
                   </div>
                 )}
