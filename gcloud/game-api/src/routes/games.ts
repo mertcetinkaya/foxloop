@@ -1,4 +1,5 @@
 import { Router } from "express";
+import multer from "multer";
 import type { PublishedGameCard } from "../types.js";
 import {
   createGameFromPrompt,
@@ -16,6 +17,18 @@ import { isCursorConfigured } from "../services/cursor.js";
 import { sanitizeChatMessageForPlayer } from "../services/chat-summary.js";
 
 export const gamesRouter = Router();
+
+const referenceUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 10 * 1024 * 1024 },
+  fileFilter: (_req, file, cb) => {
+    if (file.mimetype.startsWith("image/")) {
+      cb(null, true);
+    } else {
+      cb(new Error("referenceImage must be an image file"));
+    }
+  },
+});
 
 gamesRouter.get("/published", async (_req, res) => {
   try {
@@ -89,10 +102,14 @@ gamesRouter.get("/by-slug/:slug", async (req, res) => {
   }
 });
 
-gamesRouter.post("/", async (req, res) => {
+gamesRouter.post("/", referenceUpload.single("referenceImage"), async (req, res) => {
   const prompt = String(req.body?.prompt ?? "").trim();
   if (!prompt) {
     res.status(400).json({ error: "prompt is required" });
+    return;
+  }
+  if (!req.file) {
+    res.status(400).json({ error: "referenceImage is required" });
     return;
   }
   if (!isCursorConfigured()) {
@@ -101,7 +118,11 @@ gamesRouter.post("/", async (req, res) => {
   }
 
   try {
-    const game = await createGameFromPrompt(prompt);
+    const game = await createGameFromPrompt(
+      prompt,
+      req.file.buffer,
+      req.file.mimetype
+    );
     res.status(201).json({ game });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Generation failed";

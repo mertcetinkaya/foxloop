@@ -9,13 +9,21 @@ import { GenerationModal } from "@/components/GenerationModal";
 import { ComingSoonModal } from "@/components/ComingSoonModal";
 import { ForgeDownloadSection } from "@/components/ForgeDownloadSection";
 
+interface GenerationRequest {
+  prompt: string;
+  referenceImage: File;
+}
+
 export function HomePage() {
-  const [generationPrompt, setGenerationPrompt] = useState<string | null>(null);
+  const [generationRequest, setGenerationRequest] = useState<GenerationRequest | null>(
+    null
+  );
   const [isComingSoonOpen, setIsComingSoonOpen] = useState(false);
   const [catalogVersion, setCatalogVersion] = useState(0);
 
-  const openGeneration = (prompt: string) => setGenerationPrompt(prompt);
-  const closeGeneration = () => setGenerationPrompt(null);
+  const openGeneration = (prompt: string, referenceImage: File) =>
+    setGenerationRequest({ prompt, referenceImage });
+  const closeGeneration = () => setGenerationRequest(null);
   const openComingSoon = () => setIsComingSoonOpen(true);
   const closeComingSoon = () => setIsComingSoonOpen(false);
 
@@ -55,8 +63,9 @@ export function HomePage() {
 
       <Footer />
       <GenerationModal
-        isOpen={generationPrompt !== null}
-        initialPrompt={generationPrompt ?? ""}
+        isOpen={generationRequest !== null}
+        initialPrompt={generationRequest?.prompt ?? ""}
+        initialReferenceImage={generationRequest?.referenceImage ?? null}
         onClose={closeGeneration}
         onPublished={() => setCatalogVersion((v) => v + 1)}
       />

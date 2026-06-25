@@ -1,6 +1,10 @@
 import { Agent, CursorAgentError } from "@cursor/sdk";
 import { config, requireCursorKey } from "../config.js";
 import {
+  referenceImagePayload,
+  type SdkReferenceImage,
+} from "./reference-image.js";
+import {
   BUILDER_SYSTEM,
   EDIT_SYSTEM,
   PLANNER_SYSTEM,
@@ -27,20 +31,31 @@ async function collectRunText(run: Awaited<ReturnType<Awaited<ReturnType<typeof 
   return text.trim();
 }
 
-export async function runPlanner(userPrompt: string): Promise<string> {
+export async function runPlanner(
+  userPrompt: string,
+  referenceImage: SdkReferenceImage
+): Promise<string> {
   const apiKey = requireCursorKey();
-  const result = await Agent.prompt(
-    `${PLANNER_SYSTEM}\n\n${buildPlannerPrompt(userPrompt)}`,
-    {
+
+  try {
+    await using agent = await Agent.create({
       apiKey,
       model: { id: config.cursorModel },
       local: { cwd: config.webRoot, settingSources: [] },
+    });
+
+    const run = await agent.send({
+      text: `${PLANNER_SYSTEM}\n\n${buildPlannerPrompt(userPrompt)}`,
+      images: [referenceImagePayload(referenceImage)],
+    });
+    const plan = await collectRunText(run);
+    return plan || fallbackPlan(userPrompt);
+  } catch (err) {
+    if (err instanceof CursorAgentError) {
+      throw new Error(`Planner failed: ${err.message}`);
     }
-  );
-  if (result.status === "error") {
-    throw new Error("Planner agent failed");
+    throw err;
   }
-  return (result.result ?? "").trim() || fallbackPlan(userPrompt);
 }
 
 export interface BuilderResult {
@@ -51,7 +66,9 @@ export interface BuilderResult {
 export async function runBuilder(
   workspaceDir: string,
   plan: string,
-  slug: string
+  slug: string,
+  userPrompt: string,
+  referenceImage: SdkReferenceImage
 ): Promise<BuilderResult> {
   const apiKey = requireCursorKey();
 
@@ -62,9 +79,10 @@ export async function runBuilder(
       local: { cwd: workspaceDir, settingSources: [] },
     });
 
-    const run = await agent.send(
-      `${BUILDER_SYSTEM}\n\n${buildBuilderPrompt(plan, slug)}`
-    );
+    const run = await agent.send({
+      text: `${BUILDER_SYSTEM}\n\n${buildBuilderPrompt(plan, slug, userPrompt)}`,
+      images: [referenceImagePayload(referenceImage)],
+    });
     const assistantText = await collectRunText(run);
     return { agentId: agent.agentId, assistantText };
   } catch (err) {
@@ -119,7 +137,7 @@ Move player with mouse or finger.
 Enemies spawn from sides; collision costs a life; reach score 500 to win.
 
 ## Visual Style
-Dark purple gradient space background, glowing player orb, red enemy orbs, particles.
+Match the attached reference image palette and mood in canvas 2D.
 
 ## UI/HUD
 Score top-left, lives top-right, hint text bottom.

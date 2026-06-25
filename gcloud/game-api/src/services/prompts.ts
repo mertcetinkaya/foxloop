@@ -4,6 +4,7 @@ Output markdown with sections: Title, Genre, Core Loop, Controls, Mechanics, Vis
 Under ## Title put ONLY a short catchy game name (2-4 words, no markdown, no description).
 Note: The game title is already locked before planning — use the same title in ## Title for reference only.
 Keep it playable in a single canvas screen. One-hand controls. Session under 3 minutes.
+The player attached a reference image — describe Visual Style to match that world's palette, perspective, and mood (canvas 2D, not a photo paste).
 Reference quality: polished 2D canvas like "Eat the Smaller Fish" or "Arrow Out" — gradients, particles, depth, not flat placeholders.`;
 
 export const BUILDER_SYSTEM = `You are building a Foxloop Forge Lite hypercasual game in TypeScript with Canvas 2D.
@@ -27,6 +28,9 @@ Visual depth contract (REQUIRED):
 Hypercasual polish REQUIRED: glow, particles or trails, screen shake on hit, readable HUD.
 Mobile-friendly: drag/tap via onPointerDown + setPointer; keyboard via onKey + state.keys.
 
+The attached reference image (also saved as reference-scene.jpg) is the visual target for the playable canvas scene.
+Draw that world in Canvas 2D: match palette, perspective, background layers, and mood — do NOT paste or blit the photo as gameplay.
+
 Read reference games for style (if accessible):
 - forge web/foxloop/src/games/eat-smaller-fish/
 - forge web/foxloop/src/games/arrow-out/
@@ -42,11 +46,18 @@ Never change the game title or cover art — only gameplay files.
 Your chat reply to the user is not shown — only file edits matter.`;
 
 export function buildPlannerPrompt(userPrompt: string): string {
-  return `User idea:\n${userPrompt}\n\nWrite a detailed hypercasual game plan the engineering agent can implement in canvas TypeScript files.`;
+  return `User idea:\n${userPrompt}\n\nUse the attached reference image when writing Visual Style and Mechanics.\n\nWrite a detailed hypercasual game plan the engineering agent can implement in canvas TypeScript files.`;
 }
 
-export function buildBuilderPrompt(plan: string, slug: string): string {
+export function buildBuilderPrompt(
+  plan: string,
+  slug: string,
+  userPrompt: string
+): string {
   return `Game slug: ${slug}
+User idea: ${userPrompt}
+
+The attached reference image shows the world to recreate in Canvas 2D (reference-scene.jpg is the same file in this workspace).
 
 Implement this plan in the workspace TypeScript files (engine.ts, renderer.ts, types.ts, constants.ts, draw-helpers.ts):
 

@@ -27,6 +27,10 @@ export async function initWorkspaceFromScaffold(gameId: string): Promise<string>
   return dir;
 }
 
+export async function writeReferenceImage(workspaceDir: string, image: Buffer): Promise<void> {
+  await fs.writeFile(path.join(workspaceDir, "reference-scene.jpg"), image);
+}
+
 export async function removeWorkspace(gameId: string): Promise<void> {
   await fs.rm(workspaceDir(gameId), { recursive: true, force: true });
 }
