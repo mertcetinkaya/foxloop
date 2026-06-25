@@ -1,95 +1,50 @@
-import { Agent } from "@cursor/sdk";
 import sharp from "sharp";
-import { config, requireCursorKey } from "../config.js";
+import { config, isAiCoverEnabled } from "../config.js";
 import {
   generateFallbackCoverJpeg,
   type CoverInput,
 } from "./cover-image.js";
 import { cleanDisplayTitle } from "./title.js";
-import { cursorModelSelection } from "./cursor-model.js";
 
 export type { CoverInput };
 
 const COVER_W = 1200;
 const COVER_H = 750;
 
-const GPT_IMAGE_MODELS = [
-  "gpt-image-2",
-  "gpt-image-1.5",
-  "gpt-image-1",
-  "gpt-image-1-mini",
-] as const;
-
-function imageModelCandidates(): string[] {
-  const preferred = config.openaiImageModel.trim();
-  const ordered = preferred
-    ? [preferred, ...GPT_IMAGE_MODELS.filter((m) => m !== preferred)]
-    : [...GPT_IMAGE_MODELS];
-  return [...new Set(ordered)];
-}
+const GPT_IMAGE_SIZES = new Set(["1024x1024", "1024x1536", "1536x1024"]);
+const GPT_IMAGE_QUALITIES = new Set(["low", "medium", "high"]);
 
 function templateCoverPrompt(input: CoverInput): string {
   const title = cleanDisplayTitle(input.title);
-  const idea = input.userPrompt?.trim() || title;
+  const idea = (input.userPrompt?.trim() || title).slice(0, 300);
   return [
-    `Professional mobile hypercasual game store cover art for "${title}".`,
-    "Vibrant polished 3D cartoon illustration in the style of top mobile arcade games",
-    "(colorful fish underwater, soccer penalty kick, swipe combat, pirate adventure — match the theme).",
-    `Theme / gameplay: ${idea.slice(0, 200)}.`,
-    `Bold stylized title text "${title.toUpperCase()}" integrated into the artwork.`,
-    "Bright colors, glossy characters, marketing splash screen quality, 16:10 landscape composition.",
+    "Hypercasual mobile game cover art for a store listing.",
+    `Game idea: ${idea}.`,
+    `Title text on the cover: "${title}".`,
+    "Vibrant 3D cartoon style, polished commercial game marketing quality, landscape composition.",
     "No watermarks, no UI buttons, no extra logos.",
   ].join(" ");
 }
 
-async function composeCoverPromptWithAgent(input: CoverInput): Promise<string> {
-  const apiKey = requireCursorKey();
-  const title = cleanDisplayTitle(input.title);
-  const planExcerpt = input.plan?.slice(0, 600) ?? "";
-
-  const result = await Agent.prompt(
-    [
-      "You write detailed prompts for AI image generation.",
-      "Create ONE prompt for a hypercasual mobile game cover / store listing hero image.",
-      "Style reference: polished 3D cartoon game art like Fish Eat Fish, Penalty Fever — bold title text in the image, vibrant colors, commercial quality.",
-      "Match visuals to the game's theme (pirate, racing, swipe combat, underwater, space, etc.).",
-      "",
-      `Game title: ${title}`,
-      `Player idea: ${input.userPrompt ?? title}`,
-      planExcerpt ? `Design notes:\n${planExcerpt}` : "",
-      "",
-      "Output ONLY the image prompt text. No markdown, no quotes, no explanation.",
-    ].join("\n"),
-    {
-      apiKey,
-      model: cursorModelSelection(),
-      local: { cwd: config.webRoot, settingSources: [] },
-    }
-  );
-
-  const text = result.result?.trim();
-  if (!text || text.length < 40) {
-    return templateCoverPrompt(input);
-  }
-  return text.slice(0, 3800);
-}
-
 function isGptImageModel(model: string): boolean {
-  return (
-    model.startsWith("gpt-image") ||
-    model === "chatgpt-image-latest" ||
-    model.startsWith("gpt-image-")
-  );
+  return model.startsWith("gpt-image") || model === "chatgpt-image-latest";
 }
 
 function buildImageRequestBody(model: string, prompt: string): Record<string, unknown> {
+  const size = GPT_IMAGE_SIZES.has(config.openaiImageSize)
+    ? config.openaiImageSize
+    : "1024x1024";
+  const quality = GPT_IMAGE_QUALITIES.has(config.openaiImageQuality)
+    ? config.openaiImageQuality
+    : "low";
+
   if (isGptImageModel(model)) {
     return {
       model,
       prompt,
       n: 1,
-      size: "1536x1024",
-      quality: "high",
+      size,
+      quality,
     };
   }
 
@@ -97,7 +52,7 @@ function buildImageRequestBody(model: string, prompt: string): Record<string, un
     model,
     prompt,
     n: 1,
-    size: "1792x1024",
+    size: "1024x1024",
     quality: "standard",
     response_format: "b64_json",
   };
@@ -106,7 +61,7 @@ function buildImageRequestBody(model: string, prompt: string): Record<string, un
 async function requestOpenAiImage(model: string, prompt: string): Promise<Buffer> {
   const apiKey = config.openaiApiKey;
   if (!apiKey) {
-    throw new Error("OPENAI_API_KEY is not configured for cover art generation");
+    throw new Error("OPENAI_API_KEY is not configured");
   }
 
   const res = await fetch("https://api.openai.com/v1/images/generations", {
@@ -137,23 +92,6 @@ async function requestOpenAiImage(model: string, prompt: string): Promise<Buffer
   return Buffer.from(b64, "base64");
 }
 
-async function generateOpenAiCoverImage(prompt: string): Promise<Buffer> {
-  const models = imageModelCandidates();
-  let lastError: Error | null = null;
-
-  for (const model of models) {
-    try {
-      console.log(`Generating cover with model: ${model}`);
-      return await requestOpenAiImage(model, prompt);
-    } catch (err) {
-      lastError = err instanceof Error ? err : new Error(String(err));
-      console.warn(`Cover model ${model} failed:`, lastError.message);
-    }
-  }
-
-  throw lastError ?? new Error("All OpenAI image models failed");
-}
-
 async function resizeCoverToJpeg(image: Buffer): Promise<Buffer> {
   return sharp(image)
     .resize(COVER_W, COVER_H, { fit: "cover", position: "centre" })
@@ -161,26 +99,40 @@ async function resizeCoverToJpeg(image: Buffer): Promise<Buffer> {
     .toBuffer();
 }
 
-/** Composer writes the image prompt; OpenAI GPT Image renders the cover. */
-export async function generateCoverJpeg(input: CoverInput): Promise<Buffer> {
+/** OpenAI image only — throws if OPENAI_API_KEY is unset. */
+export async function generateAiCoverJpeg(input: CoverInput): Promise<Buffer> {
+  if (!isAiCoverEnabled()) {
+    throw new Error("OPENAI_API_KEY is not configured");
+  }
+
   const normalized: CoverInput = {
     ...input,
     title: cleanDisplayTitle(input.title),
   };
 
-  if (!config.openaiApiKey) {
-    console.warn(
-      "OPENAI_API_KEY missing — using canvas cover fallback. Add OPENAI_API_KEY for AI covers."
-    );
+  const model = config.openaiImageModel.trim() || "gpt-image-1-mini";
+  const prompt = templateCoverPrompt(normalized);
+  console.log(`Generating AI cover with ${model} (${config.openaiImageQuality}/${config.openaiImageSize})`);
+  const png = await requestOpenAiImage(model, prompt);
+  return await resizeCoverToJpeg(png);
+}
+
+/**
+ * Cover for new games: AI when OPENAI_API_KEY is set, otherwise simple canvas art.
+ * AI failure falls back to canvas so the build can still complete.
+ */
+export async function generateCoverForCreate(input: CoverInput): Promise<Buffer> {
+  const normalized: CoverInput = {
+    ...input,
+    title: cleanDisplayTitle(input.title),
+  };
+
+  if (!isAiCoverEnabled()) {
     return generateFallbackCoverJpeg(normalized);
   }
 
   try {
-    const prompt = normalized.skipAgentPrompt
-      ? templateCoverPrompt(normalized)
-      : await composeCoverPromptWithAgent(normalized);
-    const png = await generateOpenAiCoverImage(prompt);
-    return await resizeCoverToJpeg(png);
+    return await generateAiCoverJpeg(normalized);
   } catch (err) {
     console.error("AI cover generation failed, using canvas fallback:", err);
     return generateFallbackCoverJpeg(normalized);

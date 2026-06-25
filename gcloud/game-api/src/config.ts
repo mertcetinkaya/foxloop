@@ -17,7 +17,10 @@ export const config = {
   /** Optional JSON array, e.g. [{"id":"thinking","value":"true"},{"id":"effort","value":"high"}] */
   cursorModelParams: parseCursorModelParams(process.env.CURSOR_MODEL_PARAMS),
   openaiApiKey: process.env.OPENAI_API_KEY ?? "",
-  openaiImageModel: process.env.OPENAI_IMAGE_MODEL ?? "gpt-image-1",
+  /** Cheapest default: gpt-image-1-mini + low quality + 1024x1024 */
+  openaiImageModel: process.env.OPENAI_IMAGE_MODEL ?? "gpt-image-1-mini",
+  openaiImageQuality: process.env.OPENAI_IMAGE_QUALITY ?? "low",
+  openaiImageSize: process.env.OPENAI_IMAGE_SIZE ?? "1024x1024",
   gcpProject: process.env.GOOGLE_CLOUD_PROJECT ?? "",
   useFirestore: Boolean(process.env.GOOGLE_CLOUD_PROJECT),
   githubToken: process.env.GITHUB_TOKEN ?? "",
@@ -56,6 +59,11 @@ function parseCursorModelParams(
   } catch {
     return [];
   }
+}
+
+/** True when OPENAI_API_KEY is set — enables OpenAI cover generation on create. */
+export function isAiCoverEnabled(): boolean {
+  return Boolean(config.openaiApiKey.trim());
 }
 
 export function requireCursorKey(): string {

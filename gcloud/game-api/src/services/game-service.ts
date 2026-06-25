@@ -17,6 +17,7 @@ import {
 } from "../utils.js";
 import { config, requireFirestore } from "../config.js";
 import { generateFallbackCoverJpeg } from "./cover-image.js";
+import { generateCoverForCreate } from "./cover-ai.js";
 import { summarizeEdit, summarizeGameReady } from "./chat-summary.js";
 import { deriveLockedTitle, resolveGameTitle } from "./title.js";
 
@@ -84,12 +85,6 @@ export async function createGameFromPrompt(
 
   const lockedTitle = await deriveLockedTitle(userPrompt);
 
-  const coverJpeg = await generateFallbackCoverJpeg({
-    title: lockedTitle,
-    slug,
-    userPrompt,
-  });
-
   let game: GameDoc = {
     id,
     slug,
@@ -100,9 +95,8 @@ export async function createGameFromPrompt(
     ownerEmail: owner.email,
     status: "generating",
     gameBuildStatus: "building",
-    coverStatus: "ready",
+    coverStatus: "generating",
     coverUrl: coverPathForSlug(slug),
-    coverImageBase64: coverJpeg.toString("base64"),
     userPrompt,
     createdAt: now,
     updatedAt: now,
@@ -116,13 +110,27 @@ export async function createGameFromPrompt(
       throw new Error("CURSOR_API_KEY is not configured on the game API server");
     }
 
-    const dir = await initWorkspaceFromScaffold(id);
-    await copyReferenceGamesToWorkspace(dir);
+    const coverInput = {
+      title: lockedTitle,
+      slug,
+      userPrompt,
+      skipAgentPrompt: true,
+    };
 
-    const builderResult = await runBuildPipeline(dir, slug, userPrompt);
-    game = await updateGame(game, { gamePlan: builderResult.gamePlan });
+    const coverPromise = generateCoverForCreate(coverInput);
 
-    await syncWorkspaceToStore(store, id, dir);
+    const buildPromise = (async () => {
+      const dir = await initWorkspaceFromScaffold(id);
+      await copyReferenceGamesToWorkspace(dir);
+      const builderResult = await runBuildPipeline(dir, slug, userPrompt);
+      await syncWorkspaceToStore(store, id, dir);
+      return builderResult;
+    })();
+
+    const [coverJpeg, builderResult] = await Promise.all([
+      coverPromise,
+      buildPromise,
+    ]);
 
     const revealText = await summarizeGameReady(
       lockedTitle,
@@ -138,6 +146,8 @@ export async function createGameFromPrompt(
 
     game = await updateGame(game, {
       agentId: builderResult.agentId,
+      gamePlan: builderResult.gamePlan,
+      coverImageBase64: coverJpeg.toString("base64"),
       gameBuildStatus: "ready",
       coverStatus: "ready",
       status: "ready",
