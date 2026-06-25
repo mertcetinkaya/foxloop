@@ -11,6 +11,8 @@ import { ForgeDownloadSection } from "@/components/ForgeDownloadSection";
 import { LoginModal } from "@/components/LoginModal";
 import { useAuth } from "@/components/AuthProvider";
 
+const INVITED_ONLY_MESSAGE = "Only invited users can create a game";
+
 export function HomePage() {
   const { user } = useAuth();
   const [generationPrompt, setGenerationPrompt] = useState<string | null>(null);
@@ -18,11 +20,17 @@ export function HomePage() {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isComingSoonOpen, setIsComingSoonOpen] = useState(false);
   const [catalogVersion, setCatalogVersion] = useState(0);
+  const [promptNotice, setPromptNotice] = useState<string | null>(null);
 
   const openGeneration = (prompt: string) => {
+    setPromptNotice(null);
     if (!user) {
       setPendingPrompt(prompt);
       setIsLoginOpen(true);
+      return;
+    }
+    if (user.provider !== "invited") {
+      setPromptNotice(INVITED_ONLY_MESSAGE);
       return;
     }
     setGenerationPrompt(prompt);
@@ -33,10 +41,10 @@ export function HomePage() {
   const closeComingSoon = () => setIsComingSoonOpen(false);
 
   const handleLoginSuccess = () => {
-    if (pendingPrompt) {
-      setGenerationPrompt(pendingPrompt);
-      setPendingPrompt(null);
-    }
+    if (!pendingPrompt) return;
+    const prompt = pendingPrompt;
+    setPendingPrompt(null);
+    openGeneration(prompt);
   };
 
   return (
@@ -59,8 +67,11 @@ export function HomePage() {
             coding needed.
           </p>
 
-          <div className="mt-10 w-full flex justify-center">
+          <div className="mt-10 w-full flex flex-col items-center gap-3">
             <PromptArea onSend={openGeneration} />
+            {promptNotice && (
+              <p className="max-w-md text-sm text-orange-300">{promptNotice}</p>
+            )}
           </div>
         </section>
 

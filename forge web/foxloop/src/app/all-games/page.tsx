@@ -27,12 +27,12 @@ export default function AllGamesPage() {
                 Game Jam
               </p>
               <h1 className="mt-3 text-4xl font-bold sm:text-5xl">
-                All{" "}
+                All Forge Lite{" "}
                 <span className="gradient-text-orange">Games</span>
               </h1>
               <p className="mx-auto mt-4 max-w-xl text-muted">
-                See the full Forge catalog. Play what catches your eye, gather
-                ideas, and start building your next title.
+                Every Lite title in the catalog — play, get inspired, and share
+                your favorites.
               </p>
             </div>
 

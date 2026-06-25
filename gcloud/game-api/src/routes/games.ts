@@ -15,7 +15,7 @@ import { getStore } from "../services/store.js";
 import { buildPreviewFromGameId } from "../services/preview.js";
 import { isCursorConfigured } from "../services/cursor.js";
 import { sanitizeChatMessageForPlayer } from "../services/chat-summary.js";
-import { requireAuth } from "../middleware/auth.js";
+import { requireAuth, requireInvitedUser } from "../middleware/auth.js";
 
 export const gamesRouter = Router();
 
@@ -102,7 +102,7 @@ gamesRouter.get("/by-slug/:slug", async (req, res) => {
   }
 });
 
-gamesRouter.post("/", requireAuth, async (req, res) => {
+gamesRouter.post("/", requireAuth, requireInvitedUser, async (req, res) => {
   const prompt = String(req.body?.prompt ?? "").trim();
   if (!prompt) {
     res.status(400).json({ error: "prompt is required" });
