@@ -86,27 +86,21 @@ Without Firestore, drafts use local `.data/` only (not shared); **Save will fail
 
 ## Invited users (username / password)
 
-Guest accounts live in Firestore collection **`invitedUsers`** (document ID = lowercase username).
+Add guests in **Firebase Console → Firestore → `invitedUsers`**.
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `username` | string | Same as document ID |
-| `passwordHash` | string | bcrypt hash (use seed script) |
-| `enabled` | boolean | `false` disables login |
-| `displayName` | string | Optional label |
-| `createdAt` | string | ISO timestamp |
+1. **Add document**
+2. **Document ID** = username (lowercase), e.g. `inviteduser`
+3. Fields:
+   - `password` (string) — e.g. `inviteduser1`
+   - `enabled` (boolean) — `true` (optional; defaults to allowed if missing)
 
-**Create via CLI (recommended):**
+Optional CLI (same plain password in Firestore):
 ```bash
 cd gcloud/game-api
 npm run seed-invited -- inviteduser inviteduser1
 ```
 
-**Manual in Firebase Console:** only add `passwordHash` if you generate bcrypt yourself; prefer the seed script.
-
-Login: `POST /auth/invited-login` with `{ "username", "password" }`. Invited users have the same game rights as Google users (`ownerUid` = `invited:username`).
-
-Set `INVITED_JWT_SECRET` in production `.env`.
+Invited users have the same game rights as Google users (`ownerUid` = `invited:username`).
 
 ## Deploy
 

@@ -1,5 +1,5 @@
 /**
- * Seed an invited user into Firestore.
+ * Optional: add invited user to Firestore (same as manual Console entry).
  * Usage: npm run seed-invited -- inviteduser inviteduser1
  */
 import { config as loadEnv } from "dotenv";
@@ -23,4 +23,6 @@ if (!process.env.GOOGLE_CLOUD_PROJECT) {
 }
 
 await createInvitedUser(username, password);
-console.log(`Invited user "${username.trim().toLowerCase()}" created in Firestore (invitedUsers).`);
+console.log(
+  `Added invitedUsers/${username.trim().toLowerCase()} with plain password field.`
+);

@@ -1,4 +1,3 @@
-import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { Firestore } from "@google-cloud/firestore";
 import { config } from "../config.js";
@@ -7,12 +6,12 @@ const COLLECTION = "invitedUsers";
 const INVITED_UID_PREFIX = "invited:";
 const JWT_EXPIRY = "30d";
 
+/** Plain-text password in Firestore — add manually in Firebase Console. */
 export interface InvitedUserDoc {
-  username: string;
-  passwordHash: string;
-  enabled: boolean;
+  username?: string;
+  password: string;
+  enabled?: boolean;
   displayName?: string;
-  createdAt: string;
 }
 
 export interface InvitedAuthUser {
@@ -29,8 +28,8 @@ function getFirestore(): Firestore {
   return new Firestore({ projectId: config.gcpProject });
 }
 
-export async function hashInvitedPassword(password: string): Promise<string> {
-  return bcrypt.hash(password, 10);
+function passwordMatches(doc: InvitedUserDoc, password: string): boolean {
+  return doc.password === password;
 }
 
 export async function createInvitedUser(
@@ -40,17 +39,16 @@ export async function createInvitedUser(
 ): Promise<void> {
   const normalized = username.trim().toLowerCase();
   if (!normalized) throw new Error("username is required");
+  if (!password) throw new Error("password is required");
 
   const db = getFirestore();
-  const passwordHash = await hashInvitedPassword(password);
   const doc: InvitedUserDoc = {
     username: normalized,
-    passwordHash,
+    password,
     enabled: true,
     displayName: displayName ?? normalized,
-    createdAt: new Date().toISOString(),
   };
-  await db.collection(COLLECTION).doc(normalized).set(doc);
+  await db.collection(COLLECTION).doc(normalized).set(doc, { merge: true });
 }
 
 export async function loginInvitedUser(
@@ -69,12 +67,11 @@ export async function loginInvitedUser(
   }
 
   const data = snap.data() as InvitedUserDoc;
-  if (!data.enabled) {
+  if (data.enabled === false) {
     throw new Error("This account is disabled");
   }
 
-  const ok = await bcrypt.compare(password, data.passwordHash);
-  if (!ok) {
+  if (!data.password || !passwordMatches(data, password)) {
     throw new Error("Invalid username or password");
   }
 
