@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { FORGE_LITE_GAMES, type Game } from "@/data/games";
 import { fetchPublishedGames } from "@/lib/game-api";
+import { mergePublishedWithStatic } from "@/lib/catalog";
 import { GameCard } from "./GameCard";
 
 export function PublishedLiteGames() {
@@ -24,12 +25,7 @@ export function PublishedLiteGames() {
     void load();
   }, [load]);
 
-  const allLite: Game[] = [
-    ...FORGE_LITE_GAMES,
-    ...published.filter(
-      (p) => !FORGE_LITE_GAMES.some((staticGame) => staticGame.id === p.id)
-    ),
-  ];
+  const allLite = mergePublishedWithStatic(FORGE_LITE_GAMES, published);
 
   if (!loaded) {
     return (

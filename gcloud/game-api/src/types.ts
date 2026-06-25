@@ -58,4 +58,5 @@ export interface PublishedGameCard {
   playable: boolean;
   featured?: boolean;
   buildStatus?: BuildStatus;
+  publishedAt?: string;
 }

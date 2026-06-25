@@ -7,7 +7,9 @@ import {
   getGameOrThrow,
   getPublishedGameBySlug,
   publishGame,
+  resolveGameTitle,
 } from "../services/game-service.js";
+import { buildCoverSvg } from "../services/cover.js";
 import { getStore } from "../services/store.js";
 import { buildPreviewFromGameId } from "../services/preview.js";
 import { isCursorConfigured } from "../services/cursor.js";
@@ -20,19 +22,32 @@ gamesRouter.get("/published", async (_req, res) => {
     const games = await store.listPublished();
     const cards: PublishedGameCard[] = games.map((g) => ({
       id: g.slug,
-      title: g.title,
-      image: g.coverUrl ?? `/games/${g.slug}.jpg`,
+      title: resolveGameTitle(g),
+      image: g.coverUrl ?? `/games/by-slug/${encodeURIComponent(g.slug)}/cover`,
       playCount: "0",
       path: `/games/${g.slug}`,
       playable: true,
       featured: false,
       buildStatus: g.buildStatus,
+      publishedAt: g.publishedAt,
     }));
     res.json({ games: cards });
   } catch (err) {
     res.status(500).json({
       error: err instanceof Error ? err.message : "Failed to list games",
     });
+  }
+});
+
+gamesRouter.get("/by-slug/:slug/cover", async (req, res) => {
+  try {
+    const game = await getPublishedGameBySlug(req.params.slug);
+    const svg = buildCoverSvg(resolveGameTitle(game), game.slug);
+    res.setHeader("Content-Type", "image/svg+xml; charset=utf-8");
+    res.setHeader("Cache-Control", "public, max-age=86400");
+    res.send(svg);
+  } catch {
+    res.status(404).send("Not found");
   }
 });
 

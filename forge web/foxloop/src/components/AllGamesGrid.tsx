@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { GAMES, type Game } from "@/data/games";
 import { fetchPublishedGames } from "@/lib/game-api";
+import { mergePublishedWithStatic } from "@/lib/catalog";
 import { GameCard } from "@/components/GameCard";
 
 export function AllGamesGrid() {
@@ -14,13 +15,11 @@ export function AllGamesGrid() {
       .catch(() => setPublished([]));
   }, []);
 
-  const byId = new Map<string, Game>();
-  for (const game of GAMES) byId.set(game.id, game);
-  for (const game of published) byId.set(game.id, game);
+  const allGames = mergePublishedWithStatic(GAMES, published);
 
   return (
     <>
-      {[...byId.values()].map((game) => (
+      {allGames.map((game) => (
         <GameCard key={game.id} game={game} size="large" />
       ))}
     </>

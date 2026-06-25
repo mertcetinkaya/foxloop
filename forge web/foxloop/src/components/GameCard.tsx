@@ -13,6 +13,8 @@ interface GameCardProps {
 export function GameCard({ game, size = "default" }: GameCardProps) {
   const isLarge = size === "large";
   const isPlayable = game.playable && (game.path || game.externalUrl);
+  const isRemoteImage =
+    game.image.startsWith("http://") || game.image.startsWith("https://");
 
   const cardContent = (
     <>
@@ -21,13 +23,22 @@ export function GameCard({ game, size = "default" }: GameCardProps) {
           isLarge ? "aspect-[16/10]" : "aspect-[4/3]"
         }`}
       >
-        <Image
-          src={game.image}
-          alt={game.title}
-          fill
-          className="object-cover transition-transform duration-300 group-hover:scale-105"
-          sizes={isLarge ? "50vw" : "25vw"}
-        />
+        {isRemoteImage ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={game.image}
+            alt={game.title}
+            className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+          />
+        ) : (
+          <Image
+            src={game.image}
+            alt={game.title}
+            fill
+            className="object-cover transition-transform duration-300 group-hover:scale-105"
+            sizes={isLarge ? "50vw" : "25vw"}
+          />
+        )}
 
         {game.featured && (
           <div className="absolute left-3 top-3 flex items-center gap-1 rounded-full bg-pink-500/90 px-2.5 py-1 text-xs font-medium text-white">

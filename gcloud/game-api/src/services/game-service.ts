@@ -42,9 +42,53 @@ async function updateGame(game: GameDoc, patch: Partial<GameDoc>) {
   return next;
 }
 
-function extractTitle(plan: string, fallback: string): string {
-  const match = plan.match(/^#\s*(.+)$/m) || plan.match(/Title:\s*(.+)$/im);
-  return match?.[1]?.trim() || fallback;
+const GENERIC_TITLE = /^(title|untitled|new game|game)$/i;
+
+function extractTitle(
+  plan: string,
+  userPrompt: string,
+  fallback: string
+): string {
+  const section = plan.match(/^##\s*Title\s*\n+([^\n#]+)/im);
+  if (section?.[1]?.trim() && !GENERIC_TITLE.test(section[1].trim())) {
+    return section[1].trim().slice(0, 80);
+  }
+
+  const titleLine = plan.match(/^Title:\s*(.+)$/im);
+  if (titleLine?.[1]?.trim() && !GENERIC_TITLE.test(titleLine[1].trim())) {
+    return titleLine[1].trim().slice(0, 80);
+  }
+
+  const h1 = plan.match(/^#\s*(.+)$/m);
+  if (h1?.[1]?.trim() && !GENERIC_TITLE.test(h1[1].trim())) {
+    return h1[1].trim().slice(0, 80);
+  }
+
+  const fromPrompt = userPrompt.trim();
+  if (fromPrompt) {
+    const cleaned = fromPrompt.charAt(0).toUpperCase() + fromPrompt.slice(1);
+    return cleaned.slice(0, 80);
+  }
+
+  return fallback;
+}
+
+export function resolveGameTitle(game: GameDoc): string {
+  if (game.title?.trim() && !GENERIC_TITLE.test(game.title.trim())) {
+    return game.title.trim();
+  }
+  if (game.gamePlan) {
+    return extractTitle(game.gamePlan, game.userPrompt, titleFromSlug(game.slug));
+  }
+  if (game.userPrompt?.trim()) {
+    const p = game.userPrompt.trim();
+    return (p.charAt(0).toUpperCase() + p.slice(1)).slice(0, 80);
+  }
+  return titleFromSlug(game.slug);
+}
+
+export function coverPathForSlug(slug: string): string {
+  return `/games/by-slug/${encodeURIComponent(slug)}/cover`;
 }
 
 export async function createGameFromPrompt(userPrompt: string): Promise<GameDoc> {
@@ -77,7 +121,7 @@ export async function createGameFromPrompt(userPrompt: string): Promise<GameDoc>
     game = await updateGame(game, {
       status: "generating",
       gamePlan: plan,
-      title: extractTitle(plan, game.title),
+      title: extractTitle(plan, userPrompt, game.title),
     });
     await addChat(id, { role: "assistant", type: "plan", text: plan });
 
@@ -158,11 +202,13 @@ export async function publishGame(gameId: string): Promise<GameDoc> {
     throw new Error("No game files to publish");
   }
 
+  const title = resolveGameTitle(game);
   const updated = await updateGame(game, {
+    title,
     status: "published",
     buildStatus: "live",
     publishedAt: nowIso(),
-    coverUrl: game.coverUrl ?? `/games/${game.slug}.jpg`,
+    coverUrl: coverPathForSlug(game.slug),
   });
 
   await removeWorkspace(gameId);

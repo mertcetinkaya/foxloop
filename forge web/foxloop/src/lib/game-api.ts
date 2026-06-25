@@ -109,8 +109,21 @@ export function playUrlBySlug(slug: string): string {
   return gameApiUrl(`/games/by-slug/${encodeURIComponent(slug)}/play`);
 }
 
+export function publishedCoverUrl(slug: string, image?: string): string {
+  if (image?.startsWith("http://") || image?.startsWith("https://")) {
+    return image;
+  }
+  if (image?.startsWith("/games/by-slug/")) {
+    return gameApiUrl(image);
+  }
+  return gameApiUrl(`/games/by-slug/${encodeURIComponent(slug)}/cover`);
+}
+
 export async function fetchPublishedGames(): Promise<Game[]> {
   const res = await fetch(gameApiUrl("/games/published"));
   const data = await parseJson<{ games: Game[] }>(res);
-  return data.games;
+  return data.games.map((game) => ({
+    ...game,
+    image: publishedCoverUrl(game.id, game.image),
+  }));
 }
