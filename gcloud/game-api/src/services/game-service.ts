@@ -16,19 +16,19 @@ import {
   newId,
   nowIso,
   slugify,
-  titleFromSlug,
   uniqueSlug,
 } from "../utils.js";
 import { config, requireFirestore } from "../config.js";
 import { generateCoverJpeg } from "./cover-ai.js";
-import { extractTitleFromPlan, resolveGameTitle } from "./title.js";
+import { summarizeEdit, summarizeGameReady } from "./chat-summary.js";
+import { deriveLockedTitle, resolveGameTitle } from "./title.js";
 
 async function addChat(
   gameId: string,
   partial: Omit<ChatMessage, "id" | "createdAt">
 ) {
   const store = await getStore();
-  const msg: ChatMessage = {
+  const msg = {
     id: newId(),
     createdAt: nowIso(),
     ...partial,
@@ -37,13 +37,27 @@ async function addChat(
   return msg;
 }
 
-async function updateGame(game: GameDoc, patch: Partial<GameDoc>) {
-  const store = await getStore();
-  const next = { ...game, ...patch, updatedAt: nowIso() };
-  await store.saveGame(next);
+function applyLockedFields(game: GameDoc, patch: Partial<GameDoc>): Partial<GameDoc> {
+  const next = { ...patch };
+  if (game.titleLocked && next.title !== undefined && next.title !== game.title) {
+    delete next.title;
+  }
+  if (game.coverLocked && game.coverImageBase64 && next.coverImageBase64 !== undefined) {
+    delete next.coverImageBase64;
+  }
+  if (game.coverLocked && game.coverUrl && next.coverUrl !== undefined) {
+    delete next.coverUrl;
+  }
   return next;
 }
 
+async function updateGame(game: GameDoc, patch: Partial<GameDoc>) {
+  const store = await getStore();
+  const safePatch = applyLockedFields(game, patch);
+  const next = { ...game, ...safePatch, updatedAt: nowIso() };
+  await store.saveGame(next);
+  return next;
+}
 
 export function coverPathForSlug(slug: string): string {
   return `/games/by-slug/${encodeURIComponent(slug)}/cover`;
@@ -59,11 +73,18 @@ export async function createGameFromPrompt(userPrompt: string): Promise<GameDoc>
   const id = newId();
   const now = nowIso();
 
+  const lockedTitle = await deriveLockedTitle(userPrompt);
+
   let game: GameDoc = {
     id,
     slug,
-    title: titleFromSlug(slug),
-    status: "planning",
+    title: lockedTitle,
+    titleLocked: true,
+    coverLocked: true,
+    status: "generating",
+    gameBuildStatus: "building",
+    coverStatus: "generating",
+    coverUrl: coverPathForSlug(slug),
     userPrompt,
     createdAt: now,
     updatedAt: now,
@@ -77,32 +98,47 @@ export async function createGameFromPrompt(userPrompt: string): Promise<GameDoc>
       throw new Error("CURSOR_API_KEY is not configured on the game API server");
     }
 
-    const plan = await runPlanner(userPrompt);
-    game = await updateGame(game, {
-      status: "generating",
-      gamePlan: plan,
-      title: extractTitleFromPlan(plan, userPrompt, game.title),
+    const coverTask = generateCoverJpeg({
+      title: lockedTitle,
+      slug,
+      userPrompt,
+      skipAgentPrompt: true,
     });
-    await addChat(id, { role: "assistant", type: "plan", text: plan });
 
+    const plan = await runPlanner(userPrompt);
+    game = await updateGame(game, { gamePlan: plan });
+
+    const revealTask = summarizeGameReady(lockedTitle, userPrompt, plan);
     const dir = await initWorkspaceFromScaffold(id);
-    const { agentId, assistantText } = await runBuilder(dir, plan, slug);
+
+    const [builderResult, coverJpeg, revealText] = await Promise.all([
+      runBuilder(dir, plan, slug),
+      coverTask,
+      revealTask,
+    ]);
+
     await syncWorkspaceToStore(store, id, dir);
+
     await addChat(id, {
       role: "assistant",
       type: "generation",
-      text: assistantText || "Game files generated in workspace.",
+      text: revealText,
     });
 
     game = await updateGame(game, {
+      agentId: builderResult.agentId,
+      gameBuildStatus: "ready",
+      coverStatus: "ready",
+      coverImageBase64: coverJpeg.toString("base64"),
       status: "ready",
-      agentId,
     });
     return game;
   } catch (err) {
     const message = err instanceof Error ? err.message : "Generation failed";
     game = await updateGame(game, {
       status: "failed",
+      gameBuildStatus: "failed",
+      coverStatus: game.coverImageBase64 ? "ready" : "failed",
       errorMessage: message,
     });
     await addChat(id, { role: "assistant", type: "error", text: message });
@@ -124,22 +160,33 @@ export async function editGameDraft(
     throw new Error("Draft is missing agent session or plan");
   }
 
-  await addChat(gameId, { role: "user", type: "prompt", text: userEdit });
-  let updated = await updateGame(game, { status: "generating" });
+  await addChat(gameId, { role: "user", type: "edit", text: userEdit });
+  let updated = await updateGame(game, {
+    status: "generating",
+    gameBuildStatus: "building",
+  });
 
   try {
     const dir = workspaceDir(gameId);
     await loadFilesToWorkspace(store, gameId, dir);
     await runEditor(game.agentId, dir, userEdit, game.gamePlan);
     await syncWorkspaceToStore(store, gameId, dir);
-    const text = "Applied your changes to the draft.";
-    await addChat(gameId, { role: "assistant", type: "edit", text });
-    updated = await updateGame(updated, { status: "ready" });
+    const revealText = await summarizeEdit(
+      userEdit,
+      resolveGameTitle(game),
+      game.gamePlan
+    );
+    await addChat(gameId, { role: "assistant", type: "edit", text: revealText });
+    updated = await updateGame(updated, {
+      status: "ready",
+      gameBuildStatus: "ready",
+    });
     return updated;
   } catch (err) {
     const message = err instanceof Error ? err.message : "Edit failed";
     updated = await updateGame(updated, {
       status: "failed",
+      gameBuildStatus: "failed",
       errorMessage: message,
     });
     await addChat(gameId, { role: "assistant", type: "error", text: message });
@@ -162,20 +209,23 @@ export async function publishGame(gameId: string): Promise<GameDoc> {
     throw new Error("No game files to publish");
   }
 
-  const title = resolveGameTitle(game);
-  const coverJpeg = await generateCoverJpeg({
-    title,
-    slug: game.slug,
-    userPrompt: game.userPrompt,
-    plan: game.gamePlan,
-  });
+  let coverJpeg: Buffer;
+  if (game.coverImageBase64) {
+    coverJpeg = Buffer.from(game.coverImageBase64, "base64");
+  } else {
+    coverJpeg = await generateCoverJpeg({
+      title: resolveGameTitle(game),
+      slug: game.slug,
+      userPrompt: game.userPrompt,
+      plan: game.gamePlan,
+    });
+  }
 
   const updated = await updateGame(game, {
-    title,
     status: "published",
     buildStatus: "live",
     publishedAt: nowIso(),
-    coverUrl: coverPathForSlug(game.slug),
+    coverUrl: game.coverUrl ?? coverPathForSlug(game.slug),
     coverImageBase64: coverJpeg.toString("base64"),
   });
 

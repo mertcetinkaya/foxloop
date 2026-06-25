@@ -43,6 +43,9 @@ import {
   createInitialState,
   restartLevel,
   setPointer,
+  onPointerDown,
+  onPointerUp,
+  onKey,
   updateGame,
 } from "@/games/${slug}/engine";
 import { drawGame } from "@/games/${slug}/renderer";
@@ -94,21 +97,96 @@ export function ${pascal}Game() {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const onPointer = (clientX: number, clientY: number) => {
+    const localXY = (clientX: number, clientY: number) => {
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = canvas.width / rect.width;
+      const scaleY = canvas.height / rect.height;
+      return {
+        x: (clientX - rect.left) * scaleX,
+        y: (clientY - rect.top) * scaleY,
+      };
+    };
+
+    const onPointerDownHandler = (e: PointerEvent) => {
       const state = stateRef.current;
       if (!state) return;
-      const rect = canvas.getBoundingClientRect();
-      setPointer(state, clientX - rect.left, clientY - rect.top);
+      canvas.setPointerCapture(e.pointerId);
+      canvas.focus();
+      const { x, y } = localXY(e.clientX, e.clientY);
+      onPointerDown(state, x, y);
+      setPointer(state, x, y);
     };
 
-    const onMouseMove = (e: MouseEvent) => onPointer(e.clientX, e.clientY);
-    const onTouchMove = (e: TouchEvent) => {
-      const t = e.touches[0];
-      if (t) onPointer(t.clientX, t.clientY);
+    const onPointerMoveHandler = (e: PointerEvent) => {
+      const state = stateRef.current;
+      if (!state) return;
+      const { x, y } = localXY(e.clientX, e.clientY);
+      setPointer(state, x, y);
     };
 
-    canvas.addEventListener("mousemove", onMouseMove);
-    canvas.addEventListener("touchmove", onTouchMove, { passive: true });
+    const onPointerUpHandler = (e: PointerEvent) => {
+      const state = stateRef.current;
+      if (!state) return;
+      const { x, y } = localXY(e.clientX, e.clientY);
+      onPointerUp(state, x, y);
+      try {
+        canvas.releasePointerCapture(e.pointerId);
+      } catch {
+        /* ignore */
+      }
+    };
+
+    const onPointerCancelHandler = () => {
+      const state = stateRef.current;
+      if (!state) return;
+      onPointerUp(state, 0, 0);
+    };
+
+    const keyCodes = new Set([
+      "ArrowUp",
+      "ArrowDown",
+      "ArrowLeft",
+      "ArrowRight",
+      "Space",
+      "KeyW",
+      "KeyA",
+      "KeyS",
+      "KeyD",
+    ]);
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      const state = stateRef.current;
+      if (!state) return;
+      onKey(state, e.code, true);
+      if (keyCodes.has(e.code)) e.preventDefault();
+    };
+
+    const onKeyUp = (e: KeyboardEvent) => {
+      const state = stateRef.current;
+      if (!state) return;
+      onKey(state, e.code, false);
+    };
+
+    canvas.addEventListener("pointerdown", onPointerDownHandler);
+    canvas.addEventListener("pointermove", onPointerMoveHandler);
+    canvas.addEventListener("pointerup", onPointerUpHandler);
+    canvas.addEventListener("pointercancel", onPointerCancelHandler);
+    window.addEventListener("keydown", onKeyDown);
+    window.addEventListener("keyup", onKeyUp);
+
+    return () => {
+      canvas.removeEventListener("pointerdown", onPointerDownHandler);
+      canvas.removeEventListener("pointermove", onPointerMoveHandler);
+      canvas.removeEventListener("pointerup", onPointerUpHandler);
+      canvas.removeEventListener("pointercancel", onPointerCancelHandler);
+      window.removeEventListener("keydown", onKeyDown);
+      window.removeEventListener("keyup", onKeyUp);
+    };
+  }, []);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
 
     let animId = 0;
     let last = performance.now();
@@ -124,25 +202,22 @@ export function ${pascal}Game() {
       last = now;
       updateGame(state, dt);
       drawGame(ctx, state, canvas.width, canvas.height);
-      if (state.status !== gameStatus) setGameStatus(state.status);
-      if (state.score !== score) setScore(state.score);
-      if (state.lives !== lives) setLives(state.lives);
+      setGameStatus(state.status);
+      setScore(state.score);
+      setLives(state.lives);
       animId = requestAnimationFrame(loop);
     };
 
     animId = requestAnimationFrame(loop);
-    return () => {
-      cancelAnimationFrame(animId);
-      canvas.removeEventListener("mousemove", onMouseMove);
-      canvas.removeEventListener("touchmove", onTouchMove);
-    };
-  }, [gameStatus, score, lives]);
+    return () => cancelAnimationFrame(animId);
+  }, []);
 
   return (
     <div ref={containerRef} className="relative h-full w-full bg-[#2a1f4e]">
       <canvas
         ref={canvasRef}
-        className="block h-full w-full touch-none"
+        tabIndex={0}
+        className="block h-full w-full touch-none outline-none"
         aria-label="${title}"
       />
 

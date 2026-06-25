@@ -13,6 +13,7 @@ import { generateCoverJpeg } from "../services/cover-ai.js";
 import { getStore } from "../services/store.js";
 import { buildPreviewFromGameId } from "../services/preview.js";
 import { isCursorConfigured } from "../services/cursor.js";
+import { sanitizeChatMessageForPlayer } from "../services/chat-summary.js";
 
 export const gamesRouter = Router();
 
@@ -117,11 +118,28 @@ gamesRouter.get("/:id", async (req, res) => {
   }
 });
 
+gamesRouter.get("/:id/cover", async (req, res) => {
+  try {
+    const game = await getGameOrThrow(req.params.id);
+    if (game.coverImageBase64) {
+      res.setHeader("Content-Type", "image/jpeg");
+      res.setHeader("Cache-Control", "private, max-age=3600");
+      res.send(Buffer.from(game.coverImageBase64, "base64"));
+      return;
+    }
+    res.status(404).send("Cover not ready");
+  } catch {
+    res.status(404).send("Not found");
+  }
+});
+
 gamesRouter.get("/:id/chat", async (req, res) => {
   try {
     const store = await getStore();
     const messages = await store.getChat(req.params.id);
-    res.json({ messages });
+    res.json({
+      messages: messages.map((m) => sanitizeChatMessageForPlayer(m)),
+    });
   } catch (err) {
     res.status(500).json({
       error: err instanceof Error ? err.message : "Failed to load chat",

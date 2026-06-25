@@ -5,8 +5,10 @@ import { X, Loader2, Send, Sparkles } from "lucide-react";
 import {
   createGame,
   deleteDraft,
+  draftCoverUrl,
   editGame,
   fetchChat,
+  previewTitleFromPrompt,
   previewUrl,
   publishGame,
   type ApiGame,
@@ -26,6 +28,11 @@ export function GenerationModal({
   onClose,
   onPublished,
 }: GenerationModalProps) {
+  const chatRoleLabel = (msg: ChatMessage) => {
+    if (msg.role === "user") return "You";
+    if (msg.type === "error") return "Error";
+    return "Forge Lite";
+  };
   const [game, setGame] = useState<ApiGame | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [editPrompt, setEditPrompt] = useState("");
@@ -143,6 +150,9 @@ export function GenerationModal({
 
   if (!isOpen) return null;
 
+  const displayTitle =
+    game?.title ?? (initialPrompt.trim() ? previewTitleFromPrompt(initialPrompt) : "Building your game");
+
   const canEdit = game?.status === "ready";
   const canPublish = game?.status === "ready";
   const showPreview = game && game.status !== "failed" && game.status !== "planning";
@@ -155,14 +165,14 @@ export function GenerationModal({
             <Sparkles className="h-5 w-5 text-orange-400" />
             <div>
               <h2 className="text-lg font-semibold text-white">
-                {game?.title ?? "Building your game"}
+                {displayTitle}
               </h2>
               <p className="text-xs text-muted">
                 {loading && loadingKind === "generate"
-                  ? "Generating the game"
+                  ? "Building game & cover art…"
                   : loading
                     ? loadingKind === "publish"
-                      ? "Generating cover art & saving…"
+                      ? "Saving to Forge Lite…"
                       : "Applying your edit…"
                     : game?.status === "ready"
                       ? "Preview, refine with prompts, then publish"
@@ -182,19 +192,30 @@ export function GenerationModal({
         <div className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-2">
           <div className="relative min-h-[280px] border-b border-border bg-[#1a1035] lg:border-b-0 lg:border-r">
             {showPreview && game ? (
-              <iframe
-                key={previewKey}
-                title="Game preview"
-                src={previewUrl(game.id)}
-                className="h-full w-full border-0"
-                sandbox="allow-scripts allow-same-origin"
-              />
+              <>
+                <iframe
+                  key={previewKey}
+                  title="Game preview"
+                  src={previewUrl(game.id)}
+                  className="h-full w-full border-0"
+                  sandbox="allow-scripts allow-same-origin"
+                />
+                {game.coverStatus === "ready" && (
+                  <div className="pointer-events-none absolute bottom-3 left-3 overflow-hidden rounded-lg border border-white/10 shadow-lg">
+                    <img
+                      src={draftCoverUrl(game.id)}
+                      alt={`${displayTitle} cover`}
+                      className="h-14 w-[5.5rem] object-cover"
+                    />
+                  </div>
+                )}
+              </>
             ) : (
               <div className="flex h-full items-center justify-center p-8 text-center">
                 {loading ? (
                   <div className="flex flex-col items-center gap-3 text-muted">
                     <Loader2 className="h-8 w-8 animate-spin text-orange-400" />
-                    <p>Generating game files…</p>
+                    <p>Building game & cover art…</p>
                   </div>
                 ) : (
                   <p className="text-muted">{error ?? "Waiting to start…"}</p>
@@ -216,11 +237,11 @@ export function GenerationModal({
                     }`}
                   >
                     <p className="mb-1 text-[10px] uppercase tracking-wide text-orange-400/80">
-                      {msg.role === "user" ? "You" : msg.type}
+                      {chatRoleLabel(msg)}
                     </p>
-                    <pre className="whitespace-pre-wrap font-sans text-inherit">
+                    <p className="whitespace-pre-wrap font-sans text-inherit">
                       {msg.text}
-                    </pre>
+                    </p>
                   </div>
                 ))}
                 {loading && (
@@ -229,8 +250,8 @@ export function GenerationModal({
                     {loadingKind === "edit"
                       ? "Applying your edit…"
                       : loadingKind === "publish"
-                        ? "Generating cover art & saving…"
-                        : "Generating the game"}
+                        ? "Saving to Forge Lite…"
+                        : "Building game & cover art…"}
                   </div>
                 )}
                 <div ref={chatEndRef} />

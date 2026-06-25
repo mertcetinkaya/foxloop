@@ -6,6 +6,7 @@ import {
   PLAYER_COLOR,
   PLAYER_RADIUS,
 } from "./constants";
+import { drawGroundShadow, drawOrientedGlowBody, drawParallaxLayer } from "./draw-helpers";
 import type { RuntimeState } from "./engine";
 
 export function drawGame(
@@ -16,6 +17,7 @@ export function drawGame(
 ): void {
   const shakeX = state.shake ? (Math.random() - 0.5) * state.shake * 16 : 0;
   const shakeY = state.shake ? (Math.random() - 0.5) * state.shake * 16 : 0;
+  const scroll = (Date.now() / 40) % 200;
 
   ctx.save();
   ctx.translate(shakeX, shakeY);
@@ -26,6 +28,18 @@ export function drawGame(
   ctx.fillStyle = bg;
   ctx.fillRect(0, 0, width, height);
 
+  drawParallaxLayer(ctx, width, height, scroll, "rgba(255,255,255,0.06)", height * 0.72, 10, 48);
+  drawParallaxLayer(
+    ctx,
+    width,
+    height,
+    scroll * 1.4,
+    "rgba(255,255,255,0.04)",
+    height * 0.82,
+    14,
+    64
+  );
+
   for (let i = 0; i < 40; i++) {
     ctx.fillStyle = `rgba(255,255,255,${0.03 + (i % 5) * 0.01})`;
     ctx.beginPath();
@@ -34,6 +48,7 @@ export function drawGame(
   }
 
   for (const e of state.enemies) {
+    drawGroundShadow(ctx, e.x, e.y, e.r, 0.22);
     const g = ctx.createRadialGradient(e.x, e.y, 2, e.x, e.y, e.r);
     g.addColorStop(0, "#fecaca");
     g.addColorStop(1, ENEMY_COLOR);
@@ -43,27 +58,21 @@ export function drawGame(
     ctx.fill();
   }
 
-  const pg = ctx.createRadialGradient(
+  drawGroundShadow(ctx, state.playerX, state.playerY, PLAYER_RADIUS);
+  drawOrientedGlowBody(
+    ctx,
     state.playerX,
     state.playerY,
-    4,
-    state.playerX,
-    state.playerY,
-    PLAYER_RADIUS
+    0,
+    PLAYER_RADIUS,
+    PLAYER_COLOR,
+    "#1d4ed8"
   );
-  pg.addColorStop(0, "#ffffff");
-  pg.addColorStop(0.4, PLAYER_COLOR);
-  pg.addColorStop(1, "#1d4ed8");
-  ctx.fillStyle = pg;
-  ctx.beginPath();
-  ctx.arc(state.playerX, state.playerY, PLAYER_RADIUS, 0, Math.PI * 2);
-  ctx.fill();
 
   ctx.fillStyle = "#ffffff";
   ctx.font = "600 22px system-ui, sans-serif";
   ctx.fillText(`Score ${state.score}`, 20, 36);
 
-  ctx.fillStyle = ACCENT;
   for (let i = 0; i < state.maxLives; i++) {
     ctx.beginPath();
     ctx.arc(width - 30 - i * 28, 30, 8, 0, Math.PI * 2);

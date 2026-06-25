@@ -11,6 +11,8 @@ export interface CoverInput {
   slug: string;
   userPrompt?: string;
   plan?: string;
+  /** Skip Cursor agent prompt step — use template prompt for faster parallel cover generation. */
+  skipAgentPrompt?: boolean;
 }
 
 function hashSlug(slug: string): number {

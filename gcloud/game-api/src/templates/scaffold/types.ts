@@ -6,4 +6,6 @@ export interface GameState {
   lives: number;
   maxLives: number;
   hint: string;
+  pointerDown?: boolean;
+  keys?: Record<string, boolean>;
 }

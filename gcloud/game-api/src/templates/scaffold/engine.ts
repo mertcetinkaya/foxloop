@@ -29,7 +29,9 @@ export function createInitialState(width: number, height: number): GameState & {
     score: 0,
     lives: MAX_LIVES,
     maxLives: MAX_LIVES,
-    hint: "Move with mouse or touch. Dodge the orbs!",
+    hint: "Drag or move pointer to dodge. Tap and hold works too!",
+    pointerDown: false,
+    keys: {},
     width,
     height,
     playerX: width / 2,
@@ -50,6 +52,20 @@ export function restartLevel(state: RuntimeState): void {
 export function setPointer(state: RuntimeState, x: number, y: number): void {
   state.playerX = Math.max(PLAYER_RADIUS, Math.min(state.width - PLAYER_RADIUS, x));
   state.playerY = Math.max(PLAYER_RADIUS, Math.min(state.height - PLAYER_RADIUS, y));
+}
+
+export function onPointerDown(state: RuntimeState, x: number, y: number): void {
+  state.pointerDown = true;
+  setPointer(state, x, y);
+}
+
+export function onPointerUp(state: RuntimeState, _x: number, _y: number): void {
+  state.pointerDown = false;
+}
+
+export function onKey(state: RuntimeState, code: string, pressed: boolean): void {
+  if (!state.keys) state.keys = {};
+  state.keys[code] = pressed;
 }
 
 function spawnEnemy(state: RuntimeState): void {

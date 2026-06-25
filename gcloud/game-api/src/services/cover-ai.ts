@@ -175,7 +175,9 @@ export async function generateCoverJpeg(input: CoverInput): Promise<Buffer> {
   }
 
   try {
-    const prompt = await composeCoverPromptWithAgent(normalized);
+    const prompt = normalized.skipAgentPrompt
+      ? templateCoverPrompt(normalized)
+      : await composeCoverPromptWithAgent(normalized);
     const png = await generateOpenAiCoverImage(prompt);
     return await resizeCoverToJpeg(png);
   } catch (err) {

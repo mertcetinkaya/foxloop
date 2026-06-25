@@ -1,3 +1,7 @@
+import { Agent } from "@cursor/sdk";
+import { config, requireCursorKey } from "../config.js";
+import { titleFromSlug } from "../utils.js";
+
 const GENERIC_TITLE = /^(title|untitled|new game|game|forge lite game)$/i;
 
 export function cleanDisplayTitle(raw: string): string {
@@ -65,10 +69,14 @@ export function extractTitleFromPlan(
 
 export function resolveGameTitle(game: {
   title?: string;
+  titleLocked?: boolean;
   gamePlan?: string;
   userPrompt?: string;
   slug: string;
 }): string {
+  if (game.titleLocked && game.title?.trim()) {
+    return cleanDisplayTitle(game.title);
+  }
   if (game.title?.trim() && !isGenericTitle(game.title.trim())) {
     return cleanDisplayTitle(game.title);
   }
@@ -85,10 +93,32 @@ export function resolveGameTitle(game: {
   return cleanDisplayTitle(titleFromSlug(game.slug));
 }
 
-function titleFromSlug(slug: string): string {
-  return slug
-    .split("-")
-    .filter(Boolean)
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(" ");
+/** Lock a catchy title at first prompt — never changes after creation. */
+export async function deriveLockedTitle(userPrompt: string): Promise<string> {
+  const fallback = cleanDisplayTitle(userPrompt);
+  if (!config.cursorApiKey) return fallback;
+
+  try {
+    const result = await Agent.prompt(
+      [
+        "You name hypercasual mobile games.",
+        "Given the player's idea, output ONLY a catchy game title (2-4 words).",
+        "No quotes, no markdown, no explanation.",
+        "",
+        `Idea: ${userPrompt.trim().slice(0, 400)}`,
+      ].join("\n"),
+      {
+        apiKey: requireCursorKey(),
+        model: { id: config.cursorModel },
+        local: { cwd: config.webRoot, settingSources: [] },
+      }
+    );
+    const raw = result.result?.trim();
+    if (raw && raw.length > 2 && !isGenericTitle(raw)) {
+      return cleanDisplayTitle(raw);
+    }
+  } catch {
+    // use fallback
+  }
+  return fallback;
 }

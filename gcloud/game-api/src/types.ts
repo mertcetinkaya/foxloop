@@ -8,6 +8,8 @@ export type GameStatus =
 
 export type BuildStatus = "pending" | "building" | "live" | "failed";
 
+export type PipelineStatus = "pending" | "building" | "generating" | "ready" | "failed";
+
 export type ChatRole = "user" | "assistant" | "system";
 
 export type ChatType =
@@ -29,6 +31,10 @@ export interface GameDoc {
   coverUrl?: string;
   coverImageBase64?: string;
   buildStatus?: BuildStatus;
+  titleLocked?: boolean;
+  coverLocked?: boolean;
+  gameBuildStatus?: PipelineStatus;
+  coverStatus?: PipelineStatus;
   errorMessage?: string;
   createdAt: string;
   updatedAt: string;

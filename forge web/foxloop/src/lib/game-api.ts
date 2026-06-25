@@ -15,6 +15,13 @@ export type GameStatus =
   | "published"
   | "failed";
 
+export type PipelineStatus =
+  | "pending"
+  | "building"
+  | "generating"
+  | "ready"
+  | "failed";
+
 export interface ApiGame {
   id: string;
   slug: string;
@@ -24,6 +31,10 @@ export interface ApiGame {
   gamePlan?: string;
   coverUrl?: string;
   buildStatus?: "pending" | "building" | "live" | "failed";
+  titleLocked?: boolean;
+  coverLocked?: boolean;
+  gameBuildStatus?: PipelineStatus;
+  coverStatus?: PipelineStatus;
   errorMessage?: string;
 }
 
@@ -103,6 +114,21 @@ export async function deleteDraft(id: string): Promise<void> {
 
 export function previewUrl(id: string): string {
   return gameApiUrl(`/games/${id}/preview`);
+}
+
+export function draftCoverUrl(id: string): string {
+  return gameApiUrl(`/games/${id}/cover`);
+}
+
+/** Rough client-side title preview while the server locks the real title. */
+export function previewTitleFromPrompt(prompt: string): string {
+  let t = prompt.trim().replace(/^["'`]|["'`]$/g, "");
+  if (t.includes(":")) t = t.split(":")[0]?.trim() ?? t;
+  const words = t.split(/\s+/).filter(Boolean).slice(0, 4);
+  t = words
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ");
+  return t || "Your Game";
 }
 
 export function playUrlBySlug(slug: string): string {

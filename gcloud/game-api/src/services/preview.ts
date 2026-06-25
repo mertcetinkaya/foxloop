@@ -6,11 +6,30 @@ import type { GameFile } from "../types.js";
 import { workspaceDir } from "./workspace.js";
 
 const PREVIEW_RUNNER = `
-import { createInitialState, updateGame, restartLevel, setPointer } from "./engine";
+import * as engine from "./engine";
 import { drawGame } from "./renderer";
 
+const {
+  createInitialState,
+  updateGame,
+  restartLevel,
+  setPointer,
+} = engine;
+
+const onPointerDown = engine.onPointerDown ?? ((s, x, y) => {
+  setPointer(s, x, y);
+});
+const onPointerUp = engine.onPointerUp ?? (() => {});
+const onKey = engine.onKey ?? (() => {});
+
 const canvas = document.getElementById("game");
+if (!canvas) throw new Error("Missing #game canvas");
 const ctx = canvas.getContext("2d");
+if (!ctx) throw new Error("2d context unavailable");
+
+canvas.tabIndex = 0;
+canvas.style.touchAction = "none";
+
 let state = createInitialState(canvas.width, canvas.height);
 let last = performance.now();
 
@@ -22,16 +41,53 @@ function resize() {
 window.addEventListener("resize", resize);
 resize();
 
-function onPointer(clientX, clientY) {
+function localXY(clientX, clientY) {
   const rect = canvas.getBoundingClientRect();
-  setPointer(state, clientX - rect.left, clientY - rect.top);
+  const scaleX = canvas.width / rect.width;
+  const scaleY = canvas.height / rect.height;
+  return {
+    x: (clientX - rect.left) * scaleX,
+    y: (clientY - rect.top) * scaleY,
+  };
 }
-canvas.addEventListener("pointermove", (e) => onPointer(e.clientX, e.clientY));
-canvas.addEventListener("touchmove", (e) => {
-  e.preventDefault();
-  const t = e.touches[0];
-  if (t) onPointer(t.clientX, t.clientY);
-}, { passive: false });
+
+canvas.addEventListener("pointerdown", (e) => {
+  canvas.setPointerCapture(e.pointerId);
+  canvas.focus();
+  const { x, y } = localXY(e.clientX, e.clientY);
+  onPointerDown(state, x, y);
+  setPointer(state, x, y);
+});
+
+canvas.addEventListener("pointermove", (e) => {
+  const { x, y } = localXY(e.clientX, e.clientY);
+  setPointer(state, x, y);
+});
+
+canvas.addEventListener("pointerup", (e) => {
+  const { x, y } = localXY(e.clientX, e.clientY);
+  onPointerUp(state, x, y);
+  try {
+    canvas.releasePointerCapture(e.pointerId);
+  } catch {
+    /* ignore */
+  }
+});
+
+canvas.addEventListener("pointercancel", () => {
+  onPointerUp(state, 0, 0);
+});
+
+const keyCodes = new Set(["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Space", "KeyW", "KeyA", "KeyS", "KeyD"]);
+
+window.addEventListener("keydown", (e) => {
+  onKey(state, e.code, true);
+  if (keyCodes.has(e.code)) e.preventDefault();
+});
+
+window.addEventListener("keyup", (e) => {
+  onKey(state, e.code, false);
+});
 
 function loop(now) {
   const dt = Math.min(0.05, (now - last) / 1000);
@@ -90,7 +146,7 @@ export async function buildPreviewHtml(files: GameFile[]): Promise<string> {
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { width: 100%; height: 100%; background: #1a1035; overflow: hidden; }
-    canvas { display: block; width: 100%; height: 100%; touch-action: none; }
+    canvas { display: block; width: 100%; height: 100%; touch-action: none; outline: none; }
     #bar { position: fixed; top: 8px; right: 8px; z-index: 2; }
     #restart { background: #facc15; border: 0; border-radius: 999px; padding: 8px 14px; font-weight: 600; cursor: pointer; }
   </style>
