@@ -1,4 +1,5 @@
 import type { Game } from "@/data/games";
+import type { AppUser } from "@/lib/auth-types";
 import { getAuthIdToken } from "@/lib/auth-token";
 
 const BASE =
@@ -72,6 +73,18 @@ export async function gameApiHealth(): Promise<boolean> {
   } catch {
     return false;
   }
+}
+
+export async function loginInvited(
+  username: string,
+  password: string
+): Promise<{ token: string; user: AppUser }> {
+  const res = await fetch(gameApiUrl("/auth/invited-login"), {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ username, password }),
+  });
+  return parseJson<{ token: string; user: AppUser }>(res);
 }
 
 export async function createGame(prompt: string): Promise<ApiGame> {

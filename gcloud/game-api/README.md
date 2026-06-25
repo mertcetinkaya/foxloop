@@ -84,6 +84,30 @@ Save/Publish does **not** push to GitHub. Play at `/games/{slug}` loads from the
 
 Without Firestore, drafts use local `.data/` only (not shared); **Save will fail** until Firestore is configured.
 
+## Invited users (username / password)
+
+Guest accounts live in Firestore collection **`invitedUsers`** (document ID = lowercase username).
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `username` | string | Same as document ID |
+| `passwordHash` | string | bcrypt hash (use seed script) |
+| `enabled` | boolean | `false` disables login |
+| `displayName` | string | Optional label |
+| `createdAt` | string | ISO timestamp |
+
+**Create via CLI (recommended):**
+```bash
+cd gcloud/game-api
+npm run seed-invited -- inviteduser inviteduser1
+```
+
+**Manual in Firebase Console:** only add `passwordHash` if you generate bcrypt yourself; prefer the seed script.
+
+Login: `POST /auth/invited-login` with `{ "username", "password" }`. Invited users have the same game rights as Google users (`ownerUid` = `invited:username`).
+
+Set `INVITED_JWT_SECRET` in production `.env`.
+
 ## Deploy
 
 Clone this repo on the GCloud VM, install Node 20+, set env vars, run with systemd or pm2 on port 8001.

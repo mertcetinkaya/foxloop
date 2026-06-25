@@ -34,7 +34,9 @@ function GoogleIcon() {
 }
 
 export function LoginModal({ isOpen, onClose, onSuccess }: LoginModalProps) {
-  const { user, signInWithGoogle } = useAuth();
+  const { user, signInWithGoogle, signInWithInvited } = useAuth();
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [signingIn, setSigningIn] = useState(false);
 
@@ -42,6 +44,8 @@ export function LoginModal({ isOpen, onClose, onSuccess }: LoginModalProps) {
     if (!isOpen) {
       setError(null);
       setSigningIn(false);
+      setUsername("");
+      setPassword("");
     }
   }, [isOpen]);
 
@@ -68,6 +72,19 @@ export function LoginModal({ isOpen, onClose, onSuccess }: LoginModalProps) {
 
   if (!isOpen) return null;
 
+  const handleInvitedSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!username.trim() || !password) return;
+    setSigningIn(true);
+    setError(null);
+    try {
+      await signInWithInvited(username.trim(), password);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Sign in failed");
+      setSigningIn(false);
+    }
+  };
+
   const handleGoogleSignIn = async () => {
     setSigningIn(true);
     setError(null);
@@ -88,7 +105,7 @@ export function LoginModal({ isOpen, onClose, onSuccess }: LoginModalProps) {
           <div>
             <h2 className="text-xl font-bold text-white">Log in</h2>
             <p className="mt-2 text-sm text-muted">
-              Sign in with Google to build and save games
+              Invited guest or Google account
             </p>
           </div>
           <button
@@ -100,6 +117,43 @@ export function LoginModal({ isOpen, onClose, onSuccess }: LoginModalProps) {
           </button>
         </div>
 
+        <form onSubmit={(e) => void handleInvitedSubmit(e)} className="space-y-3">
+          <input
+            type="text"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            placeholder="Username"
+            autoComplete="username"
+            disabled={signingIn}
+            className="w-full rounded-xl border border-border bg-[#141820] px-4 py-3 text-sm text-white placeholder:text-muted focus:border-orange-500/50 focus:outline-none focus:ring-1 focus:ring-orange-500/40 disabled:opacity-50"
+          />
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Password"
+            autoComplete="current-password"
+            disabled={signingIn}
+            className="w-full rounded-xl border border-border bg-[#141820] px-4 py-3 text-sm text-white placeholder:text-muted focus:border-orange-500/50 focus:outline-none focus:ring-1 focus:ring-orange-500/40 disabled:opacity-50"
+          />
+          <button
+            type="submit"
+            disabled={signingIn || !username.trim() || !password}
+            className="w-full rounded-full bg-white py-3 text-sm font-semibold text-black transition-colors hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {signingIn ? "Signing in…" : "Sign in"}
+          </button>
+        </form>
+
+        <div className="relative my-6">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-border" />
+          </div>
+          <div className="relative flex justify-center text-xs">
+            <span className="bg-[#1a1a1f] px-3 text-muted">or</span>
+          </div>
+        </div>
+
         <button
           type="button"
           onClick={() => void handleGoogleSignIn()}
@@ -107,7 +161,7 @@ export function LoginModal({ isOpen, onClose, onSuccess }: LoginModalProps) {
           className="flex w-full items-center justify-center gap-3 rounded-full border border-border bg-transparent py-3 text-sm font-medium text-white transition-colors hover:bg-white/5 disabled:opacity-50"
         >
           <GoogleIcon />
-          {signingIn ? "Signing in…" : "Sign in with Google"}
+          Sign in with Google
         </button>
 
         {error && (

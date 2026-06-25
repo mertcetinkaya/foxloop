@@ -35,6 +35,8 @@ export const config = {
   dataRoot:
     process.env.DATA_ROOT ?? path.resolve(__dirname, "../.data"),
   draftTtlHours: Number(process.env.DRAFT_TTL_HOURS ?? 24),
+  invitedJwtSecret:
+    process.env.INVITED_JWT_SECRET ?? "foxloop-dev-invited-secret-change-me",
 };
 
 function parseCursorModelParams(
