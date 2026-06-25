@@ -11,7 +11,7 @@ export const config = {
     .split(",")
     .map((o) => o.trim()),
   cursorApiKey: process.env.CURSOR_API_KEY ?? "",
-  cursorModel: process.env.CURSOR_MODEL ?? "composer-2.5",
+  cursorModel: process.env.CURSOR_MODEL ?? "claude-opus-4-8-thinking-high",
   openaiApiKey: process.env.OPENAI_API_KEY ?? "",
   openaiImageModel: process.env.OPENAI_IMAGE_MODEL ?? "gpt-image-1",
   gcpProject: process.env.GOOGLE_CLOUD_PROJECT ?? "",
