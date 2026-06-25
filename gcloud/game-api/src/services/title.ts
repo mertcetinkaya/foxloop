@@ -1,5 +1,6 @@
 import { Agent } from "@cursor/sdk";
 import { config, requireCursorKey } from "../config.js";
+import { cursorModelSelection } from "./cursor-model.js";
 import { titleFromSlug } from "../utils.js";
 
 const GENERIC_TITLE = /^(title|untitled|new game|game|forge lite game)$/i;
@@ -109,7 +110,7 @@ export async function deriveLockedTitle(userPrompt: string): Promise<string> {
       ].join("\n"),
       {
         apiKey: requireCursorKey(),
-        model: { id: config.cursorModel },
+        model: cursorModelSelection(),
         local: { cwd: config.webRoot, settingSources: [] },
       }
     );

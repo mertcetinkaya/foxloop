@@ -1,5 +1,6 @@
 import { Agent } from "@cursor/sdk";
 import { config, requireCursorKey } from "../config.js";
+import { cursorModelSelection } from "./cursor-model.js";
 
 function extractSection(plan: string, section: string): string {
   const re = new RegExp(`^##\\s*${section}\\s*\\n+([^#]+)`, "im");
@@ -77,7 +78,7 @@ export async function summarizeGameReady(
       ].join("\n"),
       {
         apiKey: requireCursorKey(),
-        model: { id: config.cursorModel },
+        model: cursorModelSelection(),
         local: { cwd: config.webRoot, settingSources: [] },
       }
     );
@@ -117,7 +118,7 @@ export async function summarizeEdit(
       ].join("\n"),
       {
         apiKey: requireCursorKey(),
-        model: { id: config.cursorModel },
+        model: cursorModelSelection(),
         local: { cwd: config.webRoot, settingSources: [] },
       }
     );

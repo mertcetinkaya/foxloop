@@ -1,5 +1,6 @@
 import { Agent, CursorAgentError } from "@cursor/sdk";
 import { config, requireCursorKey } from "../config.js";
+import { cursorModelSelection } from "./cursor-model.js";
 import {
   referenceImagePayload,
   type SdkReferenceImage,
@@ -40,7 +41,7 @@ export async function runPlanner(
   try {
     await using agent = await Agent.create({
       apiKey,
-      model: { id: config.cursorModel },
+      model: cursorModelSelection(),
       local: { cwd: config.webRoot, settingSources: [] },
     });
 
@@ -75,7 +76,7 @@ export async function runBuilder(
   try {
     await using agent = await Agent.create({
       apiKey,
-      model: { id: config.cursorModel },
+      model: cursorModelSelection(),
       local: { cwd: workspaceDir, settingSources: [] },
     });
 
@@ -104,7 +105,7 @@ export async function runEditor(
   try {
     await using agent = await Agent.resume(agentId, {
       apiKey,
-      model: { id: config.cursorModel },
+      model: cursorModelSelection(),
       local: { cwd: workspaceDir, settingSources: [] },
     });
 

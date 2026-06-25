@@ -6,6 +6,7 @@ import {
   type CoverInput,
 } from "./cover-image.js";
 import { cleanDisplayTitle } from "./title.js";
+import { cursorModelSelection } from "./cursor-model.js";
 
 export type { CoverInput };
 
@@ -61,7 +62,7 @@ async function composeCoverPromptWithAgent(input: CoverInput): Promise<string> {
     ].join("\n"),
     {
       apiKey,
-      model: { id: config.cursorModel },
+      model: cursorModelSelection(),
       local: { cwd: config.webRoot, settingSources: [] },
     }
   );

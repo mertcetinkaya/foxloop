@@ -11,7 +11,11 @@ export const config = {
     .split(",")
     .map((o) => o.trim()),
   cursorApiKey: process.env.CURSOR_API_KEY ?? "",
-  cursorModel: process.env.CURSOR_MODEL ?? "claude-opus-4-8-thinking-high",
+  cursorModel: process.env.CURSOR_MODEL ?? "claude-opus-4-8",
+  /** When true and model is claude-opus-4-8, use thinking + high effort params. */
+  cursorOpusThinkingHigh: process.env.CURSOR_OPUS_THINKING_HIGH !== "false",
+  /** Optional JSON array, e.g. [{"id":"thinking","value":"true"},{"id":"effort","value":"high"}] */
+  cursorModelParams: parseCursorModelParams(process.env.CURSOR_MODEL_PARAMS),
   openaiApiKey: process.env.OPENAI_API_KEY ?? "",
   openaiImageModel: process.env.OPENAI_IMAGE_MODEL ?? "gpt-image-1",
   gcpProject: process.env.GOOGLE_CLOUD_PROJECT ?? "",
@@ -32,6 +36,25 @@ export const config = {
     process.env.DATA_ROOT ?? path.resolve(__dirname, "../.data"),
   draftTtlHours: Number(process.env.DRAFT_TTL_HOURS ?? 24),
 };
+
+function parseCursorModelParams(
+  raw: string | undefined
+): Array<{ id: string; value: string }> {
+  if (!raw?.trim()) return [];
+  try {
+    const parsed = JSON.parse(raw) as unknown;
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter(
+      (p): p is { id: string; value: string } =>
+        typeof p === "object" &&
+        p !== null &&
+        typeof (p as { id?: unknown }).id === "string" &&
+        typeof (p as { value?: unknown }).value === "string"
+    );
+  } catch {
+    return [];
+  }
+}
 
 export function requireCursorKey(): string {
   if (!config.cursorApiKey) {
