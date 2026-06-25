@@ -12,13 +12,28 @@ export type { CoverInput };
 const COVER_W = 1200;
 const COVER_H = 750;
 
+const GPT_IMAGE_MODELS = [
+  "gpt-image-2",
+  "gpt-image-1.5",
+  "gpt-image-1",
+  "gpt-image-1-mini",
+] as const;
+
+function imageModelCandidates(): string[] {
+  const preferred = config.openaiImageModel.trim();
+  const ordered = preferred
+    ? [preferred, ...GPT_IMAGE_MODELS.filter((m) => m !== preferred)]
+    : [...GPT_IMAGE_MODELS];
+  return [...new Set(ordered)];
+}
+
 function templateCoverPrompt(input: CoverInput): string {
   const title = cleanDisplayTitle(input.title);
   const idea = input.userPrompt?.trim() || title;
   return [
     `Professional mobile hypercasual game store cover art for "${title}".`,
     "Vibrant polished 3D cartoon illustration in the style of top mobile arcade games",
-    "(colorful fish underwater, soccer penalty kick, or action puzzle — match the theme).",
+    "(colorful fish underwater, soccer penalty kick, swipe combat, pirate adventure — match the theme).",
     `Theme / gameplay: ${idea.slice(0, 200)}.`,
     `Bold stylized title text "${title.toUpperCase()}" integrated into the artwork.`,
     "Bright colors, glossy characters, marketing splash screen quality, 16:10 landscape composition.",
@@ -33,15 +48,16 @@ async function composeCoverPromptWithAgent(input: CoverInput): Promise<string> {
 
   const result = await Agent.prompt(
     [
-      "You write image-generation prompts for DALL-E 3.",
-      "Create ONE detailed prompt for a hypercasual mobile game cover / store listing hero image.",
+      "You write detailed prompts for AI image generation.",
+      "Create ONE prompt for a hypercasual mobile game cover / store listing hero image.",
       "Style reference: polished 3D cartoon game art like Fish Eat Fish, Penalty Fever — bold title text in the image, vibrant colors, commercial quality.",
+      "Match visuals to the game's theme (pirate, racing, swipe combat, underwater, space, etc.).",
       "",
       `Game title: ${title}`,
       `Player idea: ${input.userPrompt ?? title}`,
       planExcerpt ? `Design notes:\n${planExcerpt}` : "",
       "",
-      "Output ONLY the DALL-E prompt text. No markdown, no quotes, no explanation.",
+      "Output ONLY the image prompt text. No markdown, no quotes, no explanation.",
     ].join("\n"),
     {
       apiKey,
@@ -57,7 +73,36 @@ async function composeCoverPromptWithAgent(input: CoverInput): Promise<string> {
   return text.slice(0, 3800);
 }
 
-async function generateDalleImage(prompt: string): Promise<Buffer> {
+function isGptImageModel(model: string): boolean {
+  return (
+    model.startsWith("gpt-image") ||
+    model === "chatgpt-image-latest" ||
+    model.startsWith("gpt-image-")
+  );
+}
+
+function buildImageRequestBody(model: string, prompt: string): Record<string, unknown> {
+  if (isGptImageModel(model)) {
+    return {
+      model,
+      prompt,
+      n: 1,
+      size: "1536x1024",
+      quality: "high",
+    };
+  }
+
+  return {
+    model,
+    prompt,
+    n: 1,
+    size: "1792x1024",
+    quality: "standard",
+    response_format: "b64_json",
+  };
+}
+
+async function requestOpenAiImage(model: string, prompt: string): Promise<Buffer> {
   const apiKey = config.openaiApiKey;
   if (!apiKey) {
     throw new Error("OPENAI_API_KEY is not configured for cover art generation");
@@ -69,31 +114,43 @@ async function generateDalleImage(prompt: string): Promise<Buffer> {
       Authorization: `Bearer ${apiKey}`,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({
-      model: config.openaiImageModel,
-      prompt,
-      n: 1,
-      size: "1792x1024",
-      quality: "standard",
-      response_format: "b64_json",
-    }),
+    body: JSON.stringify(buildImageRequestBody(model, prompt)),
   });
 
   const data = (await res.json()) as {
-    error?: { message?: string };
+    error?: { message?: string; code?: string };
     data?: Array<{ b64_json?: string }>;
   };
 
   if (!res.ok) {
-    throw new Error(data.error?.message ?? `OpenAI image API failed (${res.status})`);
+    throw new Error(
+      data.error?.message ?? `OpenAI image API failed (${res.status}) for ${model}`
+    );
   }
 
   const b64 = data.data?.[0]?.b64_json;
   if (!b64) {
-    throw new Error("OpenAI returned no image data");
+    throw new Error(`OpenAI returned no image data for ${model}`);
   }
 
   return Buffer.from(b64, "base64");
+}
+
+async function generateOpenAiCoverImage(prompt: string): Promise<Buffer> {
+  const models = imageModelCandidates();
+  let lastError: Error | null = null;
+
+  for (const model of models) {
+    try {
+      console.log(`Generating cover with model: ${model}`);
+      return await requestOpenAiImage(model, prompt);
+    } catch (err) {
+      lastError = err instanceof Error ? err : new Error(String(err));
+      console.warn(`Cover model ${model} failed:`, lastError.message);
+    }
+  }
+
+  throw lastError ?? new Error("All OpenAI image models failed");
 }
 
 async function resizeCoverToJpeg(png: Buffer): Promise<Buffer> {
@@ -111,7 +168,7 @@ async function resizeCoverToJpeg(png: Buffer): Promise<Buffer> {
   return canvas.toBuffer("image/jpeg", 90);
 }
 
-/** Composer writes the DALL-E prompt; OpenAI renders the cover. Falls back to canvas if unavailable. */
+/** Composer writes the image prompt; OpenAI GPT Image renders the cover. */
 export async function generateCoverJpeg(input: CoverInput): Promise<Buffer> {
   const normalized: CoverInput = {
     ...input,
@@ -120,14 +177,14 @@ export async function generateCoverJpeg(input: CoverInput): Promise<Buffer> {
 
   if (!config.openaiApiKey) {
     console.warn(
-      "OPENAI_API_KEY missing — using canvas cover fallback. Add OPENAI_API_KEY for DALL-E covers."
+      "OPENAI_API_KEY missing — using canvas cover fallback. Add OPENAI_API_KEY for AI covers."
     );
     return generateFallbackCoverJpeg(normalized);
   }
 
   try {
     const prompt = await composeCoverPromptWithAgent(normalized);
-    const png = await generateDalleImage(prompt);
+    const png = await generateOpenAiCoverImage(prompt);
     return await resizeCoverToJpeg(png);
   } catch (err) {
     console.error("AI cover generation failed, using canvas fallback:", err);

@@ -13,7 +13,7 @@ export const config = {
   cursorApiKey: process.env.CURSOR_API_KEY ?? "",
   cursorModel: process.env.CURSOR_MODEL ?? "composer-2.5",
   openaiApiKey: process.env.OPENAI_API_KEY ?? "",
-  openaiImageModel: process.env.OPENAI_IMAGE_MODEL ?? "dall-e-3",
+  openaiImageModel: process.env.OPENAI_IMAGE_MODEL ?? "gpt-image-1",
   gcpProject: process.env.GOOGLE_CLOUD_PROJECT ?? "",
   useFirestore: Boolean(process.env.GOOGLE_CLOUD_PROJECT),
   githubToken: process.env.GITHUB_TOKEN ?? "",

@@ -158,11 +158,15 @@ export function GenerationModal({
                 {game?.title ?? "Building your game"}
               </h2>
               <p className="text-xs text-muted">
-                {loading
-                  ? "Cursor is planning and coding your hypercasual game…"
-                  : game?.status === "ready"
-                    ? "Preview, refine with prompts, then publish"
-                    : "Forge Lite studio"}
+                {loading && loadingKind === "generate"
+                  ? "Generating the game"
+                  : loading
+                    ? loadingKind === "publish"
+                      ? "Generating cover art & saving…"
+                      : "Applying your edit…"
+                    : game?.status === "ready"
+                      ? "Preview, refine with prompts, then publish"
+                      : "Forge Lite studio"}
               </p>
             </div>
           </div>
@@ -190,7 +194,7 @@ export function GenerationModal({
                 {loading ? (
                   <div className="flex flex-col items-center gap-3 text-muted">
                     <Loader2 className="h-8 w-8 animate-spin text-orange-400" />
-                    <p>Generating game files with Cursor SDK…</p>
+                    <p>Generating game files…</p>
                   </div>
                 ) : (
                   <p className="text-muted">{error ?? "Waiting to start…"}</p>
@@ -225,8 +229,8 @@ export function GenerationModal({
                     {loadingKind === "edit"
                       ? "Applying your edit…"
                       : loadingKind === "publish"
-                        ? "Generating cover art & saving… (up to ~1 min)"
-                        : "Working…"}
+                        ? "Generating cover art & saving…"
+                        : "Generating the game"}
                   </div>
                 )}
                 <div ref={chatEndRef} />
