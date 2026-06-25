@@ -1,17 +1,12 @@
 import type { GameDoc, ChatMessage } from "../types.js";
 import { getStore, loadFilesToWorkspace, syncWorkspaceToStore } from "./store.js";
 import {
+  copyReferenceGamesToWorkspace,
   initWorkspaceFromScaffold,
   removeWorkspace,
-  writeReferenceImage,
   workspaceDir,
 } from "./workspace.js";
-import {
-  isCursorConfigured,
-  runBuilder,
-  runEditor,
-  runPlanner,
-} from "./cursor.js";
+import { isCursorConfigured, runBuildPipeline, runEditor } from "./cursor.js";
 import {
   expiresAt,
   newId,
@@ -20,13 +15,9 @@ import {
   uniqueSlug,
 } from "../utils.js";
 import { config, requireFirestore } from "../config.js";
-import { generateCoverJpeg } from "./cover-ai.js";
+import { generateFallbackCoverJpeg } from "./cover-image.js";
 import { summarizeEdit, summarizeGameReady } from "./chat-summary.js";
 import { deriveLockedTitle, resolveGameTitle } from "./title.js";
-import {
-  normalizeUploadToCoverJpeg,
-  toSdkReferenceImage,
-} from "./reference-image.js";
 
 async function addChat(
   gameId: string,
@@ -70,11 +61,7 @@ export function coverPathForSlug(slug: string): string {
 
 export { resolveGameTitle } from "./title.js";
 
-export async function createGameFromPrompt(
-  userPrompt: string,
-  referenceImage: Buffer,
-  referenceMime = "image/jpeg"
-): Promise<GameDoc> {
+export async function createGameFromPrompt(userPrompt: string): Promise<GameDoc> {
   const store = await getStore();
   const slugs = await store.listSlugs();
   const baseSlug = slugify(userPrompt);
@@ -82,12 +69,13 @@ export async function createGameFromPrompt(
   const id = newId();
   const now = nowIso();
 
-  const reference = toSdkReferenceImage(referenceImage, referenceMime);
+  const lockedTitle = await deriveLockedTitle(userPrompt);
 
-  const [lockedTitle, coverJpeg] = await Promise.all([
-    deriveLockedTitle(userPrompt),
-    normalizeUploadToCoverJpeg(referenceImage),
-  ]);
+  const coverJpeg = await generateFallbackCoverJpeg({
+    title: lockedTitle,
+    slug,
+    userPrompt,
+  });
 
   let game: GameDoc = {
     id,
@@ -113,19 +101,19 @@ export async function createGameFromPrompt(
       throw new Error("CURSOR_API_KEY is not configured on the game API server");
     }
 
-    const plan = await runPlanner(userPrompt, reference);
-    game = await updateGame(game, { gamePlan: plan });
-
-    const revealTask = summarizeGameReady(lockedTitle, userPrompt, plan);
     const dir = await initWorkspaceFromScaffold(id);
-    await writeReferenceImage(dir, referenceImage);
+    await copyReferenceGamesToWorkspace(dir);
 
-    const [builderResult, revealText] = await Promise.all([
-      runBuilder(dir, plan, slug, userPrompt, reference),
-      revealTask,
-    ]);
+    const builderResult = await runBuildPipeline(dir, slug, userPrompt);
+    game = await updateGame(game, { gamePlan: builderResult.gamePlan });
 
     await syncWorkspaceToStore(store, id, dir);
+
+    const revealText = await summarizeGameReady(
+      lockedTitle,
+      userPrompt,
+      builderResult.gamePlan
+    );
 
     await addChat(id, {
       role: "assistant",
@@ -220,7 +208,7 @@ export async function publishGame(gameId: string): Promise<GameDoc> {
   if (game.coverImageBase64) {
     coverJpeg = Buffer.from(game.coverImageBase64, "base64");
   } else {
-    coverJpeg = await generateCoverJpeg({
+    coverJpeg = await generateFallbackCoverJpeg({
       title: resolveGameTitle(game),
       slug: game.slug,
       userPrompt: game.userPrompt,

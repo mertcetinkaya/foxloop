@@ -37,6 +37,24 @@ export const FORGE_LITE_GAMES: Game[] = [
     playable: true,
     path: "/games/arrow-out",
   },
+  {
+    id: "city-race",
+    title: "City Race",
+    image: "/games/city-race.jpg",
+    playCount: "12.4 K",
+    featured: true,
+    playable: true,
+    path: "/games/city-race",
+  },
+  {
+    id: "brawl-arena",
+    title: "Brawl Arena",
+    image: "/games/brawl-arena.jpg",
+    playCount: "18.7 K",
+    featured: true,
+    playable: true,
+    path: "/games/brawl-arena",
+  },
 ];
 
 export const FORGE_GAMES: Game[] = [

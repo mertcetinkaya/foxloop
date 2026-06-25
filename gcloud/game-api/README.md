@@ -58,7 +58,7 @@ npm run dev
 | Method | Path | Description |
 |--------|------|-------------|
 | GET | `/health` | Service status |
-| POST | `/games` | multipart: `prompt` + `referenceImage` (required) → plan + generate draft |
+| POST | `/games` | `{ "prompt": "..." }` → generate draft |
 | GET | `/games/:id` | Draft/published metadata |
 | GET | `/games/:id/chat` | Chat history |
 | POST | `/games/:id/edit` | `{ prompt }` pre-publish edit |

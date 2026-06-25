@@ -2,19 +2,24 @@ import { Agent, CursorAgentError } from "@cursor/sdk";
 import { config, requireCursorKey } from "../config.js";
 import { cursorModelSelection } from "./cursor-model.js";
 import {
-  referenceImagePayload,
-  type SdkReferenceImage,
-} from "./reference-image.js";
-import {
   BUILDER_SYSTEM,
   EDIT_SYSTEM,
-  PLANNER_SYSTEM,
-  buildBuilderPrompt,
   buildEditPrompt,
-  buildPlannerPrompt,
+  buildInitialBuildMessage,
+  buildPolishMessage,
+  buildVerifyMessage,
 } from "./prompts.js";
 
-async function collectRunText(run: Awaited<ReturnType<Awaited<ReturnType<typeof Agent.create>>["send"]>>): Promise<string> {
+function localAgentOptions() {
+  return {
+    cwd: config.webRoot,
+    settingSources: ["project"] as ("project")[],
+  };
+}
+
+async function collectRunText(
+  run: Awaited<ReturnType<Awaited<ReturnType<typeof Agent.create>>["send"]>>
+): Promise<string> {
   let text = "";
   if (run.supports("stream")) {
     for await (const event of run.stream()) {
@@ -32,44 +37,15 @@ async function collectRunText(run: Awaited<ReturnType<Awaited<ReturnType<typeof 
   return text.trim();
 }
 
-export async function runPlanner(
-  userPrompt: string,
-  referenceImage: SdkReferenceImage
-): Promise<string> {
-  const apiKey = requireCursorKey();
-
-  try {
-    await using agent = await Agent.create({
-      apiKey,
-      model: cursorModelSelection(),
-      local: { cwd: config.webRoot, settingSources: [] },
-    });
-
-    const run = await agent.send({
-      text: `${PLANNER_SYSTEM}\n\n${buildPlannerPrompt(userPrompt)}`,
-      images: [referenceImagePayload(referenceImage)],
-    });
-    const plan = await collectRunText(run);
-    return plan || fallbackPlan(userPrompt);
-  } catch (err) {
-    if (err instanceof CursorAgentError) {
-      throw new Error(`Planner failed: ${err.message}`);
-    }
-    throw err;
-  }
-}
-
 export interface BuilderResult {
   agentId: string;
-  assistantText: string;
+  gamePlan: string;
 }
 
-export async function runBuilder(
+export async function runBuildPipeline(
   workspaceDir: string,
-  plan: string,
   slug: string,
-  userPrompt: string,
-  referenceImage: SdkReferenceImage
+  userPrompt: string
 ): Promise<BuilderResult> {
   const apiKey = requireCursorKey();
 
@@ -77,18 +53,27 @@ export async function runBuilder(
     await using agent = await Agent.create({
       apiKey,
       model: cursorModelSelection(),
-      local: { cwd: workspaceDir, settingSources: [] },
+      local: localAgentOptions(),
     });
 
-    const run = await agent.send({
-      text: `${BUILDER_SYSTEM}\n\n${buildBuilderPrompt(plan, slug, userPrompt)}`,
-      images: [referenceImagePayload(referenceImage)],
+    const turn1 = await agent.send({
+      text: `${BUILDER_SYSTEM}\n\n${buildInitialBuildMessage(workspaceDir, slug, userPrompt)}`,
     });
-    const assistantText = await collectRunText(run);
-    return { agentId: agent.agentId, assistantText };
+    const planText = await collectRunText(turn1);
+
+    const turn2 = await agent.send(buildPolishMessage(workspaceDir));
+    await collectRunText(turn2);
+
+    const turn3 = await agent.send(buildVerifyMessage(workspaceDir));
+    await collectRunText(turn3);
+
+    return {
+      agentId: agent.agentId,
+      gamePlan: planText || fallbackPlan(userPrompt),
+    };
   } catch (err) {
     if (err instanceof CursorAgentError) {
-      throw new Error(`Builder startup failed: ${err.message}`);
+      throw new Error(`Build pipeline failed: ${err.message}`);
     }
     throw err;
   }
@@ -106,16 +91,16 @@ export async function runEditor(
     await using agent = await Agent.resume(agentId, {
       apiKey,
       model: cursorModelSelection(),
-      local: { cwd: workspaceDir, settingSources: [] },
+      local: localAgentOptions(),
     });
 
     const run = await agent.send(
-      `${EDIT_SYSTEM}\n\n${buildEditPrompt(userEdit, plan)}`
+      `${EDIT_SYSTEM}\n\n${buildEditPrompt(userEdit, plan, workspaceDir)}`
     );
     return collectRunText(run);
   } catch (err) {
     if (err instanceof CursorAgentError) {
-      throw new Error(`Editor startup failed: ${err.message}`);
+      throw new Error(`Editor failed: ${err.message}`);
     }
     throw err;
   }
@@ -138,7 +123,7 @@ Move player with mouse or finger.
 Enemies spawn from sides; collision costs a life; reach score 500 to win.
 
 ## Visual Style
-Match the attached reference image palette and mood in canvas 2D.
+Polished 2D canvas — gradients, particles, depth, parallax (like Eat the Smaller Fish).
 
 ## UI/HUD
 Score top-left, lives top-right, hint text bottom.

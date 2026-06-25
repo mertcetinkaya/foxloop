@@ -10,6 +10,9 @@ export interface CursorModelSelection {
   params?: CursorModelParam[];
 }
 
+/** Composer 2.5 fast (matches Cursor UI "fast" toggle). */
+const COMPOSER_25_FAST: CursorModelParam[] = [{ id: "fast", value: "true" }];
+
 /** Opus 4.8 + thinking on + high effort (matches Cursor UI "thinking high"). */
 const OPUS_48_THINKING_HIGH: CursorModelParam[] = [
   { id: "thinking", value: "true" },
@@ -23,6 +26,10 @@ export function cursorModelSelection(): CursorModelSelection {
 
   if (config.cursorModelParams.length > 0) {
     return { id, params: config.cursorModelParams };
+  }
+
+  if (id === "composer-2.5") {
+    return { id, params: COMPOSER_25_FAST };
   }
 
   if (id === "claude-opus-4-8" && config.cursorOpusThinkingHigh) {

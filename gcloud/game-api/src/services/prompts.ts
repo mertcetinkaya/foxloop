@@ -1,69 +1,78 @@
-export const PLANNER_SYSTEM = `You are a hypercasual mobile game designer for Foxloop Forge Lite.
-Turn the user's idea into a concise, actionable game design spec.
-Output markdown with sections: Title, Genre, Core Loop, Controls, Mechanics, Visual Style, UI/HUD, Win/Lose, File Plan.
-Under ## Title put ONLY a short catchy game name (2-4 words, no markdown, no description).
-Note: The game title is already locked before planning — use the same title in ## Title for reference only.
-Keep it playable in a single canvas screen. One-hand controls. Session under 3 minutes.
-The player attached a reference image — describe Visual Style to match that world's palette, perspective, and mood (canvas 2D, not a photo paste).
-Reference quality: polished 2D canvas like "Eat the Smaller Fish" or "Arrow Out" — gradients, particles, depth, not flat placeholders.`;
-
 export const BUILDER_SYSTEM = `You are building a Foxloop Forge Lite hypercasual game in TypeScript with Canvas 2D.
 
-Rules:
-- ONLY edit/create files in the current workspace directory (engine.ts, renderer.ts, types.ts, constants.ts, draw-helpers.ts, optional ai.ts).
+Workspace contract:
+- ALL game source files MUST live ONLY in the workspace directory given in each message (absolute path).
+- Do NOT modify any other files in the repository.
+
+Architecture:
+- ONLY edit/create in the workspace: engine.ts, renderer.ts, types.ts, constants.ts, draw-helpers.ts, optional ai.ts.
 - Do NOT use Phaser, Pixi, or external game engines.
-- Match the architecture of existing Foxloop games: engine.ts (logic/update/input), renderer.ts (CanvasRenderingContext2D drawing), types.ts, constants.ts, draw-helpers.ts.
-- Use requestAnimationFrame-friendly updateGame(state, dt) and drawGame(ctx, state, width, height).
-- Export createInitialState, updateGame, restartLevel, setPointer, onPointerDown, onPointerUp, onKey, and types GameState with status playing|won|lost.
-- The game shell calls setPointer, onPointerDown, onPointerUp, onKey — implement gameplay using these. Do NOT add window/canvas listeners in game files.
+- Match Foxloop structure: engine.ts (logic), renderer.ts (drawing), types.ts, constants.ts, draw-helpers.ts.
+- Export createInitialState, updateGame, restartLevel, setPointer, onPointerDown, onPointerUp, onKey, drawGame, GameState (status: playing|won|lost).
+- The game shell calls setPointer, onPointerDown, onPointerUp, onKey — no window/canvas listeners in game files.
 
-Visual depth contract (REQUIRED):
-- Moving entities face their velocity (ctx.translate + ctx.rotate with atan2(vy, vx)) or fixed forward axis.
-- Ground shadows under sprites (use drawGroundShadow from draw-helpers.ts).
-- At least 2 parallax background layers or depth gradient — not a flat single-color fill.
-- Radial gradients / highlights on bodies — no flat colored rectangles for vehicles or creatures.
-- Depth sort: draw farther objects before nearer ones (by y or z).
-- Use draw-helpers.ts for shadows, parallax, oriented glow bodies.
+Quality bar — read showcase games in this repo:
+- src/games/brawl-arena, src/games/city-race, src/games/eat-smaller-fish, src/games/arrow-out
+- Oriented sprites, ground shadows, parallax/depth, gradients (not flat rectangles).
+- Hypercasual polish: particles, trails, shake, readable HUD.
+- Mobile: pointer + onKey for controls.
 
-Hypercasual polish REQUIRED: glow, particles or trails, screen shake on hit, readable HUD.
-Mobile-friendly: drag/tap via onPointerDown + setPointer; keyboard via onKey + state.keys.
+On the first turn, end your chat reply with a brief markdown summary (Genre, Core Loop, Controls, Visual Style) under 300 words.
+Later turns: only edit files; no chat reply needed.`;
 
-The attached reference image (also saved as reference-scene.jpg) is the visual target for the playable canvas scene.
-Draw that world in Canvas 2D: match palette, perspective, background layers, and mood — do NOT paste or blit the photo as gameplay.
-
-Read reference games for style (if accessible):
-- forge web/foxloop/src/games/eat-smaller-fish/
-- forge web/foxloop/src/games/arrow-out/
-
-Implement the provided game plan completely. Replace scaffold placeholders. Make it fun and visually appealing.
-Your chat reply to the user is not shown — only code files matter.`;
-
-export const EDIT_SYSTEM = `You are editing an existing Foxloop Forge Lite draft game in the workspace.
-Apply ONLY the requested changes. Keep hypercasual polish and visual depth (orientation, shadows, parallax).
+export const EDIT_SYSTEM = `You are editing an existing Foxloop Forge Lite draft game.
+Apply ONLY the requested changes in the workspace directory given in the message.
+Keep hypercasual polish and visual depth (orientation, shadows, parallax).
 Modify the minimum files needed (often constants.ts and engine.ts, sometimes renderer.ts).
-Do not break exports used by the preview runner: createInitialState, updateGame, restartLevel, setPointer, onPointerDown, onPointerUp, onKey, drawGame, GameState.
-Never change the game title or cover art — only gameplay files.
-Your chat reply to the user is not shown — only file edits matter.`;
+Do not break exports: createInitialState, updateGame, restartLevel, setPointer, onPointerDown, onPointerUp, onKey, drawGame, GameState.
+Never change the game title or cover art — only gameplay files in the workspace.
+Your chat reply is not shown — only file edits matter.`;
 
-export function buildPlannerPrompt(userPrompt: string): string {
-  return `User idea:\n${userPrompt}\n\nUse the attached reference image when writing Visual Style and Mechanics.\n\nWrite a detailed hypercasual game plan the engineering agent can implement in canvas TypeScript files.`;
-}
-
-export function buildBuilderPrompt(
-  plan: string,
+export function buildInitialBuildMessage(
+  workspaceDir: string,
   slug: string,
   userPrompt: string
 ): string {
   return `Game slug: ${slug}
-User idea: ${userPrompt}
+Workspace directory (write ONLY here): ${workspaceDir}
+Local reference copies: ${workspaceDir}/reference-games/ (read-only examples)
 
-The attached reference image shows the world to recreate in Canvas 2D (reference-scene.jpg is the same file in this workspace).
+User idea:
+${userPrompt}
 
-Implement this plan in the workspace TypeScript files (engine.ts, renderer.ts, types.ts, constants.ts, draw-helpers.ts):
+Implement a complete hypercasual canvas game in the workspace. Replace scaffold placeholders.
+Read src/games/brawl-arena, src/games/city-race, src/games/eat-smaller-fish, src/games/arrow-out for quality reference.
 
-${plan}`;
+End with a brief markdown plan (Genre, Core Loop, Controls, Visual Style, Mechanics).`;
 }
 
-export function buildEditPrompt(userEdit: string, plan: string): string {
-  return `Original plan:\n${plan}\n\nUser change request:\n${userEdit}\n\nApply this change to the workspace game files.`;
+export function buildPolishMessage(workspaceDir: string): string {
+  return `Polish pass for workspace: ${workspaceDir}
+
+Compare renderer.ts and engine.ts to src/games/brawl-arena, src/games/city-race, src/games/eat-smaller-fish.
+Improve visual depth, parallax, shadows, motion polish. Fix flat placeholder art.
+Do not change exports. Only edit files in ${workspaceDir}. No chat reply.`;
+}
+
+export function buildVerifyMessage(workspaceDir: string): string {
+  return `Verification pass for workspace: ${workspaceDir}
+
+Ensure exports: createInitialState, updateGame, restartLevel, setPointer, onPointerDown, onPointerUp, onKey, drawGame, GameState.
+Fix compile issues. Game must be playable. Only edit ${workspaceDir}. No chat reply.`;
+}
+
+export function buildEditPrompt(
+  userEdit: string,
+  plan: string,
+  workspaceDir: string
+): string {
+  return `Workspace: ${workspaceDir}
+
+Original plan:
+${plan}
+
+User change request:
+${userEdit}
+
+Apply this change to workspace game files only.`;
 }

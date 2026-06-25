@@ -65,13 +65,11 @@ export async function gameApiHealth(): Promise<boolean> {
   }
 }
 
-export async function createGame(prompt: string, referenceImage: File): Promise<ApiGame> {
-  const form = new FormData();
-  form.append("prompt", prompt);
-  form.append("referenceImage", referenceImage, referenceImage.name);
+export async function createGame(prompt: string): Promise<ApiGame> {
   const res = await fetch(gameApiUrl("/games"), {
     method: "POST",
-    body: form,
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ prompt }),
   });
   const data = await parseJson<{ game: ApiGame }>(res);
   return data.game;

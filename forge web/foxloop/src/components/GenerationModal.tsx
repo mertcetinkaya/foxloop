@@ -18,7 +18,6 @@ import {
 interface GenerationModalProps {
   isOpen: boolean;
   initialPrompt: string;
-  initialReferenceImage: File | null;
   onClose: () => void;
   onPublished?: (game: ApiGame) => void;
 }
@@ -26,7 +25,6 @@ interface GenerationModalProps {
 export function GenerationModal({
   isOpen,
   initialPrompt,
-  initialReferenceImage,
   onClose,
   onPublished,
 }: GenerationModalProps) {
@@ -44,7 +42,6 @@ export function GenerationModal({
   );
   const [error, setError] = useState<string | null>(null);
   const [previewKey, setPreviewKey] = useState(0);
-  const [referencePreview, setReferencePreview] = useState<string | null>(null);
   const startedRef = useRef(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
@@ -65,13 +62,13 @@ export function GenerationModal({
   }, []);
 
   const runGenerate = useCallback(
-    async (prompt: string, referenceImage: File) => {
+    async (prompt: string) => {
       appendUserMessage(prompt);
       setLoading(true);
       setLoadingKind("generate");
       setError(null);
       try {
-        const created = await createGame(prompt, referenceImage);
+        const created = await createGame(prompt);
         setGame(created);
         await refreshChat(created.id);
         setPreviewKey((k) => k + 1);
@@ -86,16 +83,6 @@ export function GenerationModal({
   );
 
   useEffect(() => {
-    if (!initialReferenceImage) {
-      setReferencePreview(null);
-      return;
-    }
-    const reader = new FileReader();
-    reader.onload = () => setReferencePreview(reader.result as string);
-    reader.readAsDataURL(initialReferenceImage);
-  }, [initialReferenceImage]);
-
-  useEffect(() => {
     if (!isOpen) {
       startedRef.current = false;
       setGame(null);
@@ -103,13 +90,12 @@ export function GenerationModal({
       setEditPrompt("");
       setError(null);
       setLoadingKind(null);
-      setReferencePreview(null);
       return;
     }
-    if (startedRef.current || !initialPrompt.trim() || !initialReferenceImage) return;
+    if (startedRef.current || !initialPrompt.trim()) return;
     startedRef.current = true;
-    void runGenerate(initialPrompt.trim(), initialReferenceImage);
-  }, [isOpen, initialPrompt, initialReferenceImage, runGenerate]);
+    void runGenerate(initialPrompt.trim());
+  }, [isOpen, initialPrompt, runGenerate]);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -174,6 +160,13 @@ export function GenerationModal({
   const canPublish = game?.status === "ready";
   const showPreview = game && game.status !== "failed" && game.status !== "planning";
 
+  const loadingMessage =
+    loadingKind === "edit"
+      ? "Applying your edit…"
+      : loadingKind === "publish"
+        ? "Saving to Forge Lite…"
+        : "Building your game…";
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
       <div className="flex h-[min(92vh,880px)] w-full max-w-6xl flex-col overflow-hidden rounded-2xl border border-border bg-[#0f1219] shadow-2xl">
@@ -186,7 +179,7 @@ export function GenerationModal({
               </h2>
               <p className="text-xs text-muted">
                 {loading && loadingKind === "generate"
-                  ? "Building your game from your reference…"
+                  ? "Building your game…"
                   : loading
                     ? loadingKind === "publish"
                       ? "Saving to Forge Lite…"
@@ -217,14 +210,10 @@ export function GenerationModal({
                   className="h-full w-full border-0"
                   sandbox="allow-scripts allow-same-origin"
                 />
-                {(game.coverStatus === "ready" || referencePreview) && (
+                {game.coverStatus === "ready" && (
                   <div className="pointer-events-none absolute bottom-3 left-3 overflow-hidden rounded-lg border border-white/10 shadow-lg">
                     <img
-                      src={
-                        game.coverStatus === "ready"
-                          ? draftCoverUrl(game.id)
-                          : referencePreview ?? ""
-                      }
+                      src={draftCoverUrl(game.id)}
                       alt={`${displayTitle} cover`}
                       className="h-14 w-[5.5rem] object-cover"
                     />
@@ -236,16 +225,7 @@ export function GenerationModal({
                 {loading ? (
                   <div className="flex flex-col items-center gap-3 text-muted">
                     <Loader2 className="h-8 w-8 animate-spin text-orange-400" />
-                    <p>Building your game from your reference…</p>
-                    {referencePreview && (
-                      <div className="mt-2 overflow-hidden rounded-lg border border-white/10 shadow-lg">
-                        <img
-                          src={referencePreview}
-                          alt="Your reference"
-                          className="h-20 w-32 object-cover"
-                        />
-                      </div>
-                    )}
+                    <p>Building your game…</p>
                   </div>
                 ) : (
                   <p className="text-muted">{error ?? "Waiting to start…"}</p>
@@ -277,11 +257,7 @@ export function GenerationModal({
                 {loading && (
                   <div className="mr-4 flex items-center gap-2 rounded-xl bg-[#141820] px-3 py-2 text-sm text-muted">
                     <Loader2 className="h-4 w-4 shrink-0 animate-spin text-orange-400" />
-                    {loadingKind === "edit"
-                      ? "Applying your edit…"
-                      : loadingKind === "publish"
-                        ? "Saving to Forge Lite…"
-                        : "Building your game from your reference…"}
+                    {loadingMessage}
                   </div>
                 )}
                 <div ref={chatEndRef} />

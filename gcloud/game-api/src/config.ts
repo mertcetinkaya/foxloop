@@ -11,7 +11,7 @@ export const config = {
     .split(",")
     .map((o) => o.trim()),
   cursorApiKey: process.env.CURSOR_API_KEY ?? "",
-  cursorModel: process.env.CURSOR_MODEL ?? "claude-opus-4-8",
+  cursorModel: process.env.CURSOR_MODEL ?? "composer-2.5",
   /** When true and model is claude-opus-4-8, use thinking + high effort params. */
   cursorOpusThinkingHigh: process.env.CURSOR_OPUS_THINKING_HIGH !== "false",
   /** Optional JSON array, e.g. [{"id":"thinking","value":"true"},{"id":"effort","value":"high"}] */
