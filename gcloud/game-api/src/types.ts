@@ -20,6 +20,10 @@ export type ChatType =
   | "status"
   | "error";
 
+export type CatalogKind = "embed" | "native" | "external" | "generated";
+
+export type TrafficTier = 1 | 2 | 3 | "wrath";
+
 export interface GameDoc {
   id: string;
   slug: string;
@@ -38,10 +42,30 @@ export interface GameDoc {
   gameBuildStatus?: PipelineStatus;
   coverStatus?: PipelineStatus;
   errorMessage?: string;
+  kind?: CatalogKind;
+  trafficTier?: TrafficTier;
+  playCountBase?: number;
+  seededAt?: string;
   createdAt: string;
   updatedAt: string;
   expiresAt?: string;
   publishedAt?: string;
+}
+
+export interface CatalogGameDoc {
+  slug: string;
+  title: string;
+  kind: CatalogKind;
+  image: string;
+  path?: string;
+  externalUrl?: string;
+  embedPath?: string;
+  playable: boolean;
+  trafficTier: TrafficTier;
+  playCountBase: number;
+  seededAt: string;
+  source?: string;
+  license?: string;
 }
 
 export interface GameFile {
@@ -63,7 +87,8 @@ export interface PublishedGameCard {
   title: string;
   image: string;
   playCount: string;
-  path: string;
+  path?: string;
+  externalUrl?: string;
   playable: boolean;
   featured?: boolean;
   buildStatus?: BuildStatus;

@@ -1,9 +1,14 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Play } from "lucide-react";
 import type { Game } from "@/data/games";
+import {
+  placeholderCoverForSlug,
+  resolveGameCoverImage,
+} from "@/lib/game-cover";
 
 interface GameCardProps {
   game: Game;
@@ -13,8 +18,16 @@ interface GameCardProps {
 export function GameCard({ game, size = "default" }: GameCardProps) {
   const isLarge = size === "large";
   const isPlayable = game.playable && (game.path || game.externalUrl);
+  const [imgSrc, setImgSrc] = useState(() =>
+    resolveGameCoverImage(game.id, game.image)
+  );
+
+  useEffect(() => {
+    setImgSrc(resolveGameCoverImage(game.id, game.image));
+  }, [game.id, game.image]);
+
   const isRemoteImage =
-    game.image.startsWith("http://") || game.image.startsWith("https://");
+    imgSrc.startsWith("http://") || imgSrc.startsWith("https://");
 
   const cardContent = (
     <>
@@ -26,17 +39,19 @@ export function GameCard({ game, size = "default" }: GameCardProps) {
         {isRemoteImage ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
-            src={game.image}
+            src={imgSrc}
             alt={game.title}
             className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+            onError={() => setImgSrc(placeholderCoverForSlug(game.id))}
           />
         ) : (
           <Image
-            src={game.image}
+            src={imgSrc}
             alt={game.title}
             fill
             className="object-cover transition-transform duration-300 group-hover:scale-105"
             sizes={isLarge ? "50vw" : "25vw"}
+            onError={() => setImgSrc(placeholderCoverForSlug(game.id))}
           />
         )}
 
@@ -74,7 +89,9 @@ export function GameCard({ game, size = "default" }: GameCardProps) {
         <p
           className={`mt-1 text-muted ${isLarge ? "text-sm" : "text-xs"}`}
         >
-          {game.playCount} plays
+          {game.playCount === "0"
+            ? "0 plays"
+            : `${game.playCount} plays`}
         </p>
       </div>
     </>

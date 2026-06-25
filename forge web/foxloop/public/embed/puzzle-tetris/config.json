@@ -1,0 +1,39 @@
+{
+  "entry": "Customtetris/index.html",
+  "images2": {
+    "background": "assets/background.png"
+  },
+  "audio": {
+    "bgm": "assets/bgm.mp3",
+    "rotate": "assets/rotate.mp3",
+    "clear": "assets/clear.mp3",
+    "down": "assets/down.mp3",
+    "move": "assets/move.mp3"
+  },
+  "mechanics": {
+    "target_score": 500,
+    "line_points": {
+      "1": 100,
+      "2": 300,
+      "3": 500,
+      "4": 800
+    },
+    "base_drop_speed": 800,
+    "speed_increase_per_level": 60,
+    "min_drop_speed": 120
+  },
+  "texts": {
+    "howto_title": "Instructions",
+    "howto_subtitle": "Flick left/right to move, flick down or touch ▼ to fall faster, touch ⟳ to rotate, touch ⏬ to drop. Reach TARGET points to win.",
+    "start_title": "Hit to Play",
+    "start_subtitle": "Reach TARGET score to win!",
+    "win_title": "You Win!",
+    "win_subtitle": "Great job reaching the target score!",
+    "gameover_title": "INSERT COIN",
+    "gameover_subtitle": "Touch Replay to play again",
+    "pause_title": "Paused",
+    "pause_subtitle": "Press any control or press P",
+    "how_to_play": "Study the board, plan your moves, and solve each challenge before the clock hits zero.",
+    "game_over_title": "NO CONTINUES"
+  }
+}

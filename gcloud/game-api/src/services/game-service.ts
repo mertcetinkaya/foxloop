@@ -17,6 +17,7 @@ import {
 } from "../utils.js";
 import { config, requireFirestore } from "../config.js";
 import { generateFallbackCoverJpeg } from "./cover-image.js";
+import { trafficSeedForPublish } from "./catalog-service.js";
 import { generateCoverForCreate } from "./cover-ai.js";
 import { summarizeEdit, summarizeGameReady } from "./chat-summary.js";
 import { deriveLockedTitle, resolveGameTitle } from "./title.js";
@@ -249,12 +250,18 @@ export async function publishGame(gameId: string, ownerUid: string): Promise<Gam
     });
   }
 
+  const traffic = trafficSeedForPublish(game.slug);
+
   const updated = await updateGame(game, {
     status: "published",
     buildStatus: "live",
     publishedAt: nowIso(),
     coverUrl: game.coverUrl ?? coverPathForSlug(game.slug),
     coverImageBase64: coverJpeg.toString("base64"),
+    kind: "generated",
+    trafficTier: traffic.trafficTier,
+    playCountBase: traffic.playCountBase,
+    seededAt: traffic.seededAt,
   });
 
   await removeWorkspace(gameId);

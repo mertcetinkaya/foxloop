@@ -1,0 +1,13 @@
+{
+  "name": "blk.sim.ActorState",
+  "super": "blk.sim.ModelState",
+  "vars": [
+    {
+      "name": "heldToolId",
+      "type": "EntityID",
+      "entity_type": "blk.sim.Tool",
+      "flags": [
+      ]
+    }
+  ]
+}

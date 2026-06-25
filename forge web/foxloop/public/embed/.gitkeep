@@ -1,0 +1,2 @@
+# Embedded browser games are copied here by scripts/import-games.mjs
+# Each game lives in its own folder: public/embed/<slug>/index.html

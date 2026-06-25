@@ -1,0 +1,55 @@
+{
+  "entry": "Customperfectsquare/index.html",
+  "mechanics": {
+    "timeLimit": 2,
+    "totalLevels": 3,
+    "holeWidthRange": [
+      40,
+      240
+    ],
+    "wallWidthRange": [
+      10,
+      70
+    ]
+  },
+  "images1": {},
+  "images2": {
+    "htpbg": "assets/htpbg.png",
+    "background": "assets/background.png",
+    "winbg": "assets/winbg.png",
+    "ovrbg": "assets/ovrbg.png",
+    "square": "assets/square.png"
+  },
+  "ui": {
+    "base": "assets/base.png",
+    "top": "assets/top.png",
+    "htpbox": "assets/htpbox.png",
+    "playbtn": "assets/playbtn.png",
+    "lvlbox": "assets/lvlbox.png",
+    "lvl_replay": "assets/lvl_replay.png",
+    "nextbtn": "assets/next.png",
+    "ovrbox": "assets/ovrbox.png",
+    "replay": "assets/replay.png",
+    "scoreback": "assets/scoreback.png"
+  },
+  "font": {
+    "key": "font",
+    "png": "assets/font.png",
+    "fnt": "assets/font.fnt"
+  },
+  "texts": {
+    "howToTitle": "Study the board, plan your moves, and solve each challenge before time expires.",
+    "howToLine1": "Press and hold to grow:",
+    "howToLine2": "Release to drop and land between the walls.",
+    "levelCompleted": "Extraction ready.",
+    "gameOver": "Abort recommended.",
+    "timerLabel": "Time:",
+    "how_to_play": "Study the board, plan your moves, and solve each challenge before the clock hits zero.",
+    "win_title": "Sector cleared.",
+    "game_over_title": "Abort recommended."
+  },
+  "audio": {
+    "bgm": "assets/bgm.mp3",
+    "collect": "assets/collect.mp3"
+  }
+}

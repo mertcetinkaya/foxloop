@@ -1,0 +1,49 @@
+{
+  "entry": "Customstraightrush/index.html",
+  "mechanics": {
+    "targetScore": 10,
+    "lives": 5,
+    "friction": 0.99,
+    "rotateSpeed": 3,
+    "ballRadius": 10,
+    "minPower": 50,
+    "maxPower": 200
+  },
+  "images1": {
+    "ball": "assets/ball.png",
+    "deadly": "assets/deadly.png",
+    "coin": "assets/coin.png"
+  },
+  "images2": {
+    "background": "assets/background.png",
+    "ovrbg": "assets/ovrbg.png",
+    "htpbg": "assets/htpbg.png",
+    "winbg": "assets/winbg.png"
+  },
+  "ui": {
+    "arrow": "assets/arrow.png",
+    "ovrbox": "assets/ovrbox.png",
+    "replay": "assets/replay.png",
+    "htpbox": "assets/htpbox.png",
+    "playbtn": "assets/playbtn.png",
+    "lvlbox": "assets/lvlbox.png",
+    "lvl_replay": "assets/lvl_replay.png",
+    "next": "assets/next.png",
+    "scoreback": "assets/scoreback.png"
+  },
+  "texts": {
+    "fontFamily": "outfit",
+    "howToPlayTitle": "Getting Started",
+    "howToPlayBody": "Hold to charge power.\nRelease to hit.",
+    "gameOverTitle": "TRY AGAIN",
+    "winTitle": "STAGE CLEAR",
+    "targetLabel": "Target",
+    "how_to_play": "Steer through traffic, keep your speed up, and survive as long as possible.",
+    "win_title": "NEW HIGH SCORE",
+    "game_over_title": "NO CONTINUES"
+  },
+  "audio": {
+    "bgm": "assets/bgm.mp3",
+    "collect": "assets/collect.mp3"
+  }
+}

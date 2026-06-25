@@ -193,15 +193,42 @@ export function publishedCoverUrl(
   return url;
 }
 
+export async function fetchCatalog(): Promise<import("@/lib/catalog").CatalogResponse> {
+  try {
+    const res = await fetch(gameApiUrl("/catalog"));
+    const data = await parseJson<{
+      forge: Game[];
+      lite: Game[];
+      games: Game[];
+      total: number;
+    }>(res);
+    return {
+      forge: data.forge.map(normalizeCatalogGame),
+      lite: data.lite.map(normalizeCatalogGame),
+      games: data.games.map(normalizeCatalogGame),
+      total: data.total,
+    };
+  } catch {
+    const { staticCatalogFallback } = await import("@/lib/catalog");
+    return staticCatalogFallback();
+  }
+}
+
+function normalizeCatalogGame(game: Game): Game {
+  if (game.image?.startsWith("/games/by-slug/")) {
+    return {
+      ...game,
+      image: publishedCoverUrl(
+        game.id,
+        game.image,
+        (game as Game & { publishedAt?: string }).publishedAt
+      ),
+    };
+  }
+  return game;
+}
+
 export async function fetchPublishedGames(): Promise<Game[]> {
-  const res = await fetch(gameApiUrl("/games/published"));
-  const data = await parseJson<{ games: Game[] }>(res);
-  return data.games.map((game) => ({
-    ...game,
-    image: publishedCoverUrl(
-      game.id,
-      game.image,
-      (game as Game & { publishedAt?: string }).publishedAt
-    ),
-  }));
+  const catalog = await fetchCatalog();
+  return catalog.lite.filter((g) => g.path?.startsWith("/games/") && !g.path.includes("/play/"));
 }

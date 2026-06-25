@@ -1,0 +1,7 @@
+vm'de pull
+cd ~/foxloop && git pull
+cd gcloud/game-api && npm install && npm run build
+sudo systemctl restart foxloop-game-api
+
+INVITED_JWT_SECRET veya seed komutu zorunlu değil — sadece Console’dan eklemek yeterli. İstersen CLI:
+npm run seed-invited -- kullanici sifre

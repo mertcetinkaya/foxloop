@@ -1,25 +1,23 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { FORGE_LITE_GAMES, type Game } from "@/data/games";
-import { fetchPublishedGames } from "@/lib/game-api";
-import { mergePublishedWithStatic } from "@/lib/catalog";
+import type { Game } from "@/data/games";
+import { fetchCatalog } from "@/lib/game-api";
+import { staticCatalogFallback } from "@/lib/catalog";
 import { GameCard } from "@/components/GameCard";
 
 export function AllGamesGrid() {
-  const [published, setPublished] = useState<Game[]>([]);
+  const [games, setGames] = useState<Game[]>([]);
 
   useEffect(() => {
-    void fetchPublishedGames()
-      .then(setPublished)
-      .catch(() => setPublished([]));
+    void fetchCatalog()
+      .then((catalog) => setGames(catalog.games))
+      .catch(() => setGames(staticCatalogFallback().games));
   }, []);
-
-  const allLite = mergePublishedWithStatic(FORGE_LITE_GAMES, published);
 
   return (
     <>
-      {allLite.map((game) => (
+      {games.map((game) => (
         <GameCard key={game.id} game={game} size="large" />
       ))}
     </>

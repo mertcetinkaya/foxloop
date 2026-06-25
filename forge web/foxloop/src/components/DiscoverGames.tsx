@@ -3,9 +3,9 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { FORGE_GAMES, FORGE_LITE_GAMES } from "@/data/games";
-import { fetchPublishedGames } from "@/lib/game-api";
-import { mergePublishedWithStatic } from "@/lib/catalog";
+import type { Game } from "@/data/games";
+import { fetchCatalog } from "@/lib/game-api";
+import { staticCatalogFallback } from "@/lib/catalog";
 import { GameCard } from "./GameCard";
 import { PublishedLiteGames } from "./PublishedLiteGames";
 
@@ -13,19 +13,26 @@ interface DiscoverGamesProps {
   catalogVersion?: number;
 }
 
-const HOME_LITE_LIMIT = 20;
+const HOME_LITE_LIMIT = 21;
 
 export function DiscoverGames({ catalogVersion = 0 }: DiscoverGamesProps) {
+  const [forgeGames, setForgeGames] = useState<Game[]>(staticCatalogFallback().forge);
   const [liteTotal, setLiteTotal] = useState<number | null>(null);
 
   useEffect(() => {
-    void fetchPublishedGames()
-      .then((published) => {
-        const merged = mergePublishedWithStatic(FORGE_LITE_GAMES, published);
-        setLiteTotal(merged.length);
+    void fetchCatalog()
+      .then((catalog) => {
+        setForgeGames(catalog.forge);
+        setLiteTotal(catalog.total);
       })
-      .catch(() => setLiteTotal(null));
+      .catch(() => {
+        const fallback = staticCatalogFallback();
+        setForgeGames(fallback.forge);
+        setLiteTotal(fallback.total);
+      });
   }, [catalogVersion]);
+
+  const liteCatalogSize = liteTotal != null ? liteTotal - forgeGames.length : null;
 
   return (
     <section className="py-20">
@@ -45,7 +52,7 @@ export function DiscoverGames({ catalogVersion = 0 }: DiscoverGamesProps) {
         </div>
 
         <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {FORGE_GAMES.map((game) => (
+          {forgeGames.map((game) => (
             <GameCard key={game.id} game={game} />
           ))}
         </div>
@@ -56,7 +63,8 @@ export function DiscoverGames({ catalogVersion = 0 }: DiscoverGamesProps) {
             <span className="gradient-text-orange">Games</span>
           </h2>
           <p className="mx-auto mt-3 max-w-lg text-sm text-muted">
-            Latest community builds — showing the most recent {HOME_LITE_LIMIT}
+            Play the catalog — showing {HOME_LITE_LIMIT}
+            {liteCatalogSize != null ? ` of ${liteCatalogSize}+` : ""}
           </p>
         </div>
 
@@ -71,11 +79,9 @@ export function DiscoverGames({ catalogVersion = 0 }: DiscoverGamesProps) {
             <span className="flex h-8 w-8 items-center justify-center rounded-full gradient-btn">
               <ArrowRight className="h-4 w-4 text-white" />
             </span>
-            {liteTotal != null && liteTotal > HOME_LITE_LIMIT && (
-              <span className="absolute -right-1 -top-2 rounded-full bg-pink-500 px-2 py-0.5 text-xs font-bold text-white">
-                {liteTotal}
-              </span>
-            )}
+            <span className="absolute -right-1 -top-2 rounded-full bg-pink-500 px-2 py-0.5 text-xs font-bold text-white">
+              {liteTotal != null ? `${liteTotal}+` : "300+"}
+            </span>
           </Link>
         </div>
       </div>

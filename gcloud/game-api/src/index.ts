@@ -2,6 +2,7 @@ import cors from "cors";
 import express from "express";
 import { config } from "./config.js";
 import { gamesRouter } from "./routes/games.js";
+import { catalogRouter } from "./routes/catalog.js";
 import { authRouter } from "./routes/auth.js";
 import { isCursorConfigured } from "./services/cursor.js";
 import { initFirebaseAdmin } from "./services/firebase-admin.js";
@@ -24,6 +25,7 @@ app.get("/health", (_req, res) => {
 });
 
 app.use("/auth", authRouter);
+app.use("/catalog", catalogRouter);
 app.use("/games", gamesRouter);
 
 app.use(

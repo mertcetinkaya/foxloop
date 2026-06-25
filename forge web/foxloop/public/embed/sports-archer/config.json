@@ -1,0 +1,29 @@
+{
+  "entry": "Customarcher/index.html",
+  "images2": {
+    "bg": "assets/bg.png"
+  },
+  "text": {
+    "howToPlayTitle": "Rules",
+    "howToPlayLine1": "Click and grab to pull the bow.",
+    "howToPlayLine2": "Release to take down the arrow.",
+    "howToPlayTap": "Hit anywhere to start",
+    "hudArrows": "Arrows left",
+    "hudBullseyes": "Bullseyes",
+    "winTitle": "YOU WIN!",
+    "winSubtitle": "You hit {bullseyes} bullseyes in {arrows} arrows!",
+    "loseTitle": "Shake it off.",
+    "loseSubtitle": "You only hit {bullseyes} bullseyes in {arrows} arrows.",
+    "tapToRestart": "Click anywhere to play again"
+  },
+  "bullseyeTarget": 3,
+  "maxArrows": 10,
+  "audio": {
+    "bow": "assets/bow.mp3",
+    "arrow": "assets/arrow.mp3",
+    "bullseye": "assets/bullseye.mp3",
+    "hit": "assets/hit.mp3",
+    "miss": "assets/miss.mp3",
+    "bgm": "assets/bgm.mp3"
+  }
+}

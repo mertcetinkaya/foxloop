@@ -1,26 +1,26 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { FORGE_LITE_GAMES, type Game } from "@/data/games";
-import { fetchPublishedGames } from "@/lib/game-api";
-import { mergePublishedWithStatic } from "@/lib/catalog";
+import type { Game } from "@/data/games";
+import { fetchCatalog } from "@/lib/game-api";
+import { staticCatalogFallback } from "@/lib/catalog";
 import { GameCard } from "./GameCard";
 
 interface PublishedLiteGamesProps {
-  /** Max games to show (e.g. 20 on home). Omit for full list. */
+  /** Max games to show (e.g. 21 on home). Omit for full list. */
   limit?: number;
 }
 
 export function PublishedLiteGames({ limit }: PublishedLiteGamesProps) {
-  const [published, setPublished] = useState<Game[]>([]);
+  const [liteGames, setLiteGames] = useState<Game[]>([]);
   const [loaded, setLoaded] = useState(false);
 
   const load = useCallback(async () => {
     try {
-      const games = await fetchPublishedGames();
-      setPublished(games);
+      const catalog = await fetchCatalog();
+      setLiteGames(catalog.lite);
     } catch {
-      setPublished([]);
+      setLiteGames(staticCatalogFallback().lite);
     } finally {
       setLoaded(true);
     }
@@ -30,14 +30,14 @@ export function PublishedLiteGames({ limit }: PublishedLiteGamesProps) {
     void load();
   }, [load]);
 
-  const allLite = mergePublishedWithStatic(FORGE_LITE_GAMES, published);
-  const displayed = limit != null ? allLite.slice(0, limit) : allLite;
-  const placeholders = limit != null ? Math.min(limit, FORGE_LITE_GAMES.length) : FORGE_LITE_GAMES.length;
+  const displayed = limit != null ? liteGames.slice(0, limit) : liteGames;
+  const fallback = staticCatalogFallback().lite;
+  const placeholders = limit != null ? Math.min(limit, fallback.length) : fallback.length;
 
   if (!loaded) {
     return (
       <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {FORGE_LITE_GAMES.slice(0, placeholders).map((game) => (
+        {fallback.slice(0, placeholders).map((game) => (
           <GameCard key={game.id} game={game} />
         ))}
       </div>

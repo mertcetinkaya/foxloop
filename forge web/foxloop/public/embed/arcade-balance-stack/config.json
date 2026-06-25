@@ -1,0 +1,50 @@
+{
+  "entry": "Custombalancestack/index.html",
+  "orientation": {
+    "frame": "portrait",
+    "width": 1090,
+    "height": 1920
+  },
+  "game": {
+    "blockWidth": 360,
+    "blockHeight": 95,
+    "baseWidth": 500,
+    "baseHeight": 115,
+    "targetBlocks": 10,
+    "blockColor": 6202239,
+    "baseColor": 2233143,
+    "backgroundColor": 16250813
+  },
+  "images1": {
+    "player": "assets/player.png.png"
+  },
+  "images2": {
+    "cool_images": "assets/block.png",
+    "background": "assets/bg.png",
+    "base": "assets/base.png"
+  },
+  "ui": {
+    "htp": "assets/htp.png",
+    "playbtn": "assets/playbtn.png",
+    "ovrbox": "assets/ovrbox.png",
+    "replay": "assets/replay.png",
+    "lvlbox": "assets/lvlbox.png",
+    "next": "assets/next.png",
+    "scorebar": "assets/scorebar.png",
+    "replay_level": "assets/replay_level.png"
+  },
+  "texts": {
+    "score_label": "Tally:",
+    "target_label": "Target",
+    "htp_title": "React fast, stay focused, and chase the highest score you can manage.",
+    "htp_body": "Touch to drop: Aligned on: Stack up to win!",
+    "win_title": "Hostiles neutralized.",
+    "game_over_title": "KIA.",
+    "your_score_fmt": "Abort recommended.",
+    "how_to_play": "React fast, stay focused, and chase the highest score you can manage."
+  },
+  "audio": {
+    "bgm": "assets/bgm.mp3",
+    "drop": "assets/drop.mp3"
+  }
+}

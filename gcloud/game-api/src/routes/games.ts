@@ -1,5 +1,5 @@
 import { Router } from "express";
-import type { PublishedGameCard } from "../types.js";
+import { buildCatalogResponse } from "../services/catalog-service.js";
 import {
   createGameFromPrompt,
   deleteGame,
@@ -21,20 +21,9 @@ export const gamesRouter = Router();
 
 gamesRouter.get("/published", async (_req, res) => {
   try {
-    const store = await getStore();
-    const games = await store.listPublished();
-    const cards: PublishedGameCard[] = games.map((g) => ({
-      id: g.slug,
-      title: resolveGameTitle(g),
-      image: g.coverUrl ?? `/games/by-slug/${encodeURIComponent(g.slug)}/cover`,
-      playCount: "0",
-      path: `/games/${g.slug}`,
-      playable: true,
-      featured: false,
-      buildStatus: g.buildStatus,
-      publishedAt: g.publishedAt,
-    }));
-    res.json({ games: cards });
+    const catalog = await buildCatalogResponse();
+    const generated = catalog.lite.filter((g) => g.path?.startsWith("/games/"));
+    res.json({ games: generated });
   } catch (err) {
     res.status(500).json({
       error: err instanceof Error ? err.message : "Failed to list games",

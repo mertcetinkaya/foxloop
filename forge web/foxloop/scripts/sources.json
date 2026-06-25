@@ -1,0 +1,43 @@
+{
+  "maxSizeBytes": 52428800,
+  "sources": [
+    {
+      "type": "github-nested-subdirs",
+      "repo": "https://github.com/sausi-7/games",
+      "rootSubpath": "games",
+      "defaultLicense": "MIT",
+      "description": "142 browser games in category folders"
+    },
+    {
+      "type": "github-subdirs",
+      "repo": "https://github.com/Srikanth-AD/100games",
+      "defaultLicense": "MIT",
+      "description": "100 self-contained single-file style browser games"
+    },
+    {
+      "type": "github-subdirs",
+      "repo": "https://github.com/ritaban06/mini-js-games-hub",
+      "rootSubpath": "games",
+      "defaultLicense": "MIT",
+      "description": "58+ mini JavaScript games hub"
+    },
+    {
+      "type": "github-subdirs",
+      "repo": "https://github.com/Sai-Uttej-R/GameBox",
+      "defaultLicense": "MIT",
+      "description": "20+ classic browser games collection"
+    },
+    {
+      "type": "github-subdirs",
+      "repo": "https://github.com/vinay-ghate/Arcadia",
+      "defaultLicense": "MIT",
+      "description": "Small classic HTML5 games collection"
+    },
+    {
+      "type": "github-subdirs",
+      "repo": "https://github.com/humancto/legacy-games",
+      "defaultLicense": "MIT",
+      "description": "12 retro pixel art canvas games"
+    }
+  ]
+}
