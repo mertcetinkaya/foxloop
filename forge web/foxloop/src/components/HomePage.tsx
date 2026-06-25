@@ -8,26 +8,40 @@ import { DiscoverGames } from "@/components/DiscoverGames";
 import { GenerationModal } from "@/components/GenerationModal";
 import { ComingSoonModal } from "@/components/ComingSoonModal";
 import { ForgeDownloadSection } from "@/components/ForgeDownloadSection";
+import { LoginModal } from "@/components/LoginModal";
+import { useAuth } from "@/components/AuthProvider";
 
 export function HomePage() {
+  const { user } = useAuth();
   const [generationPrompt, setGenerationPrompt] = useState<string | null>(null);
+  const [pendingPrompt, setPendingPrompt] = useState<string | null>(null);
+  const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isComingSoonOpen, setIsComingSoonOpen] = useState(false);
   const [catalogVersion, setCatalogVersion] = useState(0);
 
-  const openGeneration = (prompt: string) => setGenerationPrompt(prompt);
+  const openGeneration = (prompt: string) => {
+    if (!user) {
+      setPendingPrompt(prompt);
+      setIsLoginOpen(true);
+      return;
+    }
+    setGenerationPrompt(prompt);
+  };
+
   const closeGeneration = () => setGenerationPrompt(null);
   const openComingSoon = () => setIsComingSoonOpen(true);
   const closeComingSoon = () => setIsComingSoonOpen(false);
 
+  const handleLoginSuccess = () => {
+    if (pendingPrompt) {
+      setGenerationPrompt(pendingPrompt);
+      setPendingPrompt(null);
+    }
+  };
+
   return (
     <>
-      <Header
-        onGetStarted={() =>
-          document
-            .getElementById("build-prompt")
-            ?.scrollIntoView({ behavior: "smooth" })
-        }
-      />
+      <Header onLogin={() => setIsLoginOpen(true)} />
 
       <main className="flex-1">
         <ForgeDownloadSection onDownload={openComingSoon} />
@@ -59,6 +73,14 @@ export function HomePage() {
         initialPrompt={generationPrompt ?? ""}
         onClose={closeGeneration}
         onPublished={() => setCatalogVersion((v) => v + 1)}
+      />
+      <LoginModal
+        isOpen={isLoginOpen}
+        onClose={() => {
+          setIsLoginOpen(false);
+          setPendingPrompt(null);
+        }}
+        onSuccess={handleLoginSuccess}
       />
       <ComingSoonModal isOpen={isComingSoonOpen} onClose={closeComingSoon} />
     </>

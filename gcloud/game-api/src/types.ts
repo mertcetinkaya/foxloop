@@ -25,6 +25,8 @@ export interface GameDoc {
   slug: string;
   title: string;
   status: GameStatus;
+  ownerUid?: string;
+  ownerEmail?: string;
   agentId?: string;
   userPrompt: string;
   gamePlan?: string;

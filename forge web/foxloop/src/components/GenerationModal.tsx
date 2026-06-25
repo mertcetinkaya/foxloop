@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { X, Loader2, Send, Sparkles } from "lucide-react";
 import {
   createGame,
-  deleteDraft,
+  deleteGame,
   draftCoverUrl,
   editGame,
   fetchChat,
@@ -143,7 +143,7 @@ export function GenerationModal({
   const handleCancel = async () => {
     if (game && game.status !== "published") {
       try {
-        await deleteDraft(game.id);
+        await deleteGame(game.id);
       } catch {
         // ignore cleanup errors
       }

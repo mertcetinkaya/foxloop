@@ -1,4 +1,5 @@
 import type { GameDoc, ChatMessage } from "../types.js";
+import type { AuthUser } from "../middleware/auth.js";
 import { getStore, loadFilesToWorkspace, syncWorkspaceToStore } from "./store.js";
 import {
   copyReferenceGamesToWorkspace,
@@ -55,13 +56,25 @@ async function updateGame(game: GameDoc, patch: Partial<GameDoc>) {
   return next;
 }
 
+export function assertGameOwner(game: GameDoc, ownerUid: string): void {
+  if (!game.ownerUid) {
+    throw new Error("Game has no owner");
+  }
+  if (game.ownerUid !== ownerUid) {
+    throw new Error("Not authorized to access this game");
+  }
+}
+
 export function coverPathForSlug(slug: string): string {
   return `/games/by-slug/${encodeURIComponent(slug)}/cover`;
 }
 
 export { resolveGameTitle } from "./title.js";
 
-export async function createGameFromPrompt(userPrompt: string): Promise<GameDoc> {
+export async function createGameFromPrompt(
+  userPrompt: string,
+  owner: AuthUser
+): Promise<GameDoc> {
   const store = await getStore();
   const slugs = await store.listSlugs();
   const baseSlug = slugify(userPrompt);
@@ -83,6 +96,8 @@ export async function createGameFromPrompt(userPrompt: string): Promise<GameDoc>
     title: lockedTitle,
     titleLocked: true,
     coverLocked: true,
+    ownerUid: owner.uid,
+    ownerEmail: owner.email,
     status: "generating",
     gameBuildStatus: "building",
     coverStatus: "ready",
@@ -141,13 +156,20 @@ export async function createGameFromPrompt(userPrompt: string): Promise<GameDoc>
   }
 }
 
+export async function listMyGames(ownerUid: string): Promise<GameDoc[]> {
+  const store = await getStore();
+  return store.listByOwner(ownerUid);
+}
+
 export async function editGameDraft(
   gameId: string,
-  userEdit: string
+  userEdit: string,
+  ownerUid: string
 ): Promise<GameDoc> {
   const store = await getStore();
   const game = await store.getGame(gameId);
   if (!game) throw new Error("Game not found");
+  assertGameOwner(game, ownerUid);
   if (game.status === "published") {
     throw new Error("Published games cannot be edited");
   }
@@ -189,12 +211,13 @@ export async function editGameDraft(
   }
 }
 
-export async function publishGame(gameId: string): Promise<GameDoc> {
+export async function publishGame(gameId: string, ownerUid: string): Promise<GameDoc> {
   requireFirestore();
 
   const store = await getStore();
   const game = await store.getGame(gameId);
   if (!game) throw new Error("Game not found");
+  assertGameOwner(game, ownerUid);
   if (game.status !== "ready") {
     throw new Error("Game must be ready before publish");
   }
@@ -242,15 +265,22 @@ export async function getPublishedGameBySlug(slug: string): Promise<GameDoc> {
   return game;
 }
 
-export async function deleteDraft(gameId: string): Promise<void> {
+export async function deleteGame(gameId: string, ownerUid: string): Promise<void> {
   const store = await getStore();
   const game = await store.getGame(gameId);
   if (!game) return;
-  if (game.status === "published") {
-    throw new Error("Cannot delete published game from draft API");
-  }
+  assertGameOwner(game, ownerUid);
   await store.deleteGame(gameId);
   await removeWorkspace(gameId);
+}
+
+export async function getGameForOwner(
+  gameId: string,
+  ownerUid: string
+): Promise<GameDoc> {
+  const game = await getGameOrThrow(gameId);
+  assertGameOwner(game, ownerUid);
+  return game;
 }
 
 export async function getGameOrThrow(gameId: string): Promise<GameDoc> {

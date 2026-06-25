@@ -11,6 +11,7 @@ export interface GameStore {
   saveGame(game: GameDoc): Promise<void>;
   deleteGame(id: string): Promise<void>;
   listPublished(): Promise<GameDoc[]>;
+  listByOwner(ownerUid: string): Promise<GameDoc[]>;
   getFiles(gameId: string): Promise<GameFile[]>;
   saveFile(gameId: string, file: GameFile): Promise<void>;
   saveFiles(gameId: string, files: GameFile[]): Promise<void>;
@@ -85,6 +86,20 @@ class FileGameStore implements GameStore {
       (a, b) =>
         new Date(b.publishedAt ?? b.updatedAt).getTime() -
         new Date(a.publishedAt ?? a.updatedAt).getTime()
+    );
+  }
+
+  async listByOwner(ownerUid: string): Promise<GameDoc[]> {
+    await this.ensureDir(path.join(this.root, "games"));
+    const dirs = await fs.readdir(path.join(this.root, "games"));
+    const games: GameDoc[] = [];
+    for (const id of dirs) {
+      const game = await this.getGame(id);
+      if (game?.ownerUid === ownerUid) games.push(game);
+    }
+    return games.sort(
+      (a, b) =>
+        new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
     );
   }
 
@@ -198,6 +213,19 @@ class FirestoreGameStore implements GameStore {
         (a, b) =>
           new Date(b.publishedAt ?? b.updatedAt).getTime() -
           new Date(a.publishedAt ?? a.updatedAt).getTime()
+      );
+  }
+
+  async listByOwner(ownerUid: string): Promise<GameDoc[]> {
+    const snap = await this.db
+      .collection("games")
+      .where("ownerUid", "==", ownerUid)
+      .get();
+    return snap.docs
+      .map((d) => d.data() as GameDoc)
+      .sort(
+        (a, b) =>
+          new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
       );
   }
 

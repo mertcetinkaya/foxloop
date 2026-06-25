@@ -9,11 +9,7 @@ import { AllGamesGrid } from "@/components/AllGamesGrid";
 export default function AllGamesPage() {
   return (
     <>
-      <Header
-        onGetStarted={() => {
-          window.location.href = "/#build-prompt";
-        }}
-      />
+      <Header />
 
       <main className="flex-1">
         <section className="px-4 pt-28 pb-20 sm:px-6 lg:px-8">

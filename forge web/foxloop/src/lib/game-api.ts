@@ -1,4 +1,5 @@
 import type { Game } from "@/data/games";
+import { getAuthIdToken } from "@/lib/auth-token";
 
 const BASE =
   process.env.NEXT_PUBLIC_GAME_API_URL ?? "http://localhost:8001";
@@ -56,6 +57,14 @@ async function parseJson<T>(res: Response): Promise<T> {
   return data as T;
 }
 
+async function authHeaders(json = false): Promise<HeadersInit> {
+  const headers: Record<string, string> = {};
+  if (json) headers["Content-Type"] = "application/json";
+  const token = await getAuthIdToken();
+  if (token) headers.Authorization = `Bearer ${token}`;
+  return headers;
+}
+
 export async function gameApiHealth(): Promise<boolean> {
   try {
     const res = await fetch(gameApiUrl("/health"));
@@ -68,21 +77,33 @@ export async function gameApiHealth(): Promise<boolean> {
 export async function createGame(prompt: string): Promise<ApiGame> {
   const res = await fetch(gameApiUrl("/games"), {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: await authHeaders(true),
     body: JSON.stringify({ prompt }),
   });
   const data = await parseJson<{ game: ApiGame }>(res);
   return data.game;
 }
 
+export async function fetchMyGames(): Promise<ApiGame[]> {
+  const res = await fetch(gameApiUrl("/games/mine"), {
+    headers: await authHeaders(),
+  });
+  const data = await parseJson<{ games: ApiGame[] }>(res);
+  return data.games;
+}
+
 export async function fetchGame(id: string): Promise<ApiGame> {
-  const res = await fetch(gameApiUrl(`/games/${id}`));
+  const res = await fetch(gameApiUrl(`/games/${id}`), {
+    headers: await authHeaders(),
+  });
   const data = await parseJson<{ game: ApiGame }>(res);
   return data.game;
 }
 
 export async function fetchChat(id: string): Promise<ChatMessage[]> {
-  const res = await fetch(gameApiUrl(`/games/${id}/chat`));
+  const res = await fetch(gameApiUrl(`/games/${id}/chat`), {
+    headers: await authHeaders(),
+  });
   const data = await parseJson<{ messages: ChatMessage[] }>(res);
   return data.messages;
 }
@@ -90,7 +111,7 @@ export async function fetchChat(id: string): Promise<ChatMessage[]> {
 export async function editGame(id: string, prompt: string): Promise<ApiGame> {
   const res = await fetch(gameApiUrl(`/games/${id}/edit`), {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: await authHeaders(true),
     body: JSON.stringify({ prompt }),
   });
   const data = await parseJson<{ game: ApiGame }>(res);
@@ -100,13 +121,17 @@ export async function editGame(id: string, prompt: string): Promise<ApiGame> {
 export async function publishGame(id: string): Promise<ApiGame> {
   const res = await fetch(gameApiUrl(`/games/${id}/publish`), {
     method: "POST",
+    headers: await authHeaders(),
   });
   const data = await parseJson<{ game: ApiGame }>(res);
   return data.game;
 }
 
-export async function deleteDraft(id: string): Promise<void> {
-  const res = await fetch(gameApiUrl(`/games/${id}`), { method: "DELETE" });
+export async function deleteGame(id: string): Promise<void> {
+  const res = await fetch(gameApiUrl(`/games/${id}`), {
+    method: "DELETE",
+    headers: await authHeaders(),
+  });
   if (!res.ok && res.status !== 204) {
     await parseJson(res);
   }

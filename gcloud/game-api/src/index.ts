@@ -3,6 +3,9 @@ import express from "express";
 import { config } from "./config.js";
 import { gamesRouter } from "./routes/games.js";
 import { isCursorConfigured } from "./services/cursor.js";
+import { initFirebaseAdmin } from "./services/firebase-admin.js";
+
+initFirebaseAdmin();
 
 const app = express();
 
