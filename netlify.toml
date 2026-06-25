@@ -32,6 +32,26 @@
   status = 200
 
 [[redirects]]
+  from = "/privacy"
+  to = "/privacypolicy"
+  status = 301
+
+[[redirects]]
+  from = "/terms"
+  to = "/termsandconditions"
+  status = 301
+
+[[redirects]]
+  from = "/privacypolicy"
+  to = "/privacypolicy.html"
+  status = 200
+
+[[redirects]]
+  from = "/termsandconditions"
+  to = "/termsandconditions.html"
+  status = 200
+
+[[redirects]]
   from = "/favicon.ico"
   to = "/favicon.png"
   status = 200
