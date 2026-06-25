@@ -1,5 +1,5 @@
 import { Agent } from "@cursor/sdk";
-import { createCanvas, loadImage } from "@napi-rs/canvas";
+import sharp from "sharp";
 import { config, requireCursorKey } from "../config.js";
 import {
   generateFallbackCoverJpeg,
@@ -153,19 +153,11 @@ async function generateOpenAiCoverImage(prompt: string): Promise<Buffer> {
   throw lastError ?? new Error("All OpenAI image models failed");
 }
 
-async function resizeCoverToJpeg(png: Buffer): Promise<Buffer> {
-  const img = await loadImage(png);
-  const canvas = createCanvas(COVER_W, COVER_H);
-  const ctx = canvas.getContext("2d");
-
-  const scale = Math.max(COVER_W / img.width, COVER_H / img.height);
-  const w = img.width * scale;
-  const h = img.height * scale;
-  const x = (COVER_W - w) / 2;
-  const y = (COVER_H - h) / 2;
-
-  ctx.drawImage(img, x, y, w, h);
-  return canvas.toBuffer("image/jpeg", 90);
+async function resizeCoverToJpeg(image: Buffer): Promise<Buffer> {
+  return sharp(image)
+    .resize(COVER_W, COVER_H, { fit: "cover", position: "centre" })
+    .jpeg({ quality: 90 })
+    .toBuffer();
 }
 
 /** Composer writes the image prompt; OpenAI GPT Image renders the cover. */
