@@ -4,7 +4,7 @@ import { useState } from "react";
 import { ArrowUp, Plus, ChevronDown } from "lucide-react";
 
 interface PromptAreaProps {
-  onSend: () => void;
+  onSend: (prompt: string) => void;
 }
 
 export function PromptArea({ onSend }: PromptAreaProps) {
@@ -12,13 +12,13 @@ export function PromptArea({ onSend }: PromptAreaProps) {
   const canSend = prompt.trim().length > 0;
 
   const handleSend = () => {
-    if (canSend) onSend();
+    if (canSend) onSend(prompt.trim());
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey && canSend) {
       e.preventDefault();
-      onSend();
+      onSend(prompt.trim());
     }
   };
 
@@ -36,6 +36,7 @@ export function PromptArea({ onSend }: PromptAreaProps) {
 
         <div className="mt-2 flex items-center justify-between">
           <button
+            type="button"
             className="flex h-9 w-9 items-center justify-center rounded-full border border-border text-muted transition-colors hover:bg-white/5 hover:text-white"
             aria-label="Add attachment"
           >
@@ -43,13 +44,17 @@ export function PromptArea({ onSend }: PromptAreaProps) {
           </button>
 
           <div className="flex items-center gap-3">
-            <button className="flex items-center gap-2 rounded-full border border-border px-3 py-1.5 text-sm text-muted transition-colors hover:bg-white/5 hover:text-white">
-              <span className="text-yellow-400">JS</span>
-              JavaScript
+            <button
+              type="button"
+              className="flex items-center gap-2 rounded-full border border-border px-3 py-1.5 text-sm text-muted transition-colors hover:bg-white/5 hover:text-white"
+            >
+              <span className="text-yellow-400">TS</span>
+              TypeScript
               <ChevronDown className="h-3.5 w-3.5" />
             </button>
 
             <button
+              type="button"
               onClick={handleSend}
               disabled={!canSend}
               className={`flex h-9 w-9 items-center justify-center rounded-full transition-all ${

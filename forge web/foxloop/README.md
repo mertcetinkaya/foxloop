@@ -53,14 +53,19 @@ Open **http://localhost:3000** in your browser.
 ## Project structure
 
 ```
-src/
-  app/
-    page.tsx          # Home page
-    all-games/page.tsx
-  components/         # Header, Footer, Modal, GameCard, etc.
-  data/games.ts       # Static game catalog
-public/games/         # Game cover images
+foxloop/                          # git repo root
+  gcloud/game-api/                # GCloud VM API (:8001) — Cursor SDK, Firestore, publish
+  forge web/foxloop/              # this app — Netlify UI
+    src/
+      app/                        # pages + /games/{slug}
+      components/                 # Header, PromptArea, GenerationModal, GameCard, …
+      games/                      # lite game engines (hand-made + published AI games)
+      lib/game-api.ts             # fetch helper → gcloud/game-api
+      data/games.ts               # showcase lite games (static)
+    public/games/                 # cover images
 ```
+
+Set `NEXT_PUBLIC_GAME_API_URL` to the GCloud API (e.g. `http://34.x.x.x:8001` or your domain).
 
 ## Adding a real waitlist later
 

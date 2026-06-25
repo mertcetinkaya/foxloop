@@ -5,27 +5,37 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { PromptArea } from "@/components/PromptArea";
 import { DiscoverGames } from "@/components/DiscoverGames";
-import { SignupModal } from "@/components/SignupModal";
+import { GenerationModal } from "@/components/GenerationModal";
 import { ComingSoonModal } from "@/components/ComingSoonModal";
 import { ForgeDownloadSection } from "@/components/ForgeDownloadSection";
 
 export function HomePage() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [generationPrompt, setGenerationPrompt] = useState<string | null>(null);
   const [isComingSoonOpen, setIsComingSoonOpen] = useState(false);
+  const [catalogVersion, setCatalogVersion] = useState(0);
 
-  const openModal = () => setIsModalOpen(true);
-  const closeModal = () => setIsModalOpen(false);
+  const openGeneration = (prompt: string) => setGenerationPrompt(prompt);
+  const closeGeneration = () => setGenerationPrompt(null);
   const openComingSoon = () => setIsComingSoonOpen(true);
   const closeComingSoon = () => setIsComingSoonOpen(false);
 
   return (
     <>
-      <Header onGetStarted={openModal} />
+      <Header
+        onGetStarted={() =>
+          document
+            .getElementById("build-prompt")
+            ?.scrollIntoView({ behavior: "smooth" })
+        }
+      />
 
       <main className="flex-1">
         <ForgeDownloadSection onDownload={openComingSoon} />
 
-        <section className="flex flex-col items-center px-4 pb-16 pt-12 text-center sm:px-6">
+        <section
+          id="build-prompt"
+          className="flex flex-col items-center px-4 pb-16 pt-12 text-center sm:px-6"
+        >
           <h1 className="max-w-4xl text-4xl font-bold leading-tight sm:text-5xl lg:text-6xl">
             Bring your{" "}
             <span className="gradient-text">game</span> concepts to life
@@ -36,15 +46,20 @@ export function HomePage() {
           </p>
 
           <div className="mt-10 w-full flex justify-center">
-            <PromptArea onSend={openModal} />
+            <PromptArea onSend={openGeneration} />
           </div>
         </section>
 
-        <DiscoverGames />
+        <DiscoverGames catalogVersion={catalogVersion} />
       </main>
 
       <Footer />
-      <SignupModal isOpen={isModalOpen} onClose={closeModal} />
+      <GenerationModal
+        isOpen={generationPrompt !== null}
+        initialPrompt={generationPrompt ?? ""}
+        onClose={closeGeneration}
+        onPublished={() => setCatalogVersion((v) => v + 1)}
+      />
       <ComingSoonModal isOpen={isComingSoonOpen} onClose={closeComingSoon} />
     </>
   );

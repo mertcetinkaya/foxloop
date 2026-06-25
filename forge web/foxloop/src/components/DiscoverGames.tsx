@@ -1,9 +1,16 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { FORGE_GAMES, FORGE_LITE_GAMES } from "@/data/games";
+import { FORGE_GAMES } from "@/data/games";
 import { GameCard } from "./GameCard";
+import { PublishedLiteGames } from "./PublishedLiteGames";
 
-export function DiscoverGames() {
+interface DiscoverGamesProps {
+  catalogVersion?: number;
+}
+
+export function DiscoverGames({ catalogVersion = 0 }: DiscoverGamesProps) {
+  void catalogVersion;
+
   return (
     <section className="py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -34,11 +41,7 @@ export function DiscoverGames() {
           </h2>
         </div>
 
-        <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {FORGE_LITE_GAMES.map((game) => (
-            <GameCard key={game.id} game={game} />
-          ))}
-        </div>
+        <PublishedLiteGames key={catalogVersion} />
 
         <div className="mt-12 flex justify-center">
           <Link

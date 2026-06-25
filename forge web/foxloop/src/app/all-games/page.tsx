@@ -1,20 +1,19 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { GameCard } from "@/components/GameCard";
-import { SignupModal } from "@/components/SignupModal";
-import { GAMES } from "@/data/games";
+import { AllGamesGrid } from "@/components/AllGamesGrid";
 
 export default function AllGamesPage() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
   return (
     <>
-      <Header onGetStarted={() => setIsModalOpen(true)} />
+      <Header
+        onGetStarted={() => {
+          window.location.href = "/#build-prompt";
+        }}
+      />
 
       <main className="flex-1">
         <section className="px-4 pt-28 pb-20 sm:px-6 lg:px-8">
@@ -42,19 +41,13 @@ export default function AllGamesPage() {
             </div>
 
             <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {GAMES.map((game) => (
-                <GameCard key={game.id} game={game} size="large" />
-              ))}
+              <AllGamesGrid />
             </div>
           </div>
         </section>
       </main>
 
       <Footer />
-      <SignupModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-      />
     </>
   );
 }
