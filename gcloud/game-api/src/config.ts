@@ -1,7 +1,9 @@
 import path from "path";
 import { fileURLToPath } from "url";
+import { config as loadEnv } from "dotenv";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+loadEnv({ path: path.resolve(__dirname, "../.env") });
 
 export const config = {
   port: Number(process.env.PORT ?? 8001),
@@ -34,4 +36,12 @@ export function requireCursorKey(): string {
     throw new Error("CURSOR_API_KEY is not configured");
   }
   return config.cursorApiKey;
+}
+
+export function requireFirestore(): void {
+  if (!config.useFirestore) {
+    throw new Error(
+      "GOOGLE_CLOUD_PROJECT must be set so games save to the shared Firestore database"
+    );
+  }
 }

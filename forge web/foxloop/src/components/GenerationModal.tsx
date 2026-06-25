@@ -30,6 +30,9 @@ export function GenerationModal({
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [editPrompt, setEditPrompt] = useState("");
   const [loading, setLoading] = useState(false);
+  const [loadingKind, setLoadingKind] = useState<"generate" | "edit" | "publish" | null>(
+    null
+  );
   const [error, setError] = useState<string | null>(null);
   const [previewKey, setPreviewKey] = useState(0);
   const startedRef = useRef(false);
@@ -40,8 +43,21 @@ export function GenerationModal({
     setMessages(chat);
   }, []);
 
+  const appendUserMessage = useCallback((text: string, type: ChatMessage["type"] = "prompt") => {
+    const entry: ChatMessage = {
+      id: `local-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      role: "user",
+      type,
+      text,
+      createdAt: new Date().toISOString(),
+    };
+    setMessages((prev) => [...prev, entry]);
+  }, []);
+
   const runGenerate = useCallback(async (prompt: string) => {
+    appendUserMessage(prompt);
     setLoading(true);
+    setLoadingKind("generate");
     setError(null);
     try {
       const created = await createGame(prompt);
@@ -52,8 +68,9 @@ export function GenerationModal({
       setError(err instanceof Error ? err.message : "Generation failed");
     } finally {
       setLoading(false);
+      setLoadingKind(null);
     }
-  }, [refreshChat]);
+  }, [appendUserMessage, refreshChat]);
 
   useEffect(() => {
     if (!isOpen) {
@@ -62,6 +79,7 @@ export function GenerationModal({
       setMessages([]);
       setEditPrompt("");
       setError(null);
+      setLoadingKind(null);
       return;
     }
     if (startedRef.current || !initialPrompt.trim()) return;
@@ -75,24 +93,29 @@ export function GenerationModal({
 
   const handleEdit = async () => {
     if (!game || !editPrompt.trim() || loading) return;
+    const text = editPrompt.trim();
+    setEditPrompt("");
+    appendUserMessage(text, "edit");
     setLoading(true);
+    setLoadingKind("edit");
     setError(null);
     try {
-      const updated = await editGame(game.id, editPrompt.trim());
+      const updated = await editGame(game.id, text);
       setGame(updated);
-      setEditPrompt("");
       await refreshChat(updated.id);
       setPreviewKey((k) => k + 1);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Edit failed");
     } finally {
       setLoading(false);
+      setLoadingKind(null);
     }
   };
 
   const handlePublish = async () => {
     if (!game || loading) return;
     setLoading(true);
+    setLoadingKind("publish");
     setError(null);
     try {
       const published = await publishGame(game.id);
@@ -103,6 +126,7 @@ export function GenerationModal({
       setError(err instanceof Error ? err.message : "Publish failed");
     } finally {
       setLoading(false);
+      setLoadingKind(null);
     }
   };
 
@@ -188,7 +212,7 @@ export function GenerationModal({
                     }`}
                   >
                     <p className="mb-1 text-[10px] uppercase tracking-wide text-orange-400/80">
-                      {msg.type}
+                      {msg.role === "user" ? "You" : msg.type}
                     </p>
                     <pre className="whitespace-pre-wrap font-sans text-inherit">
                       {msg.text}
@@ -196,9 +220,13 @@ export function GenerationModal({
                   </div>
                 ))}
                 {loading && (
-                  <div className="flex items-center gap-2 text-sm text-muted">
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    Working…
+                  <div className="mr-4 flex items-center gap-2 rounded-xl bg-[#141820] px-3 py-2 text-sm text-muted">
+                    <Loader2 className="h-4 w-4 shrink-0 animate-spin text-orange-400" />
+                    {loadingKind === "edit"
+                      ? "Applying your edit…"
+                      : loadingKind === "publish"
+                        ? "Publishing…"
+                        : "Working…"}
                   </div>
                 )}
                 <div ref={chatEndRef} />
@@ -247,7 +275,7 @@ export function GenerationModal({
                   disabled={!canPublish || loading}
                   className="flex-1 rounded-full bg-gradient-to-r from-orange-500 to-pink-500 py-3 text-sm font-semibold text-white transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
                 >
-                  Publish to Forge Lite
+                  Save to Forge Lite
                 </button>
                 <button
                   onClick={() => void handleCancel()}

@@ -15,6 +15,7 @@ app.get("/health", (_req, res) => {
     service: "foxloop-game-api",
     cursor: isCursorConfigured(),
     firestore: config.useFirestore,
+    storage: config.useFirestore ? "firestore" : "local",
   });
 });
 

@@ -19,12 +19,7 @@ import {
   titleFromSlug,
   uniqueSlug,
 } from "../utils.js";
-import { config } from "../config.js";
-import {
-  materializeGameToRepo,
-  writeCoverPlaceholder,
-} from "./materialize.js";
-import { gitConfigured, gitPublishCommit } from "./git-publish.js";
+import { config, requireFirestore } from "../config.js";
 
 async function addChat(
   gameId: string,
@@ -149,6 +144,8 @@ export async function editGameDraft(
 }
 
 export async function publishGame(gameId: string): Promise<GameDoc> {
+  requireFirestore();
+
   const store = await getStore();
   const game = await store.getGame(gameId);
   if (!game) throw new Error("Game not found");
@@ -161,41 +158,29 @@ export async function publishGame(gameId: string): Promise<GameDoc> {
     throw new Error("No game files to publish");
   }
 
-  let updated = await updateGame(game, {
+  const updated = await updateGame(game, {
     status: "published",
-    buildStatus: "building",
+    buildStatus: "live",
     publishedAt: nowIso(),
+    coverUrl: game.coverUrl ?? `/games/${game.slug}.jpg`,
   });
 
-  try {
-    await materializeGameToRepo(game.slug, game.title, files);
-    const coverUrl = await writeCoverPlaceholder(game.slug);
-    updated = await updateGame(updated, { coverUrl });
+  await removeWorkspace(gameId);
+  await addChat(gameId, {
+    role: "assistant",
+    type: "status",
+    text: "Game saved to the Forge Lite catalog (Firestore).",
+  });
+  return updated;
+}
 
-    if (await gitConfigured()) {
-      await gitPublishCommit(`Publish Forge Lite game: ${game.title}`);
-      updated = await updateGame(updated, { buildStatus: "live" });
-    } else {
-      updated = await updateGame(updated, {
-        buildStatus: "pending",
-      });
-    }
-
-    await removeWorkspace(gameId);
-    await addChat(gameId, {
-      role: "assistant",
-      type: "status",
-      text: "Game published. Netlify will deploy after git push completes.",
-    });
-    return updated;
-  } catch (err) {
-    const message = err instanceof Error ? err.message : "Publish failed";
-    updated = await updateGame(updated, {
-      buildStatus: "failed",
-      errorMessage: message,
-    });
-    throw err;
+export async function getPublishedGameBySlug(slug: string): Promise<GameDoc> {
+  const store = await getStore();
+  const game = await store.getGameBySlug(slug);
+  if (!game || game.status !== "published") {
+    throw new Error("Game not found");
   }
+  return game;
 }
 
 export async function deleteDraft(gameId: string): Promise<void> {

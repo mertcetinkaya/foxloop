@@ -5,6 +5,7 @@ import {
   deleteDraft,
   editGameDraft,
   getGameOrThrow,
+  getPublishedGameBySlug,
   publishGame,
 } from "../services/game-service.js";
 import { getStore } from "../services/store.js";
@@ -23,7 +24,7 @@ gamesRouter.get("/published", async (_req, res) => {
       image: g.coverUrl ?? `/games/${g.slug}.jpg`,
       playCount: "0",
       path: `/games/${g.slug}`,
-      playable: g.buildStatus === "live" || g.buildStatus === "pending",
+      playable: true,
       featured: false,
       buildStatus: g.buildStatus,
     }));
@@ -32,6 +33,29 @@ gamesRouter.get("/published", async (_req, res) => {
     res.status(500).json({
       error: err instanceof Error ? err.message : "Failed to list games",
     });
+  }
+});
+
+gamesRouter.get("/by-slug/:slug/play", async (req, res) => {
+  try {
+    const game = await getPublishedGameBySlug(req.params.slug);
+    const store = await getStore();
+    const html = await buildPreviewFromGameId(game.id, () =>
+      store.getFiles(game.id)
+    );
+    res.setHeader("Content-Type", "text/html; charset=utf-8");
+    res.send(html);
+  } catch {
+    res.status(404).json({ error: "Game not found" });
+  }
+});
+
+gamesRouter.get("/by-slug/:slug", async (req, res) => {
+  try {
+    const game = await getPublishedGameBySlug(req.params.slug);
+    res.json({ game });
+  } catch {
+    res.status(404).json({ error: "Game not found" });
   }
 });
 

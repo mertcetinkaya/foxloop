@@ -67,10 +67,22 @@ npm run dev
 | DELETE | `/games/:id` | Delete draft |
 | GET | `/games/published` | Catalog for Discover Games |
 
-## Storage
+## Storage (Firestore — required for Save)
 
-- **Without `GOOGLE_CLOUD_PROJECT`:** local `.data/` JSON store (dev)
-- **With Firestore:** set `GOOGLE_CLOUD_PROJECT` on the VM
+Drafts and published games live in **Firestore**. Use the **same `GOOGLE_CLOUD_PROJECT`** on your Mac and on the GCloud VM so local and remote read/write the same data.
+
+**Mac (local API):**
+```bash
+export GOOGLE_CLOUD_PROJECT=your-project-id
+gcloud auth application-default login
+# or GOOGLE_APPLICATION_CREDENTIALS=/path/to/key.json
+```
+
+**VM:** attach a service account with Firestore access, set `GOOGLE_CLOUD_PROJECT` in `.env`.
+
+Save/Publish does **not** push to GitHub. Play at `/games/{slug}` loads from the API (`/games/by-slug/{slug}/play`).
+
+Without Firestore, drafts use local `.data/` only (not shared); **Save will fail** until Firestore is configured.
 
 ## Deploy
 

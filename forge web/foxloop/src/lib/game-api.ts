@@ -105,6 +105,10 @@ export function previewUrl(id: string): string {
   return gameApiUrl(`/games/${id}/preview`);
 }
 
+export function playUrlBySlug(slug: string): string {
+  return gameApiUrl(`/games/by-slug/${encodeURIComponent(slug)}/play`);
+}
+
 export async function fetchPublishedGames(): Promise<Game[]> {
   const res = await fetch(gameApiUrl("/games/published"));
   const data = await parseJson<{ games: Game[] }>(res);
