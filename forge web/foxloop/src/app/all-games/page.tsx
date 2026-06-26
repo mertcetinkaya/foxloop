@@ -1,12 +1,13 @@
-"use client";
-
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { AllGamesGrid } from "@/components/AllGamesGrid";
+import { getServerCatalog } from "@/lib/catalog-server";
 
-export default function AllGamesPage() {
+export default async function AllGamesPage() {
+  const catalog = await getServerCatalog();
+
   return (
     <>
       <Header />
@@ -37,7 +38,7 @@ export default function AllGamesPage() {
             </div>
 
             <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              <AllGamesGrid />
+              <AllGamesGrid initialGames={catalog?.games ?? []} />
             </div>
           </div>
         </section>

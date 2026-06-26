@@ -1,23 +1,27 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import type { Game } from "@/data/games";
-import { fetchCatalog } from "@/lib/game-api";
-import { staticCatalogFallback } from "@/lib/catalog";
 import { GameCard } from "@/components/GameCard";
+import { GameCardSkeleton } from "@/components/GameCardSkeleton";
 
-export function AllGamesGrid() {
-  const [games, setGames] = useState<Game[]>([]);
+interface AllGamesGridProps {
+  initialGames: Game[];
+}
 
-  useEffect(() => {
-    void fetchCatalog()
-      .then((catalog) => setGames(catalog.games))
-      .catch(() => setGames(staticCatalogFallback().games));
-  }, []);
+export function AllGamesGrid({ initialGames }: AllGamesGridProps) {
+  if (initialGames.length === 0) {
+    return (
+      <>
+        {Array.from({ length: 9 }).map((_, i) => (
+          <GameCardSkeleton key={i} size="large" />
+        ))}
+      </>
+    );
+  }
 
   return (
     <>
-      {games.map((game) => (
+      {initialGames.map((game) => (
         <GameCard key={game.id} game={game} size="large" />
       ))}
     </>

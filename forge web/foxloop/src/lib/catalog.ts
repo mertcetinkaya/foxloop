@@ -10,11 +10,16 @@ export interface CatalogResponse {
 
 /** Fallback when game-api catalog is unavailable (local dev / offline). */
 export function staticCatalogFallback(): CatalogResponse {
-  const lite = [...FORGE_LITE_GAMES, ...EMBED_GAMES];
+  const stripLiveStats = (game: Game): Game => ({
+    ...game,
+    playCount: "0",
+    featured: false,
+  });
+  const lite = [...FORGE_LITE_GAMES, ...EMBED_GAMES].map(stripLiveStats);
   return {
-    forge: FORGE_GAMES,
+    forge: FORGE_GAMES.map(stripLiveStats),
     lite,
-    games: GAMES,
+    games: GAMES.map(stripLiveStats),
     total: GAMES.length,
   };
 }

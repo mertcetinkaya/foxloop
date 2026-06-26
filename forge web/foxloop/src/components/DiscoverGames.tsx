@@ -4,35 +4,61 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import type { Game } from "@/data/games";
+import type { CatalogResponse } from "@/lib/catalog";
 import { fetchCatalog } from "@/lib/game-api";
-import { staticCatalogFallback } from "@/lib/catalog";
 import { GameCard } from "./GameCard";
+import { GameCardSkeleton } from "./GameCardSkeleton";
 import { PublishedLiteGames } from "./PublishedLiteGames";
 
 interface DiscoverGamesProps {
   catalogVersion?: number;
+  initialCatalog?: CatalogResponse | null;
 }
 
 const HOME_LITE_LIMIT = 21;
 
-export function DiscoverGames({ catalogVersion = 0 }: DiscoverGamesProps) {
-  const [forgeGames, setForgeGames] = useState<Game[]>(staticCatalogFallback().forge);
-  const [liteTotal, setLiteTotal] = useState<number | null>(null);
+export function DiscoverGames({
+  catalogVersion = 0,
+  initialCatalog = null,
+}: DiscoverGamesProps) {
+  const [forgeGames, setForgeGames] = useState<Game[]>(
+    initialCatalog?.forge ?? []
+  );
+  const [liteTotal, setLiteTotal] = useState<number | null>(
+    initialCatalog?.total ?? null
+  );
+  const [catalogReady, setCatalogReady] = useState(Boolean(initialCatalog));
 
   useEffect(() => {
+    if (catalogVersion === 0 && initialCatalog) {
+      setForgeGames(initialCatalog.forge);
+      setLiteTotal(initialCatalog.total);
+      setCatalogReady(true);
+      return;
+    }
+
+    let cancelled = false;
+    setCatalogReady(false);
+
     void fetchCatalog()
       .then((catalog) => {
+        if (cancelled) return;
         setForgeGames(catalog.forge);
         setLiteTotal(catalog.total);
+        setCatalogReady(true);
       })
       .catch(() => {
-        const fallback = staticCatalogFallback();
-        setForgeGames(fallback.forge);
-        setLiteTotal(fallback.total);
+        if (cancelled) return;
+        setCatalogReady(true);
       });
-  }, [catalogVersion]);
 
-  const liteCatalogSize = liteTotal != null ? liteTotal - forgeGames.length : null;
+    return () => {
+      cancelled = true;
+    };
+  }, [catalogVersion, initialCatalog]);
+
+  const liteCatalogSize =
+    liteTotal != null ? liteTotal - forgeGames.length : null;
 
   return (
     <section className="py-20">
@@ -52,9 +78,13 @@ export function DiscoverGames({ catalogVersion = 0 }: DiscoverGamesProps) {
         </div>
 
         <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {forgeGames.map((game) => (
-            <GameCard key={game.id} game={game} />
-          ))}
+          {!catalogReady && forgeGames.length === 0 ? (
+            Array.from({ length: 1 }).map((_, i) => (
+              <GameCardSkeleton key={i} />
+            ))
+          ) : (
+            forgeGames.map((game) => <GameCard key={game.id} game={game} />)
+          )}
         </div>
 
         <div className="mt-20 text-center">
@@ -68,7 +98,11 @@ export function DiscoverGames({ catalogVersion = 0 }: DiscoverGamesProps) {
           </p>
         </div>
 
-        <PublishedLiteGames key={catalogVersion} limit={HOME_LITE_LIMIT} />
+        <PublishedLiteGames
+          limit={HOME_LITE_LIMIT}
+          catalogVersion={catalogVersion}
+          initialLiteGames={initialCatalog?.lite}
+        />
 
         <div className="mt-12 flex justify-center">
           <Link

@@ -10,10 +10,15 @@ import { ComingSoonModal } from "@/components/ComingSoonModal";
 import { ForgeDownloadSection } from "@/components/ForgeDownloadSection";
 import { LoginModal } from "@/components/LoginModal";
 import { useAuth } from "@/components/AuthProvider";
+import type { CatalogResponse } from "@/lib/catalog";
 
 const INVITED_ONLY_MESSAGE = "Only invited users can create a game";
 
-export function HomePage() {
+interface HomePageProps {
+  initialCatalog?: CatalogResponse | null;
+}
+
+export function HomePage({ initialCatalog = null }: HomePageProps) {
   const { user } = useAuth();
   const [generationPrompt, setGenerationPrompt] = useState<string | null>(null);
   const [pendingPrompt, setPendingPrompt] = useState<string | null>(null);
@@ -75,7 +80,10 @@ export function HomePage() {
           </div>
         </section>
 
-        <DiscoverGames catalogVersion={catalogVersion} />
+        <DiscoverGames
+          catalogVersion={catalogVersion}
+          initialCatalog={initialCatalog}
+        />
       </main>
 
       <Footer />
