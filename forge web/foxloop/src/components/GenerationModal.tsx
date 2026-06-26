@@ -11,6 +11,7 @@ import {
   previewTitleFromPrompt,
   previewUrl,
   publishGame,
+  waitForGameReady,
   type ApiGame,
   type ChatMessage,
 } from "@/lib/game-api";
@@ -43,6 +44,7 @@ export function GenerationModal({
   const [error, setError] = useState<string | null>(null);
   const [previewKey, setPreviewKey] = useState(0);
   const startedRef = useRef(false);
+  const pollAbortRef = useRef<AbortController | null>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   const refreshChat = useCallback(async (gameId: string) => {
@@ -67,12 +69,33 @@ export function GenerationModal({
       setLoading(true);
       setLoadingKind("generate");
       setError(null);
+
+      pollAbortRef.current?.abort();
+      const pollAbort = new AbortController();
+      pollAbortRef.current = pollAbort;
+
       try {
         const created = await createGame(prompt);
         setGame(created);
         await refreshChat(created.id);
-        setPreviewKey((k) => k + 1);
+
+        const finished = await waitForGameReady(created.id, {
+          signal: pollAbort.signal,
+          onUpdate: async (updated) => {
+            setGame(updated);
+            await refreshChat(updated.id);
+          },
+        });
+
+        setGame(finished);
+        if (finished.status === "failed") {
+          setError(finished.errorMessage ?? "Generation failed");
+        } else {
+          await refreshChat(finished.id);
+          setPreviewKey((k) => k + 1);
+        }
       } catch (err) {
+        if (err instanceof DOMException && err.name === "AbortError") return;
         setError(err instanceof Error ? err.message : "Generation failed");
       } finally {
         setLoading(false);
@@ -84,6 +107,8 @@ export function GenerationModal({
 
   useEffect(() => {
     if (!isOpen) {
+      pollAbortRef.current?.abort();
+      pollAbortRef.current = null;
       startedRef.current = false;
       setGame(null);
       setMessages([]);
@@ -109,12 +134,33 @@ export function GenerationModal({
     setLoading(true);
     setLoadingKind("edit");
     setError(null);
+
+    pollAbortRef.current?.abort();
+    const pollAbort = new AbortController();
+    pollAbortRef.current = pollAbort;
+
     try {
-      const updated = await editGame(game.id, text);
-      setGame(updated);
-      await refreshChat(updated.id);
-      setPreviewKey((k) => k + 1);
+      const queued = await editGame(game.id, text);
+      setGame(queued);
+      await refreshChat(queued.id);
+
+      const finished = await waitForGameReady(queued.id, {
+        signal: pollAbort.signal,
+        onUpdate: async (updated) => {
+          setGame(updated);
+          await refreshChat(updated.id);
+        },
+      });
+
+      setGame(finished);
+      if (finished.status === "failed") {
+        setError(finished.errorMessage ?? "Edit failed");
+      } else {
+        await refreshChat(finished.id);
+        setPreviewKey((k) => k + 1);
+      }
     } catch (err) {
+      if (err instanceof DOMException && err.name === "AbortError") return;
       setError(err instanceof Error ? err.message : "Edit failed");
     } finally {
       setLoading(false);
@@ -158,7 +204,10 @@ export function GenerationModal({
 
   const canEdit = game?.status === "ready";
   const canPublish = game?.status === "ready";
-  const showPreview = game && game.status !== "failed" && game.status !== "planning";
+  const showPreview =
+    game?.status === "ready" || game?.status === "published";
+  const showBuildingPreview =
+    Boolean(game) && !showPreview && game?.status !== "failed";
 
   const loadingMessage =
     loadingKind === "edit"
@@ -220,16 +269,19 @@ export function GenerationModal({
                   </div>
                 )}
               </>
+            ) : showBuildingPreview ? (
+              <div className="flex h-full items-center justify-center p-8 text-center">
+                <div className="flex flex-col items-center gap-3 text-muted">
+                  <Loader2 className="h-8 w-8 animate-spin text-orange-400" />
+                  <p>{loadingMessage}</p>
+                  {game?.title && (
+                    <p className="text-xs text-white/50">{game.title}</p>
+                  )}
+                </div>
+              </div>
             ) : (
               <div className="flex h-full items-center justify-center p-8 text-center">
-                {loading ? (
-                  <div className="flex flex-col items-center gap-3 text-muted">
-                    <Loader2 className="h-8 w-8 animate-spin text-orange-400" />
-                    <p>Building your game…</p>
-                  </div>
-                ) : (
-                  <p className="text-muted">{error ?? "Waiting to start…"}</p>
-                )}
+                <p className="text-muted">{error ?? "Waiting to start…"}</p>
               </div>
             )}
           </div>

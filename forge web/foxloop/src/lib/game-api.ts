@@ -91,6 +91,62 @@ export async function loginInvited(
   return parseJson<{ token: string; user: AppUser }>(res);
 }
 
+function sleep(ms: number, signal?: AbortSignal): Promise<void> {
+  return new Promise((resolve, reject) => {
+    if (signal?.aborted) {
+      reject(new DOMException("Cancelled", "AbortError"));
+      return;
+    }
+    const timer = setTimeout(resolve, ms);
+    signal?.addEventListener(
+      "abort",
+      () => {
+        clearTimeout(timer);
+        reject(new DOMException("Cancelled", "AbortError"));
+      },
+      { once: true }
+    );
+  });
+}
+
+function isTerminalGameStatus(status: GameStatus): boolean {
+  return status === "ready" || status === "failed" || status === "published";
+}
+
+/** Poll until build/edit finishes (avoids Netlify proxy timeout on long POST). */
+export async function waitForGameReady(
+  id: string,
+  options?: {
+    intervalMs?: number;
+    timeoutMs?: number;
+    signal?: AbortSignal;
+    onUpdate?: (game: ApiGame) => void | Promise<void>;
+  }
+): Promise<ApiGame> {
+  const intervalMs = options?.intervalMs ?? 2500;
+  const timeoutMs = options?.timeoutMs ?? 20 * 60 * 1000;
+  const deadline = Date.now() + timeoutMs;
+
+  while (true) {
+    if (options?.signal?.aborted) {
+      throw new DOMException("Cancelled", "AbortError");
+    }
+
+    const game = await fetchGame(id);
+    await options?.onUpdate?.(game);
+
+    if (isTerminalGameStatus(game.status)) {
+      return game;
+    }
+
+    if (Date.now() >= deadline) {
+      throw new Error("Generation timed out — check My Games in a few minutes");
+    }
+
+    await sleep(intervalMs, options?.signal);
+  }
+}
+
 export async function createGame(prompt: string): Promise<ApiGame> {
   const res = await fetch(gameApiUrl("/games"), {
     method: "POST",

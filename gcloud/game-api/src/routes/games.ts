@@ -1,9 +1,9 @@
 import { Router } from "express";
 import { buildCatalogResponse } from "../services/catalog-service.js";
 import {
-  createGameFromPrompt,
   deleteGame,
-  editGameDraft,
+  startEditGameDraft,
+  startGameFromPrompt,
   getGameForOwner,
   getPublishedGameBySlug,
   listMyGames,
@@ -119,8 +119,8 @@ gamesRouter.post("/", requireAuth, requireInvitedUser, async (req, res) => {
   }
 
   try {
-    const game = await createGameFromPrompt(prompt, req.authUser!);
-    res.status(201).json({ game });
+    const game = await startGameFromPrompt(prompt, req.authUser!);
+    res.status(202).json({ game });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Generation failed";
     res.status(500).json({ error: message });
@@ -176,8 +176,8 @@ gamesRouter.post("/:id/edit", requireAuth, async (req, res) => {
     return;
   }
   try {
-    const game = await editGameDraft(req.params.id, prompt, req.authUser!.uid);
-    res.json({ game });
+    const game = await startEditGameDraft(req.params.id, prompt, req.authUser!.uid);
+    res.status(202).json({ game });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Edit failed";
     let status = 400;

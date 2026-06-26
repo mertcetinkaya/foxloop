@@ -7,7 +7,7 @@ import {
   removeWorkspace,
   workspaceDir,
 } from "./workspace.js";
-import { isCursorConfigured, runBuildPipeline, runEditor } from "./cursor.js";
+import { runBuildPipeline, runEditor } from "./cursor.js";
 import {
   expiresAt,
   newId,
@@ -73,44 +73,11 @@ export function coverPathForSlug(slug: string): string {
 
 export { resolveGameTitle } from "./title.js";
 
-export async function createGameFromPrompt(
-  userPrompt: string,
-  owner: AuthUser
-): Promise<GameDoc> {
+async function executeGameBuild(game: GameDoc): Promise<void> {
   const store = await getStore();
-  const slugs = await store.listSlugs();
-  const baseSlug = slugify(userPrompt);
-  const slug = uniqueSlug(baseSlug, slugs);
-  const id = newId();
-  const now = nowIso();
-
-  const lockedTitle = await deriveLockedTitle(userPrompt);
-
-  let game: GameDoc = {
-    id,
-    slug,
-    title: lockedTitle,
-    titleLocked: true,
-    coverLocked: true,
-    ownerUid: owner.uid,
-    ownerEmail: owner.email,
-    status: "generating",
-    gameBuildStatus: "building",
-    coverStatus: "generating",
-    coverUrl: coverPathForSlug(slug),
-    userPrompt,
-    createdAt: now,
-    updatedAt: now,
-    expiresAt: expiresAt(config.draftTtlHours),
-  };
-  await store.saveGame(game);
-  await addChat(id, { role: "user", type: "prompt", text: userPrompt });
+  const { id, slug, userPrompt, title: lockedTitle } = game;
 
   try {
-    if (!isCursorConfigured()) {
-      throw new Error("CURSOR_API_KEY is not configured on the game API server");
-    }
-
     const coverInput = {
       title: lockedTitle,
       slug,
@@ -145,7 +112,7 @@ export async function createGameFromPrompt(
       text: revealText,
     });
 
-    game = await updateGame(game, {
+    await updateGame(game, {
       agentId: builderResult.agentId,
       gamePlan: builderResult.gamePlan,
       coverImageBase64: coverJpeg.toString("base64"),
@@ -153,18 +120,59 @@ export async function createGameFromPrompt(
       coverStatus: "ready",
       status: "ready",
     });
-    return game;
+    console.log(`Game build completed: ${id} (${slug})`);
   } catch (err) {
     const message = err instanceof Error ? err.message : "Generation failed";
-    game = await updateGame(game, {
+    const latest = (await store.getGame(id)) ?? game;
+    await updateGame(latest, {
       status: "failed",
       gameBuildStatus: "failed",
-      coverStatus: game.coverImageBase64 ? "ready" : "failed",
+      coverStatus: latest.coverImageBase64 ? "ready" : "failed",
       errorMessage: message,
     });
     await addChat(id, { role: "assistant", type: "error", text: message });
-    throw err;
+    console.error(`Game build failed for ${id}:`, message);
   }
+}
+
+/** Creates the draft and starts build in the background (returns immediately). */
+export async function startGameFromPrompt(
+  userPrompt: string,
+  owner: AuthUser
+): Promise<GameDoc> {
+  const store = await getStore();
+  const slugs = await store.listSlugs();
+  const baseSlug = slugify(userPrompt);
+  const slug = uniqueSlug(baseSlug, slugs);
+  const id = newId();
+  const now = nowIso();
+
+  const lockedTitle = await deriveLockedTitle(userPrompt);
+
+  const game: GameDoc = {
+    id,
+    slug,
+    title: lockedTitle,
+    titleLocked: true,
+    coverLocked: true,
+    ownerUid: owner.uid,
+    ownerEmail: owner.email,
+    status: "generating",
+    gameBuildStatus: "building",
+    coverStatus: "generating",
+    coverUrl: coverPathForSlug(slug),
+    userPrompt,
+    createdAt: now,
+    updatedAt: now,
+    expiresAt: expiresAt(config.draftTtlHours),
+  };
+  await store.saveGame(game);
+  await addChat(id, { role: "user", type: "prompt", text: userPrompt });
+
+  console.log(`Game build started: ${id} (${slug})`);
+  void executeGameBuild(game);
+
+  return game;
 }
 
 export async function listMyGames(ownerUid: string): Promise<GameDoc[]> {
@@ -172,7 +180,45 @@ export async function listMyGames(ownerUid: string): Promise<GameDoc[]> {
   return store.listByOwner(ownerUid);
 }
 
-export async function editGameDraft(
+async function executeGameEdit(
+  game: GameDoc,
+  userEdit: string,
+  gamePlan: string
+): Promise<void> {
+  const store = await getStore();
+  const gameId = game.id;
+
+  try {
+    const dir = workspaceDir(gameId);
+    await loadFilesToWorkspace(store, gameId, dir);
+    await runEditor(game.agentId!, dir, userEdit, gamePlan);
+    await syncWorkspaceToStore(store, gameId, dir);
+    const revealText = await summarizeEdit(
+      userEdit,
+      resolveGameTitle(game),
+      gamePlan
+    );
+    await addChat(gameId, { role: "assistant", type: "edit", text: revealText });
+    await updateGame(game, {
+      status: "ready",
+      gameBuildStatus: "ready",
+    });
+    console.log(`Game edit completed: ${gameId}`);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Edit failed";
+    const latest = (await store.getGame(gameId)) ?? game;
+    await updateGame(latest, {
+      status: "failed",
+      gameBuildStatus: "failed",
+      errorMessage: message,
+    });
+    await addChat(gameId, { role: "assistant", type: "error", text: message });
+    console.error(`Game edit failed for ${gameId}:`, message);
+  }
+}
+
+/** Queues an edit and returns immediately while the VM applies changes in the background. */
+export async function startEditGameDraft(
   gameId: string,
   userEdit: string,
   ownerUid: string
@@ -184,42 +230,23 @@ export async function editGameDraft(
   if (game.status === "published") {
     throw new Error("Published games cannot be edited");
   }
+  if (game.status === "generating") {
+    throw new Error("Game is still building — wait for it to finish");
+  }
   if (!game.agentId || !game.gamePlan) {
     throw new Error("Draft is missing agent session or plan");
   }
 
   await addChat(gameId, { role: "user", type: "edit", text: userEdit });
-  let updated = await updateGame(game, {
+  const updated = await updateGame(game, {
     status: "generating",
     gameBuildStatus: "building",
   });
 
-  try {
-    const dir = workspaceDir(gameId);
-    await loadFilesToWorkspace(store, gameId, dir);
-    await runEditor(game.agentId, dir, userEdit, game.gamePlan);
-    await syncWorkspaceToStore(store, gameId, dir);
-    const revealText = await summarizeEdit(
-      userEdit,
-      resolveGameTitle(game),
-      game.gamePlan
-    );
-    await addChat(gameId, { role: "assistant", type: "edit", text: revealText });
-    updated = await updateGame(updated, {
-      status: "ready",
-      gameBuildStatus: "ready",
-    });
-    return updated;
-  } catch (err) {
-    const message = err instanceof Error ? err.message : "Edit failed";
-    updated = await updateGame(updated, {
-      status: "failed",
-      gameBuildStatus: "failed",
-      errorMessage: message,
-    });
-    await addChat(gameId, { role: "assistant", type: "error", text: message });
-    throw err;
-  }
+  console.log(`Game edit started: ${gameId}`);
+  void executeGameEdit(updated, userEdit, game.gamePlan);
+
+  return updated;
 }
 
 export async function publishGame(gameId: string, ownerUid: string): Promise<GameDoc> {
