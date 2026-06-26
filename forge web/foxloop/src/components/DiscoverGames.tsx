@@ -88,10 +88,17 @@ export function DiscoverGames({
         </div>
 
         <div className="mt-20 text-center">
-          <h2 className="text-4xl font-bold sm:text-5xl">
+          <p className="text-sm font-medium uppercase tracking-widest text-orange-400">
+            Lite Catalog
+          </p>
+          <h2 className="mt-3 text-4xl font-bold sm:text-5xl">
             Forge Lite{" "}
             <span className="gradient-text-orange">Games</span>
           </h2>
+          <p className="mx-auto mt-4 max-w-xl text-muted">
+            Explore games in the Forge Lite catalog. Play them instantly, or
+            build something of your own above.
+          </p>
           <p className="mx-auto mt-3 max-w-lg text-sm text-muted">
             Play the catalog — showing {HOME_LITE_LIMIT}
             {liteCatalogSize != null ? ` of ${liteCatalogSize}+` : ""}
