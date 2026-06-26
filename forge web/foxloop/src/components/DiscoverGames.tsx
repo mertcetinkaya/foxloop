@@ -57,9 +57,6 @@ export function DiscoverGames({
     };
   }, [catalogVersion, initialCatalog]);
 
-  const liteCatalogSize =
-    liteTotal != null ? liteTotal - forgeGames.length : null;
-
   return (
     <section className="py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -98,10 +95,6 @@ export function DiscoverGames({
           <p className="mx-auto mt-4 max-w-xl text-muted">
             Explore games in the Forge Lite catalog. Play them instantly, or
             build something of your own above.
-          </p>
-          <p className="mx-auto mt-3 max-w-lg text-sm text-muted">
-            Play the catalog — showing {HOME_LITE_LIMIT}
-            {liteCatalogSize != null ? ` of ${liteCatalogSize}+` : ""}
           </p>
         </div>
 
