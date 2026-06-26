@@ -10,7 +10,7 @@ import { saveCatalogGamesBatch } from "../src/services/catalog-store.js";
 import type { CatalogGameDoc, CatalogKind } from "../src/types.js";
 import {
   assignTrafficSeed,
-  catalogSeededAt,
+  catalogSeededAtNow,
   wrathTrafficSeed,
   WRATH_SLUG,
 } from "../src/services/play-count.js";
@@ -54,7 +54,7 @@ function toCatalogDoc(
     playable: game.playable ?? true,
     trafficTier: traffic.trafficTier,
     playCountBase: traffic.playCountBase,
-    seededAt: catalogSeededAt(game.id),
+    seededAt: catalogSeededAtNow(),
     source: game.source,
     license: game.license,
   };

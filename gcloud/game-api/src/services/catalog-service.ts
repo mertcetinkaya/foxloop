@@ -201,10 +201,10 @@ export function trafficSeedForPublish(slug: string): {
   playCountBase: number;
   seededAt: string;
 } {
-  const { trafficTier, playCountBase } = assignTrafficSeed(slug);
+  const { trafficTier } = assignTrafficSeed(slug);
   return {
     trafficTier,
-    playCountBase,
+    playCountBase: 0,
     seededAt: new Date().toISOString(),
   };
 }

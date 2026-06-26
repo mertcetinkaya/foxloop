@@ -90,12 +90,9 @@ export function assignTrafficSeed(slug: string): {
   };
 }
 
-/** Catalog seed: backdate so play counts look established. */
-export function catalogSeededAt(slug: string): string {
-  const days = 45 + (hashSeed(slug, 42) % 76);
-  const d = new Date();
-  d.setUTCDate(d.getUTCDate() - days);
-  return d.toISOString();
+/** Catalog games: count hourly growth from seed time (base is the starting display). */
+export function catalogSeededAtNow(): string {
+  return new Date().toISOString();
 }
 
 export function numericPlayCount(playCountLabel: string): number {
