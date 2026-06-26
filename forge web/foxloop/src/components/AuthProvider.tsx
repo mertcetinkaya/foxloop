@@ -17,6 +17,7 @@ import {
   type User as FirebaseUser,
 } from "firebase/auth";
 import { getFirebaseAuth } from "@/lib/firebase";
+import { logLogin } from "@/lib/firebase-analytics";
 import { setAuthTokenGetter } from "@/lib/auth-token";
 import { loginInvited, recordLogin } from "@/lib/game-api";
 import type { AppUser, AuthProviderType } from "@/lib/auth-types";
@@ -111,6 +112,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const provider = new GoogleAuthProvider();
     await signInWithPopup(auth, provider);
     await recordLogin();
+    void logLogin("google");
   }, []);
 
   const signInWithInvited = useCallback(async (username: string, password: string) => {
@@ -124,6 +126,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     sessionStorage.setItem(INVITED_USER_KEY, JSON.stringify(result.user));
     setInvitedToken(result.token);
     setUser(result.user);
+    void logLogin("invited");
   }, []);
 
   const signOut = useCallback(async () => {
