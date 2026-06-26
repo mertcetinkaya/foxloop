@@ -4,6 +4,13 @@ import { config } from "../config.js";
 
 const COLLECTION = "catalogGames";
 
+/** Firestore rejects undefined field values. */
+function withoutUndefined<T extends object>(doc: T): T {
+  return Object.fromEntries(
+    Object.entries(doc).filter(([, value]) => value !== undefined)
+  ) as T;
+}
+
 function db(): Firestore {
   if (!config.gcpProject) {
     throw new Error("GOOGLE_CLOUD_PROJECT is not configured");
@@ -24,7 +31,10 @@ export async function getCatalogGameBySlug(
 }
 
 export async function saveCatalogGame(game: CatalogGameDoc): Promise<void> {
-  await db().collection(COLLECTION).doc(game.slug).set(game, { merge: true });
+  await db()
+    .collection(COLLECTION)
+    .doc(game.slug)
+    .set(withoutUndefined(game), { merge: true });
 }
 
 export async function saveCatalogGamesBatch(
@@ -35,9 +45,11 @@ export async function saveCatalogGamesBatch(
   for (let i = 0; i < games.length; i += batchSize) {
     const batch = firestore.batch();
     for (const game of games.slice(i, i + batchSize)) {
-      batch.set(firestore.collection(COLLECTION).doc(game.slug), game, {
-        merge: true,
-      });
+      batch.set(
+        firestore.collection(COLLECTION).doc(game.slug),
+        withoutUndefined(game),
+        { merge: true }
+      );
     }
     await batch.commit();
   }
