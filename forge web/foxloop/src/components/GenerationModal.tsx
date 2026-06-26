@@ -274,6 +274,13 @@ export function GenerationModal({
                 <div className="flex flex-col items-center gap-3 text-muted">
                   <Loader2 className="h-8 w-8 animate-spin text-orange-400" />
                   <p>{loadingMessage}</p>
+                  {(loadingKind === "generate" || loadingKind === "edit") && (
+                    <p className="mt-2 max-w-sm text-sm font-medium text-amber-300/95">
+                      {loadingKind === "edit"
+                        ? "Please keep this page open while your edit is being applied."
+                        : "Please keep this page open while your game is being built."}
+                    </p>
+                  )}
                   {game?.title && (
                     <p className="text-xs text-white/50">{game.title}</p>
                   )}
