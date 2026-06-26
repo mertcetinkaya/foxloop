@@ -1,9 +1,7 @@
 import type { Game } from "@/data/games";
 import type { CatalogResponse } from "@/lib/catalog";
+import { resolveGameApiBase } from "@/lib/game-api-base";
 import { publishedCoverUrl } from "@/lib/game-api";
-
-const BASE =
-  process.env.NEXT_PUBLIC_GAME_API_URL ?? "http://localhost:8001";
 
 export function normalizeCatalogGame(game: Game): Game {
   if (game.image?.startsWith("/games/by-slug/")) {
@@ -22,7 +20,7 @@ export function normalizeCatalogGame(game: Game): Game {
 /** Live catalog from game-api. Returns null when the API is unreachable. */
 export async function fetchCatalogFromApi(): Promise<CatalogResponse | null> {
   try {
-    const res = await fetch(`${BASE.replace(/\/$/, "")}/catalog`, {
+    const res = await fetch(`${resolveGameApiBase()}/catalog`, {
       cache: "no-store",
     });
     if (!res.ok) return null;

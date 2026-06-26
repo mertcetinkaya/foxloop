@@ -1,12 +1,14 @@
 import type { Game } from "@/data/games";
 import type { AppUser } from "@/lib/auth-types";
 import { getAuthIdToken } from "@/lib/auth-token";
-
-const BASE =
-  process.env.NEXT_PUBLIC_GAME_API_URL ?? "http://localhost:8001";
+import {
+  proxiedGameApiPath,
+  resolveGameApiBase,
+} from "@/lib/game-api-base";
 
 export function gameApiUrl(path: string): string {
-  return `${BASE.replace(/\/$/, "")}${path.startsWith("/") ? path : `/${path}`}`;
+  const base = resolveGameApiBase();
+  return `${base}${path.startsWith("/") ? path : `/${path}`}`;
 }
 
 export type GameStatus =
@@ -175,24 +177,37 @@ export function playUrlBySlug(slug: string): string {
   return gameApiUrl(`/games/by-slug/${encodeURIComponent(slug)}/play`);
 }
 
+function withPublishedVersion(url: string, publishedAt?: string): string {
+  if (!publishedAt) return url;
+  const sep = url.includes("?") ? "&" : "?";
+  return `${url}${sep}v=${encodeURIComponent(publishedAt)}`;
+}
+
 export function publishedCoverUrl(
   slug: string,
   image?: string,
   publishedAt?: string
 ): string {
-  let url: string;
   if (image?.startsWith("http://") || image?.startsWith("https://")) {
-    url = image;
-  } else if (image?.startsWith("/games/by-slug/")) {
-    url = gameApiUrl(image);
-  } else {
-    url = gameApiUrl(`/games/by-slug/${encodeURIComponent(slug)}/cover`);
+    try {
+      const parsed = new URL(image);
+      if (parsed.pathname.startsWith("/games/")) {
+        return withPublishedVersion(
+          proxiedGameApiPath(`${parsed.pathname}${parsed.search}`),
+          publishedAt
+        );
+      }
+    } catch {
+      /* external URL */
+    }
+    return withPublishedVersion(image, publishedAt);
   }
-  if (publishedAt) {
-    const sep = url.includes("?") ? "&" : "?";
-    return `${url}${sep}v=${encodeURIComponent(publishedAt)}`;
-  }
-  return url;
+
+  const path = image?.startsWith("/games/by-slug/")
+    ? image
+    : `/games/by-slug/${encodeURIComponent(slug)}/cover`;
+
+  return withPublishedVersion(proxiedGameApiPath(path), publishedAt);
 }
 
 export async function fetchCatalog(): Promise<import("@/lib/catalog").CatalogResponse> {

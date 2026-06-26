@@ -12,10 +12,20 @@ const nextConfig: NextConfig = {
     ];
   },
   async rewrites() {
+    const gameApi =
+      process.env.GAME_API_INTERNAL_URL ??
+      process.env.NEXT_PUBLIC_GAME_API_URL ??
+      "http://localhost:8001";
+    const gameApiBase = gameApi.replace(/\/$/, "");
+
     return [
       { source: "/privacypolicy", destination: "/privacypolicy.html" },
       { source: "/termsandconditions", destination: "/termsandconditions.html" },
+      { source: "/api/game/:path*", destination: `${gameApiBase}/:path*` },
     ];
+  },
+  images: {
+    unoptimized: true,
   },
 };
 

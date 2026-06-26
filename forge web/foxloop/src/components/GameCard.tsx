@@ -28,7 +28,9 @@ export function GameCard({ game, size = "default" }: GameCardProps) {
   }, [game.id, game.image]);
 
   const isRemoteImage =
-    imgSrc.startsWith("http://") || imgSrc.startsWith("https://");
+    imgSrc.startsWith("http://") ||
+    imgSrc.startsWith("https://") ||
+    imgSrc.startsWith("/api/game");
 
   const cardContent = (
     <>

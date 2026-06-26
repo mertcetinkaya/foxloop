@@ -67,6 +67,8 @@ foxloop/                          # git repo root
 
 Set `NEXT_PUBLIC_GAME_API_URL` to the GCloud API (e.g. `http://34.x.x.x:8001` or your domain).
 
+**Netlify (foxloop.ai):** also set `GAME_API_INTERNAL_URL` to the same VM URL. The browser uses same-origin `/api/game/*` (HTTPS proxy); SSR and rewrites use `GAME_API_INTERNAL_URL` to reach the VM. On the VM, set `CORS_ORIGINS=http://localhost:3000,https://foxloop.ai` in game-api `.env`.
+
 ## Adding a real waitlist later
 
 Add a Next.js API route (`POST /api/waitlist`) and a database (e.g. Supabase) to store emails before showing the same waitlist confirmation.
