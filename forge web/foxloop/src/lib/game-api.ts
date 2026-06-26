@@ -91,6 +91,19 @@ export async function loginInvited(
   return parseJson<{ token: string; user: AppUser }>(res);
 }
 
+/** Records a Google sign-in in Firestore (invited logins are recorded server-side). */
+export async function recordLogin(): Promise<void> {
+  try {
+    const res = await fetch(gameApiUrl("/auth/record-login"), {
+      method: "POST",
+      headers: await authHeaders(),
+    });
+    if (!res.ok) return;
+  } catch {
+    // Non-blocking — sign-in already succeeded.
+  }
+}
+
 function sleep(ms: number, signal?: AbortSignal): Promise<void> {
   return new Promise((resolve, reject) => {
     if (signal?.aborted) {

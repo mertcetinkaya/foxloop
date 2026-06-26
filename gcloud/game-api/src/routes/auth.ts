@@ -1,6 +1,8 @@
 import { Router } from "express";
 import { requireFirestore } from "../config.js";
 import { loginInvitedUser } from "../services/invited-users.js";
+import { recordLoginEvent } from "../services/login-events.js";
+import { requireAuth } from "../middleware/auth.js";
 
 export const authRouter = Router();
 
@@ -24,12 +26,20 @@ authRouter.post("/invited-login", async (req, res) => {
 
   try {
     const result = await loginInvitedUser(username, password);
+    const user = {
+      uid: result.user.uid,
+      email: result.user.email,
+      displayName: result.user.displayName ?? username,
+    };
+    await recordLoginEvent(user).catch((err) => {
+      console.error("Failed to record invited login event:", err);
+    });
     res.json({
       token: result.token,
       user: {
-        uid: result.user.uid,
-        displayName: result.user.displayName ?? username,
-        email: result.user.email ?? username,
+        uid: user.uid,
+        displayName: user.displayName ?? username,
+        email: user.email ?? username,
         photoURL: null,
         provider: "invited",
       },
@@ -37,5 +47,24 @@ authRouter.post("/invited-login", async (req, res) => {
   } catch (err) {
     const message = err instanceof Error ? err.message : "Login failed";
     res.status(401).json({ error: message });
+  }
+});
+
+authRouter.post("/record-login", requireAuth, async (req, res) => {
+  try {
+    requireFirestore();
+  } catch (err) {
+    res.status(503).json({
+      error: err instanceof Error ? err.message : "Firestore is not configured",
+    });
+    return;
+  }
+
+  try {
+    const event = await recordLoginEvent(req.authUser!);
+    res.status(201).json({ event });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Failed to record login";
+    res.status(500).json({ error: message });
   }
 });
