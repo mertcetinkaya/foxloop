@@ -16,6 +16,7 @@ import { buildPreviewFromGameId } from "../services/preview.js";
 import { isCursorConfigured } from "../services/cursor.js";
 import { sanitizeChatMessageForPlayer } from "../services/chat-summary.js";
 import { requireAuth, requireInvitedUser } from "../middleware/auth.js";
+import { playCountForGame } from "../services/play-count.js";
 
 export const gamesRouter = Router();
 
@@ -33,8 +34,23 @@ gamesRouter.get("/published", async (_req, res) => {
 
 gamesRouter.get("/mine", requireAuth, async (req, res) => {
   try {
-    const games = await listMyGames(req.authUser!.uid);
-    res.json({ games });
+    const [games, catalog] = await Promise.all([
+      listMyGames(req.authUser!.uid),
+      buildCatalogResponse(),
+    ]);
+    const catalogBySlug = new Map(catalog.games.map((g) => [g.id, g]));
+
+    res.json({
+      games: games.map((game) => {
+        const entry =
+          game.status === "published" ? catalogBySlug.get(game.slug) : undefined;
+        return {
+          ...game,
+          playCount: entry?.playCount ?? playCountForGame(game),
+          featured: entry?.featured ?? false,
+        };
+      }),
+    });
   } catch (err) {
     res.status(500).json({
       error: err instanceof Error ? err.message : "Failed to list games",

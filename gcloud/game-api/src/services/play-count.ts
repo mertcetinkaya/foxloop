@@ -60,6 +60,29 @@ export function formatPlayCount(count: number): string {
   return `${k.toFixed(1)} K`;
 }
 
+export function playCountForGame(game: {
+  slug: string;
+  status: string;
+  trafficTier?: TrafficTier;
+  playCountBase?: number;
+  seededAt?: string;
+}): string {
+  if (
+    game.status !== "published" ||
+    game.trafficTier == null ||
+    !game.seededAt
+  ) {
+    return "0";
+  }
+  const numeric = computePlayCount(
+    game.slug,
+    game.playCountBase ?? 0,
+    game.seededAt,
+    game.trafficTier
+  );
+  return formatPlayCount(numeric);
+}
+
 export function randomTierFromSlug(slug: string): 1 | 2 | 3 {
   const h = hashSeed(slug, 0);
   return ((h % 3) + 1) as 1 | 2 | 3;

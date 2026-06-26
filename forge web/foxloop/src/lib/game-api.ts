@@ -38,6 +38,8 @@ export interface ApiGame {
   gameBuildStatus?: PipelineStatus;
   coverStatus?: PipelineStatus;
   errorMessage?: string;
+  playCount?: string;
+  featured?: boolean;
 }
 
 export interface ChatMessage {

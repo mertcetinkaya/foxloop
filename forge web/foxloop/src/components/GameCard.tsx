@@ -9,6 +9,7 @@ import {
   placeholderCoverForSlug,
   resolveGameCoverImage,
 } from "@/lib/game-cover";
+import { playCountLabel, SpotlightBadge } from "@/components/SpotlightBadge";
 
 interface GameCardProps {
   game: Game;
@@ -55,11 +56,7 @@ export function GameCard({ game, size = "default" }: GameCardProps) {
           />
         )}
 
-        {game.featured && (
-          <div className="absolute left-3 top-3 flex items-center gap-1 rounded-full bg-pink-500/90 px-2.5 py-1 text-xs font-medium text-white">
-            <span>★</span> Spotlight
-          </div>
-        )}
+        {game.featured && <SpotlightBadge />}
 
         <div
           className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 ${
@@ -89,9 +86,7 @@ export function GameCard({ game, size = "default" }: GameCardProps) {
         <p
           className={`mt-1 text-muted ${isLarge ? "text-sm" : "text-xs"}`}
         >
-          {game.playCount === "0"
-            ? "0 plays"
-            : `${game.playCount} plays`}
+          {playCountLabel(game.playCount)}
         </p>
       </div>
     </>

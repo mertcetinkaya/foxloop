@@ -15,6 +15,7 @@ import {
   publishedCoverUrl,
   type ApiGame,
 } from "@/lib/game-api";
+import { playCountLabel, SpotlightBadge } from "@/components/SpotlightBadge";
 
 function statusLabel(status: ApiGame["status"]): string {
   switch (status) {
@@ -151,11 +152,12 @@ export function MyGamesPage() {
                   <span className="absolute left-3 top-3 rounded-full bg-black/60 px-2.5 py-1 text-xs font-medium text-white">
                     {statusLabel(game.status)}
                   </span>
+                  {game.featured && <SpotlightBadge />}
                 </div>
                 <div className="p-4">
                   <h2 className="font-semibold text-white">{game.title}</h2>
-                  <p className="mt-1 line-clamp-2 text-sm text-muted">
-                    {game.userPrompt}
+                  <p className="mt-1 text-sm text-muted">
+                    {playCountLabel(game.playCount)}
                   </p>
                   <div className="mt-4 flex gap-2">
                     {isExternalPlay(game) ? (
