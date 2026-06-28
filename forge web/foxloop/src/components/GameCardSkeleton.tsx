@@ -8,9 +8,7 @@ export function GameCardSkeleton({ size = "default" }: GameCardSkeletonProps) {
   return (
     <div className="animate-pulse">
       <div
-        className={`rounded-2xl border border-border bg-card ${
-          isLarge ? "aspect-[16/10]" : "aspect-[4/3]"
-        }`}
+        className="aspect-[16/10] rounded-2xl border border-border bg-card"
       />
       <div className={`mt-3 space-y-2 ${isLarge ? "max-w-[70%]" : "max-w-[60%]"}`}>
         <div className={`rounded bg-white/10 ${isLarge ? "h-5" : "h-4"}`} />

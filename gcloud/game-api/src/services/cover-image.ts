@@ -175,7 +175,7 @@ function drawTitle(ctx: CanvasRenderingContext2D, title: string, tagline: string
   ctx.font = "700 88px system-ui, -apple-system, Segoe UI, sans-serif";
   const lines = wrapLines(ctx, title.toUpperCase(), W * 0.78);
   const lineHeight = 96;
-  const startY = H * 0.38 - ((lines.length - 1) * lineHeight) / 2;
+  const startY = H * 0.58 - ((lines.length - 1) * lineHeight) / 2;
 
   for (let i = 0; i < lines.length; i++) {
     const y = startY + i * lineHeight;
@@ -187,7 +187,7 @@ function drawTitle(ctx: CanvasRenderingContext2D, title: string, tagline: string
 
   ctx.font = "600 28px system-ui, -apple-system, Segoe UI, sans-serif";
   ctx.fillStyle = "rgba(255,255,255,0.82)";
-  ctx.fillText(tagline.toUpperCase(), W / 2, H * 0.62);
+  ctx.fillText(tagline.toUpperCase(), W / 2, H * 0.78);
 
   ctx.font = "700 22px system-ui, -apple-system, Segoe UI, sans-serif";
   ctx.fillStyle = "rgba(255,255,255,0.55)";

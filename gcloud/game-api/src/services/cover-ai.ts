@@ -21,7 +21,8 @@ function templateCoverPrompt(input: CoverInput): string {
     "Hypercasual mobile game cover art for a store listing.",
     `Game idea: ${idea}.`,
     `Title text on the cover: "${title}".`,
-    "Vibrant 3D cartoon style, polished commercial game marketing quality, landscape composition.",
+    "Place the title in the lower third with clear margins — nothing cropped at the edges.",
+    "Vibrant 3D cartoon style, polished commercial game marketing quality, wide landscape composition.",
     "No watermarks, no UI buttons, no extra logos.",
   ].join(" ");
 }
@@ -33,7 +34,7 @@ function isGptImageModel(model: string): boolean {
 function buildImageRequestBody(model: string, prompt: string): Record<string, unknown> {
   const size = GPT_IMAGE_SIZES.has(config.openaiImageSize)
     ? config.openaiImageSize
-    : "1024x1024";
+    : "1536x1024";
   const quality = GPT_IMAGE_QUALITIES.has(config.openaiImageQuality)
     ? config.openaiImageQuality
     : "low";
@@ -94,7 +95,7 @@ async function requestOpenAiImage(model: string, prompt: string): Promise<Buffer
 
 async function resizeCoverToJpeg(image: Buffer): Promise<Buffer> {
   return sharp(image)
-    .resize(COVER_W, COVER_H, { fit: "cover", position: "centre" })
+    .resize(COVER_W, COVER_H, { fit: "cover", position: "attention" })
     .jpeg({ quality: 90 })
     .toBuffer();
 }

@@ -35,9 +35,7 @@ export function GameCard({ game, size = "default" }: GameCardProps) {
   const cardContent = (
     <>
       <div
-        className={`relative overflow-hidden rounded-2xl border border-border bg-card ${
-          isLarge ? "aspect-[16/10]" : "aspect-[4/3]"
-        }`}
+        className="relative aspect-[16/10] overflow-hidden rounded-2xl border border-border bg-card"
       >
         {isRemoteImage ? (
           // eslint-disable-next-line @next/next/no-img-element
