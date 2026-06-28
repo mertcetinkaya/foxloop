@@ -216,6 +216,10 @@ export function GenerationModal({
     }
   };
 
+  const handleClose = () => {
+    onClose();
+  };
+
   const handleCancel = async () => {
     if (game && game.status !== "published") {
       try {
@@ -276,7 +280,7 @@ export function GenerationModal({
             </div>
           </div>
           <button
-            onClick={() => void handleCancel()}
+            onClick={handleClose}
             className="rounded-full p-2 text-muted transition-colors hover:bg-white/5 hover:text-white"
             aria-label="Close"
           >

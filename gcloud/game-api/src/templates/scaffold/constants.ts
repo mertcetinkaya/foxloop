@@ -1,4 +1,8 @@
-/** Flat playfield — one calm background, no sky/starfield. */
+/**
+ * Shared UI tokens for draw-helpers.
+ * FIELD / FIELD_BORDER / FIELD_LINE are compile stubs only —
+ * the server overwrites them per game before the build agent runs.
+ */
 export const FIELD = "#1a5234";
 export const FIELD_BORDER = "#2a6b45";
 export const FIELD_LINE = "rgba(255,255,255,0.06)";

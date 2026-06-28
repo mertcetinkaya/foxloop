@@ -250,10 +250,8 @@ export function MyGamesPage() {
                                 <Loader2 className="h-4 w-4 animate-spin" />
                                 Publishing…
                               </span>
-                            ) : publishable ? (
-                              "Save to Forge Lite"
                             ) : (
-                              "It will be publishable shortly"
+                              "Save to Forge Lite"
                             )}
                           </button>
                         </>
