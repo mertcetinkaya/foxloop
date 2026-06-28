@@ -40,6 +40,7 @@ export interface ApiGame {
   coverLocked?: boolean;
   gameBuildStatus?: PipelineStatus;
   coverStatus?: PipelineStatus;
+  agentId?: string;
   errorMessage?: string;
   playCount?: string;
   featured?: boolean;
