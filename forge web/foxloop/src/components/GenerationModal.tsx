@@ -238,6 +238,10 @@ export function GenerationModal({
   const showBuildingPreview =
     Boolean(game) && !showPreview && game?.status !== "failed";
   const publishableSoon = Boolean(game && isGamePlayable(game) && !canPublish);
+  const waitingForEdit = Boolean(
+    game?.agentId &&
+      (loadingKind === "edit" || game.gameBuildStatus === "building")
+  );
 
   const loadingMessage =
     loadingKind === "edit"
@@ -369,7 +373,9 @@ export function GenerationModal({
                   placeholder={
                     canEdit
                       ? "Refine your game before publish…"
-                      : "Waiting for the first build…"
+                      : waitingForEdit
+                        ? "Waiting for your edit…"
+                        : "Waiting for the first build…"
                   }
                   disabled={!canEdit || loading}
                   rows={2}
