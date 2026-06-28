@@ -40,6 +40,8 @@ export const config = {
   draftTtlHours: Number(process.env.DRAFT_TTL_HOURS ?? 24),
   invitedJwtSecret:
     process.env.INVITED_JWT_SECRET ?? "foxloop-dev-invited-secret-change-me",
+  /** Local dev: skip Firestore loginEvents without disabling game saves. */
+  skipLoginEvents: process.env.SKIP_LOGIN_EVENTS === "true",
 };
 
 function parseCursorModelParams(

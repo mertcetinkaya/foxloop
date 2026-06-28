@@ -8,9 +8,12 @@ import {
   draftCoverUrl,
   editGame,
   fetchChat,
+  isGamePlayable,
+  isGamePublishable,
   previewTitleFromPrompt,
   previewUrl,
   publishGame,
+  waitForGamePreview,
   waitForGameReady,
   type ApiGame,
   type ChatMessage,
@@ -45,6 +48,7 @@ export function GenerationModal({
   const [previewKey, setPreviewKey] = useState(0);
   const startedRef = useRef(false);
   const pollAbortRef = useRef<AbortController | null>(null);
+  const publishPollRef = useRef<AbortController | null>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   const refreshChat = useCallback(async (gameId: string) => {
@@ -63,6 +67,24 @@ export function GenerationModal({
     setMessages((prev) => [...prev, entry]);
   }, []);
 
+  const startPublishPoll = useCallback((gameId: string) => {
+    publishPollRef.current?.abort();
+    const pubAbort = new AbortController();
+    publishPollRef.current = pubAbort;
+
+    void waitForGameReady(gameId, {
+      signal: pubAbort.signal,
+      onUpdate: async (updated) => {
+        setGame(updated);
+        await refreshChat(updated.id);
+      },
+    }).then((finished) => {
+      if (!pubAbort.signal.aborted) {
+        setGame(finished);
+      }
+    });
+  }, [refreshChat]);
+
   const runGenerate = useCallback(
     async (prompt: string) => {
       appendUserMessage(prompt);
@@ -71,6 +93,7 @@ export function GenerationModal({
       setError(null);
 
       pollAbortRef.current?.abort();
+      publishPollRef.current?.abort();
       const pollAbort = new AbortController();
       pollAbortRef.current = pollAbort;
 
@@ -79,7 +102,7 @@ export function GenerationModal({
         setGame(created);
         await refreshChat(created.id);
 
-        const finished = await waitForGameReady(created.id, {
+        const previewReady = await waitForGamePreview(created.id, {
           signal: pollAbort.signal,
           onUpdate: async (updated) => {
             setGame(updated);
@@ -87,12 +110,14 @@ export function GenerationModal({
           },
         });
 
-        setGame(finished);
-        if (finished.status === "failed") {
-          setError(finished.errorMessage ?? "Generation failed");
+        setGame(previewReady);
+        if (previewReady.status === "failed") {
+          setError(previewReady.errorMessage ?? "Generation failed");
         } else {
-          await refreshChat(finished.id);
           setPreviewKey((k) => k + 1);
+          if (!isGamePublishable(previewReady)) {
+            startPublishPoll(created.id);
+          }
         }
       } catch (err) {
         if (err instanceof DOMException && err.name === "AbortError") return;
@@ -102,13 +127,15 @@ export function GenerationModal({
         setLoadingKind(null);
       }
     },
-    [appendUserMessage, refreshChat]
+    [appendUserMessage, refreshChat, startPublishPoll]
   );
 
   useEffect(() => {
     if (!isOpen) {
       pollAbortRef.current?.abort();
       pollAbortRef.current = null;
+      publishPollRef.current?.abort();
+      publishPollRef.current = null;
       startedRef.current = false;
       setGame(null);
       setMessages([]);
@@ -136,6 +163,7 @@ export function GenerationModal({
     setError(null);
 
     pollAbortRef.current?.abort();
+    publishPollRef.current?.abort();
     const pollAbort = new AbortController();
     pollAbortRef.current = pollAbort;
 
@@ -144,7 +172,7 @@ export function GenerationModal({
       setGame(queued);
       await refreshChat(queued.id);
 
-      const finished = await waitForGameReady(queued.id, {
+      const previewReady = await waitForGamePreview(queued.id, {
         signal: pollAbort.signal,
         onUpdate: async (updated) => {
           setGame(updated);
@@ -152,12 +180,14 @@ export function GenerationModal({
         },
       });
 
-      setGame(finished);
-      if (finished.status === "failed") {
-        setError(finished.errorMessage ?? "Edit failed");
+      setGame(previewReady);
+      if (previewReady.status === "failed") {
+        setError(previewReady.errorMessage ?? "Edit failed");
       } else {
-        await refreshChat(finished.id);
         setPreviewKey((k) => k + 1);
+        if (!isGamePublishable(previewReady)) {
+          startPublishPoll(queued.id);
+        }
       }
     } catch (err) {
       if (err instanceof DOMException && err.name === "AbortError") return;
@@ -202,12 +232,12 @@ export function GenerationModal({
   const displayTitle =
     game?.title ?? (initialPrompt.trim() ? previewTitleFromPrompt(initialPrompt) : "Building your game");
 
-  const canEdit = game?.status === "ready";
-  const canPublish = game?.status === "ready";
-  const showPreview =
-    game?.status === "ready" || game?.status === "published";
+  const canEdit = Boolean(game && isGamePlayable(game) && game.status !== "failed");
+  const canPublish = Boolean(game && isGamePublishable(game));
+  const showPreview = Boolean(game && isGamePlayable(game) && game.status !== "failed");
   const showBuildingPreview =
     Boolean(game) && !showPreview && game?.status !== "failed";
+  const publishableSoon = Boolean(game && isGamePlayable(game) && !canPublish);
 
   const loadingMessage =
     loadingKind === "edit"
@@ -233,9 +263,11 @@ export function GenerationModal({
                     ? loadingKind === "publish"
                       ? "Saving to Forge Lite…"
                       : "Applying your edit…"
-                    : game?.status === "ready"
-                      ? "Preview, refine with prompts, then publish"
-                      : "Forge Lite studio"}
+                    : game && isGamePlayable(game) && !isGamePublishable(game)
+                      ? "Play in the preview — publish unlocks shortly"
+                      : game?.status === "ready"
+                        ? "Preview, refine with prompts, then publish"
+                        : "Forge Lite studio"}
               </p>
             </div>
           </div>
@@ -365,7 +397,11 @@ export function GenerationModal({
                   disabled={!canPublish || loading}
                   className="flex-1 rounded-full bg-gradient-to-r from-orange-500 to-pink-500 py-3 text-sm font-semibold text-white transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
                 >
-                  Save to Forge Lite
+                  {canPublish
+                    ? "Save to Forge Lite"
+                    : publishableSoon
+                      ? "It will be publishable shortly"
+                      : "Save to Forge Lite"}
                 </button>
                 <button
                   onClick={() => void handleCancel()}

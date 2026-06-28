@@ -12,7 +12,6 @@ import { drawGame } from "./renderer";
 const {
   createInitialState,
   updateGame,
-  restartLevel,
   setPointer,
 } = engine;
 
@@ -95,22 +94,9 @@ function loop(now) {
   updateGame(state, dt);
   drawGame(ctx, state, canvas.width, canvas.height);
 
-  if (state.status !== "playing") {
-    ctx.fillStyle = "rgba(0,0,0,0.45)";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = "#fff";
-    ctx.font = "700 28px system-ui";
-    ctx.textAlign = "center";
-    ctx.fillText(state.status === "won" ? "You Win!" : "Game Over", canvas.width / 2, canvas.height / 2 - 10);
-    ctx.font = "16px system-ui";
-    ctx.fillText("Score " + state.score, canvas.width / 2, canvas.height / 2 + 24);
-  }
-
   requestAnimationFrame(loop);
 }
 requestAnimationFrame(loop);
-
-document.getElementById("restart")?.addEventListener("click", () => restartLevel(state));
 `;
 
 export async function buildPreviewHtml(files: GameFile[]): Promise<string> {
@@ -145,14 +131,11 @@ export async function buildPreviewHtml(files: GameFile[]): Promise<string> {
   <title>Foxloop Preview</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body { width: 100%; height: 100%; background: #1a1035; overflow: hidden; }
+    html, body { width: 100%; height: 100%; background: #050810; overflow: hidden; }
     canvas { display: block; width: 100%; height: 100%; touch-action: none; outline: none; }
-    #bar { position: fixed; top: 8px; right: 8px; z-index: 2; }
-    #restart { background: #facc15; border: 0; border-radius: 999px; padding: 8px 14px; font-weight: 600; cursor: pointer; }
   </style>
 </head>
 <body>
-  <div id="bar"><button id="restart" type="button">Refresh</button></div>
   <canvas id="game"></canvas>
   <script type="module">${js}</script>
 </body>

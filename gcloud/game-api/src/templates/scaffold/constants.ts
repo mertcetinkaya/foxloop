@@ -1,11 +1,12 @@
-export const MAX_LIVES = 3;
-export const BG_TOP = "#1a1035";
-export const BG_BOTTOM = "#2a1f4e";
-export const ACCENT = "#facc15";
-export const PLAYER_COLOR = "#60a5fa";
-export const ENEMY_COLOR = "#f87171";
+/** Flat playfield — one calm background, no sky/starfield. */
+export const FIELD = "#1a5234";
+export const FIELD_BORDER = "#2a6b45";
+export const FIELD_LINE = "rgba(255,255,255,0.06)";
 
-export const PLAYER_RADIUS = 18;
-export const ENEMY_RADIUS = 14;
-export const ENEMY_SPEED = 140;
-export const SPAWN_MS = 900;
+export const WALL = "rgba(0,0,0,0.28)";
+export const WALL_STROKE = "rgba(255,255,255,0.12)";
+
+export const ACCENT = "#fbbf24";
+export const TEXT = "#f8fafc";
+export const TEXT_MUTED = "rgba(248,250,252,0.72)";
+export const PILL_BG = "rgba(15,23,42,0.78)";

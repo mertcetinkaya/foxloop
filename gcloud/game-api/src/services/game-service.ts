@@ -2,7 +2,6 @@ import type { GameDoc, ChatMessage } from "../types.js";
 import type { AuthUser } from "../middleware/auth.js";
 import { getStore, loadFilesToWorkspace, syncWorkspaceToStore } from "./store.js";
 import {
-  copyReferenceGamesToWorkspace,
   initWorkspaceFromScaffold,
   removeWorkspace,
   workspaceDir,
@@ -19,8 +18,11 @@ import { config, requireFirestore } from "../config.js";
 import { generateFallbackCoverJpeg } from "./cover-image.js";
 import { trafficSeedForPublish } from "./catalog-service.js";
 import { generateCoverForCreate } from "./cover-ai.js";
-import { summarizeEdit, summarizeGameReady } from "./chat-summary.js";
-import { deriveLockedTitle, resolveGameTitle } from "./title.js";
+import { formatEditMessage, formatGameReadyMessage } from "./chat-summary.js";
+import { cleanDisplayTitle, deriveLockedTitle, resolveGameTitle } from "./title.js";
+
+const PIPELINE_POLL_MS = 400;
+const TITLE_WAIT_MS = 2 * 60 * 1000;
 
 async function addChat(
   gameId: string,
@@ -58,69 +60,143 @@ async function updateGame(game: GameDoc, patch: Partial<GameDoc>) {
   return next;
 }
 
-export function assertGameOwner(game: GameDoc, ownerUid: string): void {
-  if (!game.ownerUid) {
-    throw new Error("Game has no owner");
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+export function isPublishable(game: GameDoc): boolean {
+  return (
+    game.gameBuildStatus === "ready" &&
+    game.coverStatus === "ready" &&
+    Boolean(game.titleLocked) &&
+    Boolean(game.coverImageBase64)
+  );
+}
+
+async function reconcilePublishableStatus(gameId: string): Promise<void> {
+  const store = await getStore();
+  const game = await store.getGame(gameId);
+  if (!game || game.status === "published" || game.status === "failed") {
+    return;
   }
-  if (game.ownerUid !== ownerUid) {
-    throw new Error("Not authorized to access this game");
+  if (isPublishable(game) && game.status !== "ready") {
+    await updateGame(game, { status: "ready" });
+    console.log(`Game publishable: ${gameId} (${game.slug})`);
   }
 }
 
-export function coverPathForSlug(slug: string): string {
-  return `/games/by-slug/${encodeURIComponent(slug)}/cover`;
+async function waitForLockedTitle(gameId: string): Promise<GameDoc | null> {
+  const deadline = Date.now() + TITLE_WAIT_MS;
+  while (Date.now() < deadline) {
+    const store = await getStore();
+    const game = await store.getGame(gameId);
+    if (!game) return null;
+    if (game.status === "failed") return null;
+    if (game.titleLocked) return game;
+    await sleep(PIPELINE_POLL_MS);
+  }
+  return null;
 }
 
-export { resolveGameTitle } from "./title.js";
+async function runTitlePipeline(gameId: string, userPrompt: string): Promise<void> {
+  const store = await getStore();
+  try {
+    const title = await deriveLockedTitle(userPrompt);
+    let game = await store.getGame(gameId);
+    if (!game || game.status === "failed") return;
+
+    game = await updateGame(game, { title, titleLocked: true });
+    await reconcilePublishableStatus(gameId);
+  } catch (err) {
+    console.error(`Title pipeline failed for ${gameId}:`, err);
+    const game = await store.getGame(gameId);
+    if (!game || game.status === "failed") return;
+    await updateGame(game, {
+      title: cleanDisplayTitle(userPrompt),
+      titleLocked: true,
+    });
+    await reconcilePublishableStatus(gameId);
+  }
+}
+
+async function runCoverPipeline(gameId: string, userPrompt: string): Promise<void> {
+  const store = await getStore();
+  try {
+    let game = await waitForLockedTitle(gameId);
+    if (!game) {
+      game = await store.getGame(gameId);
+      if (!game || game.status === "failed") return;
+      game = await updateGame(game, {
+        title: cleanDisplayTitle(userPrompt),
+        titleLocked: true,
+      });
+    }
+
+    const coverJpeg = await generateCoverForCreate({
+      title: game.title,
+      slug: game.slug,
+      userPrompt,
+      skipAgentPrompt: true,
+    });
+
+    game = (await store.getGame(gameId)) ?? game;
+    if (game.status === "failed") return;
+
+    await updateGame(game, {
+      coverImageBase64: coverJpeg.toString("base64"),
+      coverStatus: "ready",
+    });
+    await reconcilePublishableStatus(gameId);
+    console.log(`Cover ready: ${gameId} (${game.slug})`);
+  } catch (err) {
+    console.error(`Cover pipeline failed for ${gameId}:`, err);
+    const game = await store.getGame(gameId);
+    if (!game || game.status === "failed") return;
+
+    try {
+      const coverJpeg = await generateFallbackCoverJpeg({
+        title: resolveGameTitle(game),
+        slug: game.slug,
+        userPrompt,
+      });
+      await updateGame(game, {
+        coverImageBase64: coverJpeg.toString("base64"),
+        coverStatus: "ready",
+      });
+      await reconcilePublishableStatus(gameId);
+    } catch (fallbackErr) {
+      console.error(`Cover fallback failed for ${gameId}:`, fallbackErr);
+      await updateGame(game, { coverStatus: "failed" });
+    }
+  }
+}
 
 async function executeGameBuild(game: GameDoc): Promise<void> {
   const store = await getStore();
-  const { id, slug, userPrompt, title: lockedTitle } = game;
+  const { id, slug, userPrompt } = game;
 
   try {
-    const coverInput = {
-      title: lockedTitle,
-      slug,
-      userPrompt,
-      skipAgentPrompt: true,
-    };
+    const dir = await initWorkspaceFromScaffold(id);
+    const builderResult = await runBuildPipeline(dir, slug, userPrompt);
+    await syncWorkspaceToStore(store, id, dir);
 
-    const coverPromise = generateCoverForCreate(coverInput);
+    const latest = (await store.getGame(id)) ?? game;
+    const title = resolveGameTitle(latest);
 
-    const buildPromise = (async () => {
-      const dir = await initWorkspaceFromScaffold(id);
-      await copyReferenceGamesToWorkspace(dir);
-      const builderResult = await runBuildPipeline(dir, slug, userPrompt);
-      await syncWorkspaceToStore(store, id, dir);
-      return builderResult;
-    })();
-
-    const [coverJpeg, builderResult] = await Promise.all([
-      coverPromise,
-      buildPromise,
-    ]);
-
-    const revealText = await summarizeGameReady(
-      lockedTitle,
-      userPrompt,
-      builderResult.gamePlan
-    );
-
-    await addChat(id, {
-      role: "assistant",
-      type: "generation",
-      text: revealText,
-    });
-
-    await updateGame(game, {
+    await updateGame(latest, {
       agentId: builderResult.agentId,
       gamePlan: builderResult.gamePlan,
-      coverImageBase64: coverJpeg.toString("base64"),
       gameBuildStatus: "ready",
-      coverStatus: "ready",
-      status: "ready",
     });
-    console.log(`Game build completed: ${id} (${slug})`);
+    await reconcilePublishableStatus(id);
+
+    void addChat(id, {
+      role: "assistant",
+      type: "generation",
+      text: formatGameReadyMessage(title, builderResult.gamePlan),
+    });
+
+    console.log(`Game build playable: ${id} (${slug})`);
   } catch (err) {
     const message = err instanceof Error ? err.message : "Generation failed";
     const latest = (await store.getGame(id)) ?? game;
@@ -147,13 +223,11 @@ export async function startGameFromPrompt(
   const id = newId();
   const now = nowIso();
 
-  const lockedTitle = await deriveLockedTitle(userPrompt);
-
   const game: GameDoc = {
     id,
     slug,
-    title: lockedTitle,
-    titleLocked: true,
+    title: cleanDisplayTitle(userPrompt),
+    titleLocked: false,
     coverLocked: true,
     ownerUid: owner.uid,
     ownerEmail: owner.email,
@@ -170,6 +244,8 @@ export async function startGameFromPrompt(
   await addChat(id, { role: "user", type: "prompt", text: userPrompt });
 
   console.log(`Game build started: ${id} (${slug})`);
+  void runTitlePipeline(id, userPrompt);
+  void runCoverPipeline(id, userPrompt);
   void executeGameBuild(game);
 
   return game;
@@ -193,16 +269,17 @@ async function executeGameEdit(
     await loadFilesToWorkspace(store, gameId, dir);
     await runEditor(game.agentId!, dir, userEdit, gamePlan);
     await syncWorkspaceToStore(store, gameId, dir);
-    const revealText = await summarizeEdit(
-      userEdit,
-      resolveGameTitle(game),
-      gamePlan
-    );
-    await addChat(gameId, { role: "assistant", type: "edit", text: revealText });
-    await updateGame(game, {
-      status: "ready",
-      gameBuildStatus: "ready",
+
+    const latest = (await store.getGame(gameId)) ?? game;
+    await updateGame(latest, { gameBuildStatus: "ready" });
+    await reconcilePublishableStatus(gameId);
+
+    void addChat(gameId, {
+      role: "assistant",
+      type: "edit",
+      text: formatEditMessage(userEdit),
     });
+
     console.log(`Game edit completed: ${gameId}`);
   } catch (err) {
     const message = err instanceof Error ? err.message : "Edit failed";
@@ -230,8 +307,8 @@ export async function startEditGameDraft(
   if (game.status === "published") {
     throw new Error("Published games cannot be edited");
   }
-  if (game.status === "generating") {
-    throw new Error("Game is still building — wait for it to finish");
+  if (game.gameBuildStatus === "building") {
+    throw new Error("Game is still building — wait for the preview to load");
   }
   if (!game.agentId || !game.gamePlan) {
     throw new Error("Draft is missing agent session or plan");
@@ -256,6 +333,9 @@ export async function publishGame(gameId: string, ownerUid: string): Promise<Gam
   const game = await store.getGame(gameId);
   if (!game) throw new Error("Game not found");
   assertGameOwner(game, ownerUid);
+  if (!isPublishable(game)) {
+    throw new Error("Game is not ready to publish yet — wait a moment and try again");
+  }
   if (game.status !== "ready") {
     throw new Error("Game must be ready before publish");
   }
@@ -299,6 +379,21 @@ export async function publishGame(gameId: string, ownerUid: string): Promise<Gam
   });
   return updated;
 }
+
+export function assertGameOwner(game: GameDoc, ownerUid: string): void {
+  if (!game.ownerUid) {
+    throw new Error("Game has no owner");
+  }
+  if (game.ownerUid !== ownerUid) {
+    throw new Error("Not authorized to access this game");
+  }
+}
+
+export function coverPathForSlug(slug: string): string {
+  return `/games/by-slug/${encodeURIComponent(slug)}/cover`;
+}
+
+export { resolveGameTitle } from "./title.js";
 
 export async function getPublishedGameBySlug(slug: string): Promise<GameDoc> {
   const store = await getStore();

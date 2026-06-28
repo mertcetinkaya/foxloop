@@ -5,6 +5,7 @@ import {
   proxiedGameApiPath,
   resolveGameApiBase,
 } from "@/lib/game-api-base";
+import { isRemoteTelemetryEnabled } from "@/lib/remote-telemetry";
 
 export function gameApiUrl(path: string): string {
   const base = resolveGameApiBase();
@@ -70,6 +71,11 @@ async function authHeaders(json = false): Promise<HeadersInit> {
   return headers;
 }
 
+function skipLoginRecordingHeaders(): Record<string, string> {
+  if (isRemoteTelemetryEnabled()) return {};
+  return { "X-Skip-Login-Events": "1" };
+}
+
 export async function gameApiHealth(): Promise<boolean> {
   try {
     const res = await fetch(gameApiUrl("/health"));
@@ -85,7 +91,10 @@ export async function loginInvited(
 ): Promise<{ token: string; user: AppUser }> {
   const res = await fetch(gameApiUrl("/auth/invited-login"), {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      ...skipLoginRecordingHeaders(),
+    },
     body: JSON.stringify({ username, password }),
   });
   return parseJson<{ token: string; user: AppUser }>(res);
@@ -96,7 +105,10 @@ export async function recordLogin(): Promise<void> {
   try {
     const res = await fetch(gameApiUrl("/auth/record-login"), {
       method: "POST",
-      headers: await authHeaders(),
+      headers: {
+        ...(await authHeaders()),
+        ...skipLoginRecordingHeaders(),
+      },
     });
     if (!res.ok) return;
   } catch {
@@ -122,13 +134,34 @@ function sleep(ms: number, signal?: AbortSignal): Promise<void> {
   });
 }
 
+export function isGamePlayable(game: ApiGame): boolean {
+  return (
+    game.gameBuildStatus === "ready" ||
+    game.status === "ready" ||
+    game.status === "published"
+  );
+}
+
+export function isGamePublishable(game: ApiGame): boolean {
+  return game.status === "ready" || game.status === "published";
+}
+
 function isTerminalGameStatus(status: GameStatus): boolean {
   return status === "ready" || status === "failed" || status === "published";
 }
 
-/** Poll until build/edit finishes (avoids Netlify proxy timeout on long POST). */
-export async function waitForGameReady(
+function isPreviewReady(game: ApiGame): boolean {
+  return (
+    game.gameBuildStatus === "ready" ||
+    game.status === "ready" ||
+    game.status === "published" ||
+    game.status === "failed"
+  );
+}
+
+async function pollGame(
   id: string,
+  isDone: (game: ApiGame) => boolean,
   options?: {
     intervalMs?: number;
     timeoutMs?: number;
@@ -136,7 +169,7 @@ export async function waitForGameReady(
     onUpdate?: (game: ApiGame) => void | Promise<void>;
   }
 ): Promise<ApiGame> {
-  const intervalMs = options?.intervalMs ?? 2500;
+  const intervalMs = options?.intervalMs ?? 1000;
   const timeoutMs = options?.timeoutMs ?? 20 * 60 * 1000;
   const deadline = Date.now() + timeoutMs;
 
@@ -148,7 +181,7 @@ export async function waitForGameReady(
     const game = await fetchGame(id);
     await options?.onUpdate?.(game);
 
-    if (isTerminalGameStatus(game.status)) {
+    if (isDone(game)) {
       return game;
     }
 
@@ -158,6 +191,32 @@ export async function waitForGameReady(
 
     await sleep(intervalMs, options?.signal);
   }
+}
+
+/** Poll until the game is playable in the preview iframe. */
+export async function waitForGamePreview(
+  id: string,
+  options?: {
+    intervalMs?: number;
+    timeoutMs?: number;
+    signal?: AbortSignal;
+    onUpdate?: (game: ApiGame) => void | Promise<void>;
+  }
+): Promise<ApiGame> {
+  return pollGame(id, isPreviewReady, options);
+}
+
+/** Poll until publish is allowed (title + cover + build all done). */
+export async function waitForGameReady(
+  id: string,
+  options?: {
+    intervalMs?: number;
+    timeoutMs?: number;
+    signal?: AbortSignal;
+    onUpdate?: (game: ApiGame) => void | Promise<void>;
+  }
+): Promise<ApiGame> {
+  return pollGame(id, (game) => isTerminalGameStatus(game.status), options);
 }
 
 export async function createGame(prompt: string): Promise<ApiGame> {

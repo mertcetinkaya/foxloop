@@ -24,7 +24,7 @@ export function looksLikeCodeOrTechnical(text: string): boolean {
   );
 }
 
-function templateGameReady(title: string, plan: string): string {
+export function formatGameReadyMessage(title: string, plan: string): string {
   const genre = extractSection(plan, "Genre");
   const loop = extractSection(plan, "Core Loop");
   const controls = extractSection(plan, "Controls");
@@ -33,8 +33,8 @@ function templateGameReady(title: string, plan: string): string {
   const parts = [
     `I built ${title} for you!`,
     genre || loop
-      ? `It's a ${genre || "hypercasual"} game${loop ? ` — ${loop.split(".")[0]}` : ""}.`
-      : "It's a quick one-screen arcade game you can play right now.",
+      ? `It's a ${genre || "casual"} game${loop ? ` — ${loop.split(".")[0]}` : ""}.`
+      : "It's a quick one-screen game you can play right now.",
     controls
       ? `You'll play by ${controls.split(".")[0].toLowerCase()}.`
       : "Use your finger or mouse to control it.",
@@ -47,7 +47,7 @@ function templateGameReady(title: string, plan: string): string {
   return parts.join(" ");
 }
 
-function templateEditSummary(userEdit: string): string {
+export function formatEditMessage(userEdit: string): string {
   const short = userEdit.trim().slice(0, 120);
   return `Done! I updated the game based on your note: "${short}${userEdit.length > 120 ? "…" : ""}". Give the preview another spin and let me know if you want more tweaks.`;
 }
@@ -57,7 +57,7 @@ export async function summarizeGameReady(
   userPrompt: string,
   plan: string
 ): Promise<string> {
-  const fallback = templateGameReady(title, plan);
+  const fallback = formatGameReadyMessage(title, plan);
   if (!config.cursorApiKey) return fallback;
 
   const designNotes = stripFilePlan(plan).slice(0, 900);
@@ -94,45 +94,6 @@ export async function summarizeGameReady(
   return fallback;
 }
 
-export async function summarizeEdit(
-  userEdit: string,
-  title: string,
-  plan?: string
-): Promise<string> {
-  const fallback = templateEditSummary(userEdit);
-  if (!config.cursorApiKey) return fallback;
-
-  const planHint = plan ? stripFilePlan(plan).slice(0, 400) : "";
-
-  try {
-    const result = await Agent.prompt(
-      [
-        "You are a friendly game studio assistant. The player asked for a change to their game draft.",
-        "Confirm the update in 2–3 warm, simple sentences. Explain what changed in plain language.",
-        "Never mention code, files, TypeScript, or implementation details.",
-        "No markdown, no bullet lists.",
-        "",
-        `Game title: ${title}`,
-        `Player's change request: ${userEdit.trim().slice(0, 400)}`,
-        planHint ? `Game context:\n${planHint}` : "",
-      ].join("\n"),
-      {
-        apiKey: requireCursorKey(),
-        model: cursorModelSelection(),
-        local: { cwd: config.webRoot, settingSources: [] },
-      }
-    );
-
-    const text = result.result?.trim();
-    if (text && text.length > 10 && !looksLikeCodeOrTechnical(text)) {
-      return text.slice(0, 800);
-    }
-  } catch {
-    // fallback
-  }
-
-  return fallback;
-}
 
 /** Scrub legacy chat entries that exposed plans or agent code dumps. */
 export function sanitizeChatMessageForPlayer(

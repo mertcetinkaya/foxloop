@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowUp, ChevronDown } from "lucide-react";
+import { ArrowUp } from "lucide-react";
 
 interface PromptAreaProps {
   onSend: (prompt: string) => void;
@@ -35,18 +35,7 @@ export function PromptArea({ onSend }: PromptAreaProps) {
           className="w-full resize-none bg-transparent text-base text-white placeholder:text-muted focus:outline-none"
         />
 
-        <div className="mt-2 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              className="flex items-center gap-2 rounded-full border border-border px-3 py-1.5 text-sm text-muted transition-colors hover:bg-white/5 hover:text-white"
-            >
-              <span className="text-yellow-400">TS</span>
-              TypeScript
-              <ChevronDown className="h-3.5 w-3.5" />
-            </button>
-          </div>
-
+        <div className="mt-2 flex items-center justify-end">
           <button
             type="button"
             onClick={handleSend}

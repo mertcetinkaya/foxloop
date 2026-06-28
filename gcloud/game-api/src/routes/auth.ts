@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { requireFirestore } from "../config.js";
 import { loginInvitedUser } from "../services/invited-users.js";
-import { recordLoginEvent } from "../services/login-events.js";
+import { recordLoginEvent, shouldSkipLoginRecording } from "../services/login-events.js";
 import { requireAuth } from "../middleware/auth.js";
 
 export const authRouter = Router();
@@ -31,9 +31,11 @@ authRouter.post("/invited-login", async (req, res) => {
       email: result.user.email,
       displayName: result.user.displayName ?? username,
     };
-    await recordLoginEvent(user).catch((err) => {
-      console.error("Failed to record invited login event:", err);
-    });
+    if (!shouldSkipLoginRecording(req)) {
+      await recordLoginEvent(user).catch((err) => {
+        console.error("Failed to record invited login event:", err);
+      });
+    }
     res.json({
       token: result.token,
       user: {
@@ -61,6 +63,11 @@ authRouter.post("/record-login", requireAuth, async (req, res) => {
   }
 
   try {
+    if (shouldSkipLoginRecording(req)) {
+      res.status(204).end();
+      return;
+    }
+
     const event = await recordLoginEvent(req.authUser!);
     res.status(201).json({ event });
   } catch (err) {

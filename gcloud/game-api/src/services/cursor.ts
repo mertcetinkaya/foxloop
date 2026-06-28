@@ -6,14 +6,13 @@ import {
   EDIT_SYSTEM,
   buildEditPrompt,
   buildInitialBuildMessage,
-  buildPolishMessage,
-  buildVerifyMessage,
 } from "./prompts.js";
 
-function localAgentOptions() {
+/** Isolate the agent to the draft workspace only (no repo-wide reads). */
+function localAgentOptions(workspaceDir: string) {
   return {
-    cwd: config.webRoot,
-    settingSources: ["project"] as ("project")[],
+    cwd: workspaceDir,
+    settingSources: [] as [],
   };
 }
 
@@ -53,19 +52,13 @@ export async function runBuildPipeline(
     await using agent = await Agent.create({
       apiKey,
       model: cursorModelSelection(),
-      local: localAgentOptions(),
+      local: localAgentOptions(workspaceDir),
     });
 
-    const turn1 = await agent.send({
+    const run = await agent.send({
       text: `${BUILDER_SYSTEM}\n\n${buildInitialBuildMessage(workspaceDir, slug, userPrompt)}`,
     });
-    const planText = await collectRunText(turn1);
-
-    const turn2 = await agent.send(buildPolishMessage(workspaceDir));
-    await collectRunText(turn2);
-
-    const turn3 = await agent.send(buildVerifyMessage(workspaceDir));
-    await collectRunText(turn3);
+    const planText = await collectRunText(run);
 
     return {
       agentId: agent.agentId,
@@ -91,7 +84,7 @@ export async function runEditor(
     await using agent = await Agent.resume(agentId, {
       apiKey,
       model: cursorModelSelection(),
-      local: localAgentOptions(),
+      local: localAgentOptions(workspaceDir),
     });
 
     const run = await agent.send(
@@ -107,29 +100,29 @@ export async function runEditor(
 }
 
 function fallbackPlan(userPrompt: string): string {
-  const title = userPrompt.slice(0, 40) || "Hyper Dash";
+  const title = userPrompt.slice(0, 40) || "Custom Game";
   return `# ${title}
 
 ## Genre
-Hypercasual dodge / survival
+Based on the player's idea
 
 ## Core Loop
-Survive as long as possible, score increases over time.
+Playable one-screen game matching the prompt.
 
 ## Controls
-Move player with mouse or finger.
+Pointer/touch and keyboard where appropriate.
 
 ## Mechanics
-Enemies spawn from sides; collision costs a life; reach score 500 to win.
+Faithful to what the player described.
 
 ## Visual Style
-Polished 2D canvas — gradients, particles, depth, parallax (like Eat the Smaller Fish).
+Flat playfield, few objects, minimal top HUD.
 
 ## UI/HUD
-Score top-left, lives top-right, hint text bottom.
+drawMinimalHud only; hint pill only if needed.
 
 ## Win/Lose
-Win at 500 score; lose when lives reach 0.
+Clear win and lose conditions for this genre.
 
 ## File Plan
 engine.ts, renderer.ts, types.ts, constants.ts`;
