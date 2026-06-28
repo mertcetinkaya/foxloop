@@ -20,6 +20,7 @@ import { trafficSeedForPublish } from "./catalog-service.js";
 import { generateCoverForCreate } from "./cover-ai.js";
 import { formatEditMessage, formatGameReadyMessage } from "./chat-summary.js";
 import { cleanDisplayTitle, deriveLockedTitle, resolveGameTitle } from "./title.js";
+import { pickPlayfieldTheme, writePlayfieldConstants } from "./playfield-theme.js";
 
 const PIPELINE_POLL_MS = 400;
 const TITLE_WAIT_MS = 2 * 60 * 1000;
@@ -176,7 +177,11 @@ async function executeGameBuild(game: GameDoc): Promise<void> {
   const { id, slug, userPrompt } = game;
 
   try {
+    const palette = await pickPlayfieldTheme(userPrompt);
     const dir = await initWorkspaceFromScaffold(id);
+    await writePlayfieldConstants(dir, palette);
+    console.log(`Playfield theme for ${id}: ${palette.theme}`);
+
     const builderResult = await runBuildPipeline(dir, slug, userPrompt);
     await syncWorkspaceToStore(store, id, dir);
 

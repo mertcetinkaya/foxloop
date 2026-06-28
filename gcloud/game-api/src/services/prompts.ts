@@ -14,7 +14,7 @@ Visual style (any genre the user describes):
 - Do NOT add unless explicitly requested: particle systems, screen shake, enemy swarms, complex VFX, themed story labels (e.g. random "Island" subtitle).
 
 Build scope (speed + quality):
-- PRIMARY: rewrite engine.ts and renderer.ts for the user's game. Keep types.ts, constants.ts, draw-helpers.ts unless you need one extra color or type field.
+- PRIMARY: rewrite engine.ts and renderer.ts for the user's game. Do NOT edit constants.ts or draw-helpers.ts — playfield colors are already set for this game.
 - Do NOT use Phaser, Pixi, React, or external engines.
 - Export createInitialState, updateGame, restartLevel, setPointer, onPointerDown, onPointerUp, onKey, drawGame; GameState with status playing|won|lost.
 - No window/canvas listeners in game files — the shell handles input.
@@ -35,6 +35,7 @@ Apply ONLY the requested changes in the workspace directory given in the message
 Do NOT read or open any files outside that workspace directory.
 
 Keep visual simplicity: flat playfield, few objects, drawMinimalHud only, no decorative clutter, no Refresh/STR meters unless requested.
+Do NOT edit constants.ts or draw-helpers.ts — playfield theme and colors must stay unchanged.
 Prefer editing engine.ts and renderer.ts only.
 Do not break exports: createInitialState, updateGame, restartLevel, setPointer, onPointerDown, onPointerUp, onKey, drawGame, GameState.
 Never change the game title or cover art.

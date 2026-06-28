@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Loader2, Trash2, Play } from "lucide-react";
 import { Header } from "@/components/Header";
@@ -11,11 +11,19 @@ import {
   deleteGame,
   draftCoverUrl,
   fetchMyGames,
+  isGamePlayable,
+  isGamePublishable,
   previewUrl,
+  publishGame,
   publishedCoverUrl,
   type ApiGame,
 } from "@/lib/game-api";
 import { playCountLabel, SpotlightBadge } from "@/components/SpotlightBadge";
+
+const POLL_MS = 4000;
+
+const publishGradientClass =
+  "rounded-full bg-gradient-to-r from-orange-500 to-pink-500 py-2.5 text-sm font-semibold text-white transition-opacity disabled:cursor-not-allowed disabled:opacity-40";
 
 function statusLabel(status: ApiGame["status"]): string {
   switch (status) {
@@ -33,16 +41,26 @@ function statusLabel(status: ApiGame["status"]): string {
   }
 }
 
+function needsStatusPoll(games: ApiGame[]): boolean {
+  return games.some(
+    (game) => game.status !== "published" && game.status !== "failed"
+  );
+}
+
 export function MyGamesPage() {
   const { user, loading: authLoading } = useAuth();
   const [games, setGames] = useState<ApiGame[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [publishingId, setPublishingId] = useState<string | null>(null);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
+  const pollBusyRef = useRef(false);
+  const gamesRef = useRef(games);
+  gamesRef.current = games;
 
-  const loadGames = useCallback(async () => {
-    setLoading(true);
+  const refreshGames = useCallback(async (showLoading = false) => {
+    if (showLoading) setLoading(true);
     setError(null);
     try {
       const list = await fetchMyGames();
@@ -50,7 +68,7 @@ export function MyGamesPage() {
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load games");
     } finally {
-      setLoading(false);
+      if (showLoading) setLoading(false);
     }
   }, []);
 
@@ -61,8 +79,22 @@ export function MyGamesPage() {
       setIsLoginOpen(true);
       return;
     }
-    void loadGames();
-  }, [user, authLoading, loadGames]);
+    void refreshGames(true);
+  }, [user, authLoading, refreshGames]);
+
+  useEffect(() => {
+    if (!user) return;
+
+    const id = window.setInterval(() => {
+      if (!needsStatusPoll(gamesRef.current) || pollBusyRef.current) return;
+      pollBusyRef.current = true;
+      void refreshGames(false).finally(() => {
+        pollBusyRef.current = false;
+      });
+    }, POLL_MS);
+
+    return () => window.clearInterval(id);
+  }, [user, refreshGames]);
 
   const handleDelete = async (game: ApiGame) => {
     const confirmed = window.confirm(
@@ -82,6 +114,22 @@ export function MyGamesPage() {
     }
   };
 
+  const handlePublish = async (game: ApiGame) => {
+    if (!isGamePublishable(game) || publishingId) return;
+    setPublishingId(game.id);
+    setError(null);
+    try {
+      const published = await publishGame(game.id);
+      setGames((prev) =>
+        prev.map((entry) => (entry.id === game.id ? published : entry))
+      );
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Publish failed");
+    } finally {
+      setPublishingId(null);
+    }
+  };
+
   const coverForGame = (game: ApiGame) => {
     if (game.status === "published") {
       return publishedCoverUrl(game.slug, game.coverUrl, undefined);
@@ -95,8 +143,6 @@ export function MyGamesPage() {
     }
     return previewUrl(game.id);
   };
-
-  const isExternalPlay = (game: ApiGame) => game.status !== "published";
 
   return (
     <>
@@ -137,65 +183,103 @@ export function MyGamesPage() {
           </div>
         ) : (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {games.map((game) => (
-              <div
-                key={game.id}
-                className="overflow-hidden rounded-2xl border border-border bg-card"
-              >
-                <div className="relative aspect-[16/10] bg-[#1a1035]">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={coverForGame(game)}
-                    alt={game.title}
-                    className="h-full w-full object-cover"
-                  />
-                  <span className="absolute left-3 top-3 rounded-full bg-black/60 px-2.5 py-1 text-xs font-medium text-white">
-                    {statusLabel(game.status)}
-                  </span>
-                  {game.featured && <SpotlightBadge />}
-                </div>
-                <div className="p-4">
-                  <h2 className="font-semibold text-white">{game.title}</h2>
-                  <p className="mt-1 text-sm text-muted">
-                    {playCountLabel(game.playCount)}
-                  </p>
-                  <div className="mt-4 flex gap-2">
-                    {isExternalPlay(game) ? (
-                      <a
-                        href={playHref(game)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex flex-1 items-center justify-center gap-2 rounded-full bg-white py-2.5 text-sm font-semibold text-black"
-                      >
-                        <Play className="h-4 w-4" />
-                        Preview
-                      </a>
-                    ) : (
-                      <Link
-                        href={playHref(game)}
-                        className="flex flex-1 items-center justify-center gap-2 rounded-full bg-white py-2.5 text-sm font-semibold text-black"
-                      >
-                        <Play className="h-4 w-4" />
-                        Play
-                      </Link>
-                    )}
-                    <button
-                      type="button"
-                      onClick={() => void handleDelete(game)}
-                      disabled={deletingId === game.id}
-                      className="flex items-center justify-center rounded-full border border-border px-4 py-2.5 text-muted transition-colors hover:border-red-500/50 hover:text-red-400 disabled:opacity-50"
-                      aria-label="Delete game"
-                    >
-                      {deletingId === game.id ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
+            {games.map((game) => {
+              const playable = isGamePlayable(game);
+              const publishable = isGamePublishable(game);
+              const isPublishing = publishingId === game.id;
+
+              return (
+                <div
+                  key={game.id}
+                  className="overflow-hidden rounded-2xl border border-border bg-card"
+                >
+                  <div className="relative aspect-[16/10] bg-[#1a1035]">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={coverForGame(game)}
+                      alt={game.title}
+                      className="h-full w-full object-cover"
+                    />
+                    <span className="absolute left-3 top-3 rounded-full bg-black/60 px-2.5 py-1 text-xs font-medium text-white">
+                      {statusLabel(game.status)}
+                    </span>
+                    {game.featured && <SpotlightBadge />}
+                  </div>
+                  <div className="p-4">
+                    <h2 className="font-semibold text-white">{game.title}</h2>
+                    <p className="mt-1 text-sm text-muted">
+                      {playCountLabel(game.playCount)}
+                    </p>
+                    <div className="mt-4 flex gap-2">
+                      {game.status === "published" ? (
+                        <Link
+                          href={playHref(game)}
+                          className="flex flex-1 items-center justify-center gap-2 rounded-full bg-white py-2.5 text-sm font-semibold text-black"
+                        >
+                          <Play className="h-4 w-4" />
+                          Play
+                        </Link>
                       ) : (
-                        <Trash2 className="h-4 w-4" />
+                        <>
+                          {playable ? (
+                            <a
+                              href={playHref(game)}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex min-w-0 flex-1 items-center justify-center gap-2 rounded-full bg-white py-2.5 text-sm font-semibold text-black"
+                            >
+                              <Play className="h-4 w-4 shrink-0" />
+                              Preview
+                            </a>
+                          ) : (
+                            <span className="flex min-w-0 flex-1 cursor-not-allowed items-center justify-center gap-2 rounded-full bg-white py-2.5 text-sm font-semibold text-black opacity-40">
+                              <Play className="h-4 w-4 shrink-0" />
+                              Preview
+                            </span>
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => void handlePublish(game)}
+                            disabled={
+                              !publishable || isPublishing || deletingId === game.id
+                            }
+                            className={`min-w-0 flex-1 ${publishGradientClass}`}
+                          >
+                            {isPublishing ? (
+                              <span className="inline-flex items-center justify-center gap-2">
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                                Publishing…
+                              </span>
+                            ) : publishable ? (
+                              "Save to Forge Lite"
+                            ) : (
+                              "It will be publishable shortly"
+                            )}
+                          </button>
+                        </>
                       )}
-                    </button>
+                      <button
+                        type="button"
+                        onClick={() => void handleDelete(game)}
+                        disabled={
+                          deletingId === game.id ||
+                          isPublishing ||
+                          publishingId !== null
+                        }
+                        className="flex shrink-0 items-center justify-center rounded-full border border-border px-4 py-2.5 text-muted transition-colors hover:border-red-500/50 hover:text-red-400 disabled:opacity-50"
+                        aria-label="Delete game"
+                      >
+                        {deletingId === game.id ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Trash2 className="h-4 w-4" />
+                        )}
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </main>
@@ -204,7 +288,7 @@ export function MyGamesPage() {
       <LoginModal
         isOpen={isLoginOpen}
         onClose={() => setIsLoginOpen(false)}
-        onSuccess={() => void loadGames()}
+        onSuccess={() => void refreshGames(true)}
       />
     </>
   );
