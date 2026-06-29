@@ -21,17 +21,6 @@
   status = 200
 
 [[redirects]]
-  from = "/war-game.html"
-  to = "/war-game"
-  status = 301
-  force = true
-
-[[redirects]]
-  from = "/war-game"
-  to = "/war-game.html"
-  status = 200
-
-[[redirects]]
   from = "/privacy"
   to = "/privacypolicy"
   status = 301

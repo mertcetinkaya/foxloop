@@ -8,7 +8,7 @@ const nextConfig: NextConfig = {
       { source: "/privacy", destination: "/privacypolicy", permanent: false },
       { source: "/terms", destination: "/termsandconditions", permanent: false },
       { source: "/forge-demo", destination: "/forge-demo.html", permanent: false },
-      { source: "/war-game", destination: "/war-game.html", permanent: false },
+      { source: "/war-game.html", destination: "/war-game", permanent: true },
     ];
   },
   async rewrites() {
